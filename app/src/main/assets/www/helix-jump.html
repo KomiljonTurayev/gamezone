@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Helix Jump</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #090032; font-family: sans-serif; touch-action: none; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        #ui { position: fixed; top: 20px; width: 100%; text-align: center; color: white; font-size: 30px; font-weight: bold; pointer-events: none; }
+        #msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 20px; text-align: center; display: none; }
+        button { background: #A78BFA; border: none; color: white; padding: 10px 20px; border-radius: 10px; font-size: 20px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div id="ui">0</div>
+    <div id="msg">
+        <h1>GAME OVER</h1>
+        <button onclick="reset()">Restart</button>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const ui = document.getElementById('ui');
+        const msg = document.getElementById('msg');
+
+        let score = 0, rotation = 0, ballY = 200, ballVY = 0;
+        let platforms = [], gameOver = false;
+        const gravity = 0.25, jumpForce = -7;
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            platforms = [];
+            for (let i = 0; i < 100; i++) {
+                platforms.push({
+                    y: 400 + i * 200,
+                    gap: Math.random() * Math.PI * 2,
+                    color: `hsl(${(i * 40) % 360}, 70%, 60%)`
+                });
+            }
+        }
+
+        function draw() {
+            if (gameOver) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Cylinder
+            ctx.fillStyle = '#1a1a4a';
+            ctx.fillRect(canvas.width/2 - 30, 0, 60, canvas.height);
+
+            const camY = ballY - 200;
+
+            platforms.forEach((p, idx) => {
+                const screenY = p.y - camY;
+                if (screenY < -50 || screenY > canvas.height + 50) return;
+
+                ctx.save();
+                ctx.translate(canvas.width/2, screenY);
+                ctx.rotate(rotation);
+
+                for (let a = 0; a < Math.PI * 2; a += 0.2) {
+                    const relativeA = (a + rotation) % (Math.PI * 2);
+                    const isGap = Math.abs(a - p.gap) < 0.6;
+                    if (!isGap) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = p.color;
+                        ctx.lineWidth = 15;
+                        ctx.arc(0, 0, 100, a, a + 0.25);
+                        ctx.stroke();
+                    }
+                }
+                ctx.restore();
+
+                // Collision
+                if (Math.abs(ballY - p.y) < 10 && ballVY > 0) {
+                    const angle = ((-rotation) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+                    const diff = Math.abs(angle - p.gap);
+                    if (diff < 0.5 || diff > Math.PI * 2 - 0.5) {
+                        // Pass through
+                    } else {
+                        ballVY = jumpForce;
+                        ballY = p.y - 10;
+                    }
+                }
+
+                if (ballY > p.y + 20 && idx >= score) {
+                    score = idx + 1;
+                    ui.textContent = score;
+                }
+            });
+
+            // Ball
+            ballVY += gravity;
+            ballY += ballVY;
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(canvas.width/2, 200, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (ballY > platforms[platforms.length-1].y + 500) endGame();
+
+            requestAnimationFrame(draw);
+        }
+
+        function endGame() {
+            gameOver = true;
+            msg.style.display = 'block';
+            if(window.parent && window.parent.__gameEnd) window.parent.__gameEnd();
+        }
+
+        function reset() {
+            score = 0; ballY = 200; ballVY = 0; rotation = 0;
+            gameOver = false; msg.style.display = 'none';
+            ui.textContent = '0';
+            init();
+            draw();
+        }
+
+        let lastX = 0;
+        window.addEventListener('touchstart', e => lastX = e.touches[0].clientX);
+        window.addEventListener('touchmove', e => {
+            const dx = e.touches[0].clientX - lastX;
+            rotation += dx * 0.01;
+            lastX = e.touches[0].clientX;
+        });
+
+        window.addEventListener('mousedown', e => lastX = e.clientX);
+        window.addEventListener('mousemove', e => {
+            if (e.buttons === 1) {
+                rotation += (e.clientX - lastX) * 0.01;
+                lastX = e.clientX;
+            }
+        });
+
+        init();
+        draw();
+    </script>
+</body>
+</html>

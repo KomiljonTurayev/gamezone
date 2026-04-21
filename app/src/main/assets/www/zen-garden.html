@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zen Garden</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #001808; font-family: sans-serif; touch-action: none; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        #ui { position: fixed; bottom: 20px; width: 100%; text-align: center; color: rgba(255,255,255,0.5); font-size: 14px; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="ui">Draw on the sand to relax</div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Draw sand texture
+            ctx.fillStyle = '#c2b280';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for(let i=0; i<5000; i++) {
+                ctx.fillStyle = 'rgba(0,0,0,0.05)';
+                ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 1, 1);
+            }
+        }
+
+        function draw(x, y) {
+            if (!drawing) return;
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, 16, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        window.addEventListener('touchstart', e => { drawing = true; draw(e.touches[0].clientX, e.touches[0].clientY); });
+        window.addEventListener('touchmove', e => { draw(e.touches[0].clientX, e.touches[0].clientY); });
+        window.addEventListener('touchend', () => drawing = false);
+
+        window.addEventListener('mousedown', e => { drawing = true; draw(e.clientX, e.clientY); });
+        window.addEventListener('mousemove', e => { draw(e.clientX, e.clientY); });
+        window.addEventListener('mouseup', () => drawing = false);
+
+        init();
+    </script>
+</body>
+</html>

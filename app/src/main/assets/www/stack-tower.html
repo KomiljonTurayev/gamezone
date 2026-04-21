@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stack Tower</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #111; font-family: sans-serif; color: white; touch-action: none; }
+        #game { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+        .block { position: absolute; height: 40px; background: #6366F1; border: 2px solid rgba(255,255,255,0.2); box-sizing: border-box; transition: transform 0.1s; }
+        #score { position: fixed; top: 20px; left: 0; width: 100%; text-align: center; font-size: 40px; font-weight: bold; z-index: 10; pointer-events: none; }
+        #msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; display: none; z-index: 20; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 20px; }
+        button { background: #6366F1; border: none; color: white; padding: 10px 20px; border-radius: 10px; font-size: 20px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div id="score">0</div>
+    <div id="msg">
+        <h1 id="res">GAME OVER</h1>
+        <button onclick="reset()">Play Again</button>
+    </div>
+    <div id="game"></div>
+
+    <script>
+        const game = document.getElementById('game');
+        const scoreEl = document.getElementById('score');
+        const msg = document.getElementById('msg');
+        let score = 0;
+        let width = 150;
+        let currentBlock;
+        let direction = 1;
+        let speed = 2;
+        let blocks = [];
+        let gameOver = false;
+        let offset = 0;
+
+        function createBlock() {
+            const b = document.createElement('div');
+            b.className = 'block';
+            b.style.width = width + 'px';
+            b.style.bottom = (blocks.length * 40) + 'px';
+            b.style.left = '0px';
+
+            // Random color
+            const hue = (score * 10) % 360;
+            b.style.backgroundColor = `hsl(${hue}, 70%, 60%)`;
+
+            game.appendChild(b);
+            currentBlock = { el: b, x: 0, w: width };
+            if (blocks.length > 5) {
+                offset -= 40;
+                game.style.transform = `translateY(${offset}px)`;
+            }
+        }
+
+        function step() {
+            if (gameOver) return;
+            currentBlock.x += direction * speed;
+            if (currentBlock.x + currentBlock.w > window.innerWidth || currentBlock.x < 0) {
+                direction *= -1;
+            }
+            currentBlock.el.style.left = currentBlock.x + 'px';
+            requestAnimationFrame(step);
+        }
+
+        function place() {
+            if (gameOver) return;
+
+            if (blocks.length > 0) {
+                const prev = blocks[blocks.length - 1];
+                const diff = currentBlock.x - prev.x;
+
+                if (Math.abs(diff) >= currentBlock.w) {
+                    endGame();
+                    return;
+                }
+
+                // Trim block
+                if (diff > 0) {
+                    currentBlock.w -= diff;
+                } else {
+                    currentBlock.w += diff;
+                    currentBlock.x = prev.x;
+                }
+
+                width = currentBlock.w;
+                currentBlock.el.style.width = width + 'px';
+                currentBlock.el.style.left = currentBlock.x + 'px';
+            }
+
+            blocks.push({ x: currentBlock.x, w: currentBlock.w });
+            score++;
+            scoreEl.textContent = score;
+            speed += 0.1;
+            createBlock();
+        }
+
+        function endGame() {
+            gameOver = true;
+            msg.style.display = 'block';
+            if(window.parent && window.parent.__gameEnd) window.parent.__gameEnd();
+        }
+
+        function reset() {
+            blocks = [];
+            score = 0;
+            width = 150;
+            speed = 2;
+            gameOver = false;
+            offset = 0;
+            game.innerHTML = '';
+            game.style.transform = 'translateY(0)';
+            scoreEl.textContent = '0';
+            msg.style.display = 'none';
+            createBlock();
+            requestAnimationFrame(step);
+        }
+
+        window.addEventListener('touchstart', (e) => { e.preventDefault(); place(); });
+        window.addEventListener('mousedown', place);
+
+        reset();
+    </script>
+</body>
+</html>

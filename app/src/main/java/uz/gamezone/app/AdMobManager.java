@@ -1,0 +1,187 @@
+package uz.gamezone.app;
+
+import android.app.Activity;
+import android.content.res.Configuration;
+import android.util.Log;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Google AdMob implementatsiyasi.
+ * Clean Code tamoyillari asosida yozilgan.
+ */
+public class AdMobManager implements AdManager {
+    private static final String TAG = "AdMobManager";
+    
+    // Test ID-lar (Production-da haqiqiy ID-larga almashtiring)
+    private static final String BANNER_ID = "ca-app-pub-3940256099942544/6300978111";
+    private static final String INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712";
+    private static final String REWARDED_ID = "ca-app-pub-3940256099942544/5224354917";
+
+    private final Activity activity;
+    private final ViewGroup bannerContainer;
+    
+    private AdView adView;
+    private InterstitialAd interstitialAd;
+    private RewardedAd rewardedAd;
+    private final List<AdStatusListener> listeners = new ArrayList<>();
+
+    public AdMobManager(Activity activity, ViewGroup bannerContainer) {
+        this.activity = activity;
+        this.bannerContainer = bannerContainer;
+    }
+
+    @Override
+    public void addStatusListener(AdStatusListener listener) {
+        if (listener != null && !listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    @Override
+    public void removeStatusListener(AdStatusListener listener) {
+        listeners.remove(listener);
+    }
+
+    @Override
+    public void initialize() {
+        MobileAds.initialize(activity, status -> {
+            Log.d(TAG, "AdMob Initialized");
+            loadBanner();
+            loadInterstitial();
+            loadRewarded();
+        });
+    }
+
+    private void loadBanner() {
+        adView = new AdView(activity);
+        adView.setAdUnitId(BANNER_ID);
+        adView.setAdSize(isTablet() ? AdSize.LEADERBOARD : AdSize.BANNER);
+        
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                if (bannerContainer != null) {
+                    bannerContainer.removeAllViews();
+                    bannerContainer.addView(adView);
+                }
+                notifyLoaded("BANNER");
+            }
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                Log.e(TAG, "Banner load failed: " + error.getMessage());
+                notifyFailed("BANNER", error.getMessage());
+            }
+        });
+
+        adView.loadAd(createAdRequest());
+    }
+
+    private void loadInterstitial() {
+        InterstitialAd.load(activity, INTERSTITIAL_ID, createAdRequest(),
+            new InterstitialAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull InterstitialAd ad) {
+                    interstitialAd = ad;
+                    notifyLoaded("INTERSTITIAL");
+                }
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                    interstitialAd = null;
+                    notifyFailed("INTERSTITIAL", error.getMessage());
+                }
+            });
+    }
+
+    private void loadRewarded() {
+        RewardedAd.load(activity, REWARDED_ID, createAdRequest(),
+            new RewardedAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull RewardedAd ad) {
+                    rewardedAd = ad;
+                    notifyLoaded("REWARDED");
+                }
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                    rewardedAd = null;
+                    notifyFailed("REWARDED", error.getMessage());
+                }
+            });
+    }
+
+    @Override
+    public void showInterstitial() {
+        if (interstitialAd != null) {
+            interstitialAd.show(activity);
+            loadInterstitial(); // Keyingi safar uchun qayta yuklash
+        } else {
+            Log.w(TAG, "Interstitial ad not ready yet");
+        }
+    }
+
+    @Override
+    public void showRewarded(OnRewardListener listener) {
+        if (rewardedAd != null) {
+            rewardedAd.show(activity, rewardItem -> {
+                if (listener != null) listener.onRewardEarned(rewardItem.getAmount());
+                loadRewarded(); // Qayta yuklash
+            });
+        } else {
+            Log.w(TAG, "Rewarded ad not ready yet");
+        }
+    }
+
+    @Override
+    public void resume() {
+        if (adView != null) adView.resume();
+    }
+
+    @Override
+    public void pause() {
+        if (adView != null) adView.pause();
+    }
+
+    @Override
+    public void destroy() {
+        listeners.clear();
+        if (adView != null) adView.destroy();
+    }
+
+    private void notifyLoaded(String type) {
+        for (AdStatusListener listener : listeners) {
+            listener.onAdLoaded(type);
+        }
+    }
+
+    private void notifyFailed(String type, String error) {
+        for (AdStatusListener listener : listeners) {
+            listener.onAdFailed(type, error);
+        }
+    }
+
+    private AdRequest createAdRequest() {
+        return new AdRequest.Builder().build();
+    }
+
+    /** 
+     * Qurilma tabletka yoki smartfon ekanligini aniqlash. 
+     * Clean Code: Metod nomlanishi tushunarli bo'lishi kerak.
+     */
+    private boolean isTablet() {
+        return (activity.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+}

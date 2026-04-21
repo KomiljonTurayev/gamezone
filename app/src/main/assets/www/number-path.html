@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Number Path</title>
+<link rel="stylesheet" href="mini-game-base.css">
+<script src="admob.js"></script>
+<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent('rewardGranted',{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
+</head>
+<body>
+<div id="app">
+  <div id="top"><div id="title"></div><div id="badge"></div></div>
+  <div id="hint"></div>
+  <div id="hud">
+    <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
+    <div class="hud-box"><div class="hud-label">TIME</div><div class="hud-value" id="timer">0</div></div>
+  </div>
+  <div id="arena"><button id="target">🔢</button></div>
+  <div id="status"></div>
+  <button id="startBtn"></button>
+</div>
+<script>
+window.MINI_GAME_CONFIG = {
+  icon: "🔢",
+  duration: 37,
+  title: { uz: "Raqam Yoli", ru: "Путь Чисел", en: "Number Path" },
+  hint: { uz: "Raqamli nishonni bosishda davom eting", ru: "Нажимай по числовой цели", en: "Keep tapping the number target" },
+  groupLabel: { uz: "Sog'liq guruhi", ru: "Группа здоровья", en: "Health group" },
+  start: { uz: "BOSHLASH", ru: "СТАРТ", en: "START" },
+  playAgain: { uz: "QAYTA O'YNASH", ru: "СЫГРАТЬ ЕЩЕ", en: "PLAY AGAIN" },
+  done: { uz: "Yakuniy ball:", ru: "Итоговый счет:", en: "Final score:" }
+};
+</script>
+<script src="mini-game-core.js"></script>
+</body>
+</html>

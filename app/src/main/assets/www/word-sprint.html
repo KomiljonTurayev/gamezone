@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Word Sprint</title>
+<link rel="stylesheet" href="mini-game-base.css">
+<script src="admob.js"></script>
+<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent('rewardGranted',{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
+</head>
+<body>
+<div id="app">
+  <div id="top"><div id="title"></div><div id="badge"></div></div>
+  <div id="hint"></div>
+  <div id="hud">
+    <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
+    <div class="hud-box"><div class="hud-label">TIME</div><div class="hud-value" id="timer">0</div></div>
+  </div>
+  <div id="arena"><button id="target">🔤</button></div>
+  <div id="status"></div>
+  <button id="startBtn"></button>
+</div>
+<script>
+window.MINI_GAME_CONFIG = {
+  icon: "🔤",
+  duration: 34,
+  title: { uz: "Soz Sprint", ru: "Слово Спринт", en: "Word Sprint" },
+  hint: { uz: "Sozga mos belgini bosing", ru: "Тапай по словесной цели", en: "Tap the word target fast" },
+  groupLabel: { uz: "Sog'liq guruhi", ru: "Группа здоровья", en: "Health group" },
+  start: { uz: "BOSHLASH", ru: "СТАРТ", en: "START" },
+  playAgain: { uz: "QAYTA O'YNASH", ru: "СЫГРАТЬ ЕЩЕ", en: "PLAY AGAIN" },
+  done: { uz: "Yakuniy ball:", ru: "Итоговый счет:", en: "Final score:" }
+};
+</script>
+<script src="mini-game-core.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "gamezone-web-assets",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "sanity": "node tools/sanity/check-modules.mjs && node tools/sanity/check-responsive.mjs"
+  },
+  "dependencies": {
+    "axios": "^1.15.1",
+    "express": "^5.2.1"
+  }
+}

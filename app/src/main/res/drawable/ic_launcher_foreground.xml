@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Background -->
+    <path android:fillColor="#0A0A1A"
+        android:pathData="M0,0h108v108h-108z"/>
+
+    <!-- Glow -->
+    <path android:fillColor="#6366F1" android:alpha="0.2"
+        android:pathData="M54,54m-48,0a48,48 0,1 1,96 0a48,48 0,1 1,-96 0"/>
+
+    <!-- Controller -->
+    <path android:fillColor="#6366F1"
+        android:pathData="M22,44 Q22,34 32,34 L76,34 Q86,34 86,44 L86,66 Q86,76 76,76 L32,76 Q22,76 22,66 Z"/>
+
+    <!-- Top shine -->
+    <path android:fillColor="#8B8EF8"
+        android:pathData="M26,40 Q26,37 29,37 L79,37 Q82,37 82,40 L82,43 Q82,46 79,46 L29,46 Q26,46 26,43 Z"/>
+
+    <!-- D-pad horizontal -->
+    <path android:fillColor="#FFFFFF" android:alpha="0.85"
+        android:pathData="M33,53 L47,53 L47,57 L33,57 Z"/>
+    <!-- D-pad vertical -->
+    <path android:fillColor="#FFFFFF" android:alpha="0.85"
+        android:pathData="M38,48 L42,48 L42,62 L38,62 Z"/>
+
+    <!-- Button A -->
+    <path android:fillColor="#EF4444"
+        android:pathData="M76,56m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0"/>
+    <!-- Button B -->
+    <path android:fillColor="#F59E0B"
+        android:pathData="M64,47m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+    <!-- Button X -->
+    <path android:fillColor="#3B82F6"
+        android:pathData="M64,65m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+    <!-- Button Y -->
+    <path android:fillColor="#10B981"
+        android:pathData="M76,47m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+
+    <!-- Center button -->
+    <path android:fillColor="#FFFFFF" android:alpha="0.5"
+        android:pathData="M54,56m-4,0a4,4 0,1 1,8 0a4,4 0,1 1,-8 0"/>
+
+    <!-- Stars top-left -->
+    <path android:fillColor="#FFD700" android:alpha="0.9"
+        android:pathData="M18,16 L19.8,22 L26,22 L21,25.5 L22.8,31.5 L18,28 L13.2,31.5 L15,25.5 L10,22 L16.2,22 Z"/>
+
+    <!-- Small star top-right -->
+    <path android:fillColor="#FFD700" android:alpha="0.7"
+        android:pathData="M90,14 L91.2,18 L95,18 L92,20 L93.2,24 L90,22 L86.8,24 L88,20 L85,18 L88.8,18 Z"/>
+
+</vector>

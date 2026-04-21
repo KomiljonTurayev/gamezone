@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rain Tap</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #001428; font-family: sans-serif; display: flex; align-items: center; justify-content: center; touch-action: none; }
+        canvas { position: absolute; top: 0; left: 0; }
+        #ui { z-index: 10; color: rgba(255,255,255,0.4); text-align: center; pointer-events: none; }
+        .drop { position: absolute; background: rgba(255,255,255,0.2); width: 1px; height: 10px; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="ui">Tap to make ripples</div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let ripples = [];
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Background rain
+            for(let i=0; i<100; i++) {
+                const d = document.createElement('div');
+                d.className = 'drop';
+                d.style.left = Math.random() * 100 + 'vw';
+                d.style.top = Math.random() * 100 + 'vh';
+                d.style.animation = `rain ${0.5 + Math.random()}s linear infinite`;
+                document.body.appendChild(d);
+            }
+        }
+
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes rain { to { transform: translateY(100vh); } }`;
+        document.head.appendChild(style);
+
+        function addRipple(x, y) {
+            ripples.push({ x, y, r: 0, a: 1 });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.lineWidth = 2;
+
+            ripples.forEach((r, i) => {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(255,255,255,${r.a})`;
+                ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+                ctx.stroke();
+
+                r.r += 2;
+                r.a -= 0.02;
+                if (r.a <= 0) ripples.splice(i, 1);
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('touchstart', e => { addRipple(e.touches[0].clientX, e.touches[0].clientY); });
+        window.addEventListener('mousedown', e => { addRipple(e.clientX, e.clientY); });
+
+        init();
+        draw();
+    </script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#080818">
+<title>GameZone UZ</title>
+<style>
+:root {
+  --cols:2;--gap:12px;--pad:14px;--hh:62px;--bh:56px;
+  --fs:13px;--fh:24px;--r:18px;
+  --bg:#080818;--surf:#141430;--brd:rgba(255,255,255,0.07);
+  --txt:#fff;--txt2:rgba(255,255,255,0.45);
+  --a1:#6366F1;--a2:#8B5CF6;
+  --app-vh:1vh;--app-height:100vh;
+}
+@media(min-width:480px){:root{--cols:3;--fh:28px}}
+@media(min-width:768px){:root{--cols:3;--gap:16px;--pad:22px;--hh:76px;--bh:90px;--fs:15px;--fh:34px;--r:24px}}
+@media(min-width:1024px){:root{--cols:4;--fh:38px}}
+@media(min-width:1280px){:root{--cols:5}}
+@media(max-width:767px) and (orientation:landscape){:root{--cols:4;--hh:50px}}
+
+*{margin:0;padding:0;box-sizing:border-box;touch-action:manipulation}
+body{background:var(--bg);min-height:100vh;min-height:100dvh;min-height:var(--app-height);
+     font-family:'Trebuchet MS',sans-serif;color:var(--txt);overflow:hidden}
+
+/* AMBIENT */
+#amb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.09;
+     animation:drift ease-in-out infinite}
+@keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-25px)}}
+
+/* HEADER */
+#hdr{
+  position:relative;z-index:5;height:var(--hh);
+  background:rgba(8,8,24,.96);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--brd);
+  display:flex;align-items:center;padding:0 var(--pad);gap:10px;
+}
+#logo{display:flex;align-items:center;gap:10px}
+#logo-ic{
+  width:42px;height:42px;background:linear-gradient(135deg,var(--a1),var(--a2));
+  border-radius:13px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;box-shadow:0 4px 16px rgba(99,102,241,.4);flex-shrink:0;
+}
+@media(min-width:768px){#logo-ic{width:52px;height:52px;border-radius:16px;font-size:26px}}
+#logo-nm{font-size:15px;font-weight:900;background:linear-gradient(135deg,#fff,#C4B5FD);
+         -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#logo-sl{font-size:10px;color:var(--txt2)}
+#hdr-sp{flex:1}
+.ls-btn{background:var(--surf);border:1px solid var(--brd);border-radius:10px;
+        padding:5px 9px;font-size:11px;font-weight:bold;color:var(--txt2);
+        cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px}
+.ls-btn.on{background:linear-gradient(135deg,var(--a1),var(--a2));border-color:transparent;color:#fff}
+#lang-sw{display:flex;gap:5px}
+#pts{background:var(--surf);border:1px solid var(--brd);border-radius:12px;
+     padding:5px 12px;display:flex;align-items:center;gap:5px;margin-left:6px}
+#pts span{font-size:13px;font-weight:900}
+
+/* MAIN */
+#main{position:relative;z-index:1;overflow-y:auto;overflow-x:hidden;
+      height:calc(var(--app-height) - var(--hh) - var(--bh) - 60px - env(safe-area-inset-bottom));
+      padding:var(--pad) var(--pad) 0}
+#main::-webkit-scrollbar{display:none}
+
+/* LANG STATS */
+#lstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.lsc{background:var(--surf);border:1px solid var(--brd);border-radius:16px;
+     padding:10px;text-align:center;position:relative;overflow:hidden}
+.lsc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.lsc:nth-child(1)::before{background:linear-gradient(90deg,#1B5E20,#66BB6A)}
+.lsc:nth-child(2)::before{background:linear-gradient(90deg,#B71C1C,#EF9A9A)}
+.lsc:nth-child(3)::before{background:linear-gradient(90deg,#0D47A1,#64B5F6)}
+.lsc-f{font-size:22px}
+.lsc-l{font-size:11px;font-weight:900;margin-top:2px}
+.lsc-r{font-size:11px;font-weight:bold;margin-top:3px}
+
+/* GRID */
+#sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sh-t{font-size:calc(var(--fs)*1.2);font-weight:900}
+.sh-b{background:rgba(255,255,255,.06);border:1px solid var(--brd);
+      border-radius:20px;padding:3px 10px;font-size:10px;color:var(--txt2)}
+
+#grid{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:var(--gap);padding-bottom:16px}
+
+/* GAME CARD */
+.gc{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);
+    overflow:hidden;cursor:pointer;transition:transform .14s,box-shadow .14s;
+    position:relative;aspect-ratio:3/4;display:flex;flex-direction:column}
+.gc:active{transform:scale(.94)}
+@media(hover:hover){.gc:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(0,0,0,.5)}}
+
+.gc-art{flex:1;display:flex;align-items:center;justify-content:center}
+.gc-em{font-size:clamp(34px,7vw,60px);
+       filter:drop-shadow(0 3px 10px rgba(0,0,0,.5));
+       animation:cf 4s ease-in-out infinite}
+@keyframes cf{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.gc:nth-child(2n) .gc-em{animation-delay:-.7s}
+.gc:nth-child(3n) .gc-em{animation-delay:-1.4s}
+.gc:nth-child(4n) .gc-em{animation-delay:-2.1s}
+
+.gc-info{padding:9px 11px;background:rgba(0,0,0,.3);
+         backdrop-filter:blur(8px);border-top:1px solid var(--brd)}
+.gc-nm{font-size:var(--fs);font-weight:900;line-height:1.2}
+.gc-meta{display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap}
+.gc-tg{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:bold}
+.gc-ds{font-size:9px;color:var(--txt2)}
+
+.bdg{position:absolute;top:8px;right:8px;z-index:3;
+     border-radius:20px;padding:3px 8px;font-size:9px;font-weight:900;color:#fff}
+.bnew{background:linear-gradient(135deg,#F59E0B,#EF4444)}
+.bhot{background:linear-gradient(135deg,#EF4444,#EC4899)}
+
+/* BOTTOM NAV */
+#bnav{
+  position:fixed;bottom:calc(var(--bh) + env(safe-area-inset-bottom));left:0;right:0;height:60px;
+  background:rgba(8,8,24,.97);backdrop-filter:blur(20px);
+  border-top:1px solid var(--brd);
+  display:flex;align-items:center;justify-content:space-around;
+  z-index:10;padding:0 6px;
+}
+.ni{display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:5px 8px;cursor:pointer;border-radius:12px;
+    transition:background .14s;min-width:50px;border:none;background:transparent}
+.ni:active{background:rgba(255,255,255,.06)}
+.ni.on{background:rgba(99,102,241,.15)}
+.ni-i{font-size:19px}
+.ni-l{font-size:10px;color:var(--txt2);font-weight:bold}
+.ni.on .ni-l{color:#C4B5FD}
+
+/* ADMOB */
+#admob{position:fixed;bottom:0;left:0;right:0;height:calc(var(--bh) + env(safe-area-inset-bottom));
+       background:rgba(4,4,14,.98);border-top:1px solid var(--brd);
+       display:flex;align-items:center;justify-content:center;z-index:15;padding-bottom:env(safe-area-inset-bottom)}
+#admob-inner{color:rgba(255,255,255,.15);font-size:10px;text-align:center;padding:0 10px}
+
+/* GAME SCREEN */
+#gs{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column}
+#gs.h{display:none}
+#gs-top{height:calc(var(--hh) + env(safe-area-inset-top));background:rgba(8,8,24,.97);border-bottom:1px solid var(--brd);
+        display:flex;align-items:center;padding:env(safe-area-inset-top) var(--pad) 0;gap:10px;flex-shrink:0}
+#gs-back{background:var(--surf);border:1px solid var(--brd);border-radius:11px;
+         padding:7px 14px;color:var(--txt);font-size:13px;cursor:pointer;font-weight:bold}
+#gs-title{font-size:14px;font-weight:900;flex:1;text-align:center}
+#gs-fs{background:var(--surf);border:1px solid var(--brd);border-radius:11px;
+       padding:7px 11px;color:var(--txt);font-size:15px;cursor:pointer}
+#gs-frame{flex:1;width:100%;border:none}
+
+/* TOAST */
+#toast{position:fixed;top:calc(var(--hh) + env(safe-area-inset-top) + 10px);left:50%;transform:translateX(-50%);
+       background:rgba(16,185,129,.92);color:#fff;font-size:13px;font-weight:bold;
+       border-radius:30px;padding:9px 22px;z-index:100;opacity:0;
+       transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#toast.s{opacity:1}
+
+/* LANG PICKER */
+#lp{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:20px;padding:24px;
+    background:radial-gradient(ellipse at 40% 40%,#1a0050,#080818 70%)}
+#lp.h{display:none}
+.lp-logo{font-size:70px;animation:lpb 2s ease-in-out infinite}
+@keyframes lpb{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-12px) rotate(5deg)}}
+.lp-t{font-size:clamp(18px,5vw,28px);font-weight:900;text-align:center;
+      background:linear-gradient(135deg,#fff,#C4B5FD,#93C5FD);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lc-wrap{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:480px;width:100%}
+.lc{flex:1;min-width:120px;max-width:150px;background:var(--surf);
+    border:2px solid var(--brd);border-radius:22px;padding:18px 12px;
+    text-align:center;cursor:pointer;transition:all .2s;
+    display:flex;flex-direction:column;align-items:center;gap:8px}
+.lc:active{transform:scale(.93)}
+@media(hover:hover){.lc:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(0,0,0,.4)}}
+.lc-f{font-size:38px}
+.lc-n{font-size:15px;font-weight:900}
+.lc-u{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:bold;margin-top:2px}
+
+/* LOADER */
+#ld{position:fixed;inset:0;z-index:90;background:var(--bg);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#ld.h{display:none}
+.ld-ic{font-size:76px;animation:lds 1.4s ease-in-out infinite}
+@keyframes lds{0%,100%{transform:scale(1) rotate(-8deg)}50%{transform:scale(1.15) rotate(8deg)}}
+.ld-b{width:170px;height:5px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden}
+.ld-f{height:100%;background:linear-gradient(90deg,var(--a1),var(--a2),#06B6D4);
+      border-radius:5px;animation:ldf 1.4s ease-in-out infinite}
+@keyframes ldf{0%{width:0%;margin-left:0}50%{width:70%;margin-left:30%}100%{width:0%;margin-left:100%}}
+</style>
+<script src="admob.js"></script>
+<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="ld">
+  <div class="ld-ic">🎮</div>
+  <div style="color:#fff;font-size:18px;font-weight:900">GameZone UZ</div>
+  <div class="ld-b"><div class="ld-f"></div></div>
+  <div style="color:rgba(255,255,255,.35);font-size:12px" id="ld-txt">Yuklanmoqda...</div>
+</div>
+
+<!-- AMBIENT -->
+<div id="amb">
+  <div class="orb" style="width:450px;height:450px;left:-120px;top:-120px;background:#6366F1;animation-duration:9s"></div>
+  <div class="orb" style="width:380px;height:380px;right:-80px;top:25%;background:#8B5CF6;animation-duration:11s;animation-delay:-4s"></div>
+  <div class="orb" style="width:320px;height:320px;left:30%;bottom:-80px;background:#06B6D4;animation-duration:13s;animation-delay:-7s"></div>
+</div>
+
+<div id="toast"></div>
+
+<!-- LANG PICKER -->
+<div id="lp">
+  <div class="lp-logo">🎮</div>
+  <div class="lp-t">Tilni tanlang · Choose language · Выберите язык</div>
+  <div class="lc-wrap">
+    <div class="lc" onclick="setLang('uz')" style="border-color:rgba(30,180,100,.3)">
+      <div class="lc-f">🇺🇿</div>
+      <div class="lc-n">O'zbek</div>
+    </div>
+    <div class="lc" onclick="setLang('ru')" style="border-color:rgba(220,50,50,.3)">
+      <div class="lc-f">🇷🇺</div>
+      <div class="lc-n">Русский</div>
+    </div>
+    <div class="lc" onclick="setLang('en')" style="border-color:rgba(59,130,246,.3)">
+      <div class="lc-f">🇬🇧</div>
+      <div class="lc-n">English</div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME VIEWER -->
+<div id="gs" class="h">
+  <div id="gs-top">
+    <button id="gs-back" onclick="closeGame()">←</button>
+    <div id="gs-title">O'yin</div>
+    <button id="gs-fs" onclick="toggleFS()">⛶</button>
+  </div>
+  <iframe id="gs-frame" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+</div>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div id="logo">
+    <div id="logo-ic">🎮</div>
+    <div>
+      <div id="logo-nm">GameZone UZ</div>
+      <div id="logo-sl">UZ · RU · EN</div>
+    </div>
+  </div>
+  <div id="hdr-sp"></div>
+  <div id="lang-sw">
+    <button class="ls-btn on" id="ls-uz" onclick="setLang('uz')">🇺🇿 UZ</button>
+    <button class="ls-btn" id="ls-ru" onclick="setLang('ru')">🇷🇺 RU</button>
+    <button class="ls-btn" id="ls-en" onclick="setLang('en')">🇬🇧 EN</button>
+  </div>
+  <div id="pts">⭐ <span id="pts-v">0</span></div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- LANG STATS -->
+  <div id="lstats">
+    <div class="lsc">
+      <div class="lsc-f">🇺🇿</div>
+      <div class="lsc-l" id="ls1">O'ZBEK</div>
+      <div class="lsc-r" style="color:#10B981" id="lr1">FAOL</div>
+    </div>
+    <div class="lsc">
+      <div class="lsc-f">🇷🇺</div>
+      <div class="lsc-l" id="ls2">RUSCHA</div>
+      <div class="lsc-r" style="color:#F59E0B" id="lr2">FAOL</div>
+    </div>
+    <div class="lsc">
+      <div class="lsc-f">🇬🇧</div>
+      <div class="lsc-l" id="ls3">INGLIZ</div>
+      <div class="lsc-r" style="color:#818CF8" id="lr3">FAOL</div>
+    </div>
+  </div>
+
+  <div id="sec-hdr">
+    <div class="sh-t" id="sec-t">🎮 O'yinlar</div>
+    <div class="sh-b" id="sec-c">10 ta</div>
+  </div>
+  <div id="grid"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div id="bnav">
+  <button class="ni on" id="ni-all"    onclick="fil('all')">   <span class="ni-i">🏠</span><span class="ni-l" id="nb0">Bosh</span></button>
+  <button class="ni"    id="ni-kids"   onclick="fil('kids')">   <span class="ni-i">👶</span><span class="ni-l" id="nb1">Bolalar</span></button>
+  <button class="ni"    id="ni-arcade" onclick="fil('arcade')"> <span class="ni-i">🕹️</span><span class="ni-l" id="nb2">Arkada</span></button>
+  <button class="ni"    id="ni-relax"  onclick="fil('relax')">  <span class="ni-i">😌</span><span class="ni-l" id="nb3">Relax</span></button>
+  <button class="ni"    id="ni-rev"    onclick="showRev()">     <span class="ni-i">⚙️</span><span class="ni-l" id="nb4">Sozlamalar</span></button>
+</div>
+
+<!-- ADMOB BANNER -->
+<div id="admob">
+  <div id="admob-inner">📢 AdMob Banner — Phone: 320×50 | Tablet: 728×90</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

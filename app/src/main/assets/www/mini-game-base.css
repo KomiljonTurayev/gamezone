@@ -1,0 +1,17 @@
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+body{font-family:Trebuchet MS,sans-serif;background:linear-gradient(135deg,#080818,#141430);color:#fff;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:14px}
+#app{width:min(460px,100%);background:rgba(20,20,48,.9);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+#app.low-stress{filter:saturate(.8)}
+#top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#title{font-size:20px;font-weight:900}
+#badge{font-size:11px;padding:4px 10px;border-radius:999px;background:rgba(16,185,129,.25);border:1px solid rgba(16,185,129,.4)}
+#hint,#status{font-size:13px;color:rgba(255,255,255,.75)}
+#hud{display:flex;gap:10px}
+.hud-box{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px;text-align:center}
+.hud-label{font-size:10px;color:rgba(255,255,255,.55)}
+.hud-value{font-size:24px;font-weight:900}
+#arena{position:relative;height:320px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:radial-gradient(circle at 30% 20%,rgba(99,102,241,.35),rgba(8,8,24,.9));overflow:hidden}
+#target{position:absolute;left:50%;top:50%;width:74px;height:74px;border-radius:999px;border:0;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;font-size:30px;cursor:pointer;box-shadow:0 10px 30px rgba(99,102,241,.5);transition:all 180ms ease}
+#target:active{transform:translate(-50%,-50%) scale(.93)}
+#startBtn{height:44px;border-radius:12px;border:0;cursor:pointer;font-weight:900;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff}
+
