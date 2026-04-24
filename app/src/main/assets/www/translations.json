@@ -2,110 +2,75 @@
   "ui": {
     "uz": {
       "sec": "🎮 O'yinlar",
-      "nb0": "Bosh",
-      "nb1": "Bolalar",
-      "nb2": "Arkada",
-      "nb3": "Relax",
-      "nb4": "Til",
-      "ls1": "O'ZBEK",
-      "ls2": "RUSCHA",
-      "ls3": "INGLIZ",
-      "lr": "FAOL",
-      "back": "← Orqaga",
-      "soon": "⏳ Tez orada!",
-      "loading": "Yuklanmoqda...",
-      "countSuffix": " ta",
-      "badgeNew": "🆕 YANGI",
-      "badgeHot": "🔥 TOP",
-      "tl": "🇺🇿 O'zbek tili tanlandi",
-      "filters": {
-        "all": "🎮 Barcha O'yinlar",
-        "kids": "👶 Bolalar",
-        "arcade": "🕹️ Arkada",
-        "relax": "😌 Relax"
-      },
-      "audio": {
-        "langChanged": "O'zbek tili yoqildi"
-      }
+      "nb0": "Bosh", "nb1": "Bolalar", "nb2": "Arkada", "nb3": "Relax", "nb4": "Til",
+      "ls1": "O'ZBEK", "ls2": "RUSCHA", "ls3": "INGLIZ", "lr": "FAOL",
+      "back": "← Orqaga", "soon": "⏳ Tez orada!", "loading": "Yuklanmoqda...",
+      "countSuffix": " ta", "badgeNew": "🆕 YANGI", "badgeHot": "🔥 TOP",
+      "tl": "🇺🇿 O'zbek tili tanlandi", "guideTitle": "Ota-onalar uchun",
+      "bestScore": "Eng yaxshi: ",
+      "filters": { "all": "🎮 Barcha O'yinlar", "kids": "👶 Bolalar", "arcade": "🕹️ Arkada", "relax": "😌 Relax" }
     },
     "ru": {
       "sec": "🎮 Игры",
-      "nb0": "Главная",
-      "nb1": "Дети",
-      "nb2": "Аркада",
-      "nb3": "Релакс",
-      "nb4": "Язык",
-      "ls1": "УЗБЕКСКИЙ",
-      "ls2": "РУССКИЙ",
-      "ls3": "АНГЛИЙСКИЙ",
-      "lr": "АКТИВНО",
-      "back": "← Назад",
-      "soon": "⏳ Скоро будет!",
-      "loading": "Загрузка...",
-      "countSuffix": " игр",
-      "badgeNew": "🆕 НОВОЕ",
-      "badgeHot": "🔥 ТОП",
-      "tl": "🇷🇺 Выбран русский язык",
-      "filters": {
-        "all": "🎮 Все Игры",
-        "kids": "👶 Детские",
-        "arcade": "🕹️ Аркады",
-        "relax": "😌 Релакс"
-      },
-      "audio": {
-        "langChanged": "Русский язык включен"
-      }
+      "nb0": "Главная", "nb1": "Дети", "nb2": "Аркады", "nb3": "Релакс", "nb4": "Язык",
+      "ls1": "УЗБЕКСКИЙ", "ls2": "РУССКИЙ", "ls3": "АНГЛИЙСКИЙ", "lr": "АКТИВНО",
+      "back": "← Назад", "soon": "⏳ Скоро будет!", "loading": "Загрузка...",
+      "countSuffix": " игр", "badgeNew": "🆕 НОВОЕ", "badgeHot": "🔥 ТОП",
+      "tl": "🇷🇺 Выбран русский язык", "guideTitle": "Для родителей",
+      "bestScore": "Рекорд: ",
+      "filters": { "all": "🎮 Все Игры", "kids": "👶 Детские", "arcade": "🕹️ Аркады", "relax": "😌 Релакс" }
     },
     "en": {
       "sec": "🎮 Games",
-      "nb0": "Home",
-      "nb1": "Kids",
-      "nb2": "Arcade",
-      "nb3": "Relax",
-      "nb4": "Lang",
-      "ls1": "UZBEK",
-      "ls2": "RUSSIAN",
-      "ls3": "ENGLISH",
-      "lr": "ACTIVE",
-      "back": "← Back",
-      "soon": "⏳ Coming soon!",
-      "loading": "Loading...",
-      "countSuffix": " games",
-      "badgeNew": "🆕 NEW",
-      "badgeHot": "🔥 TOP",
-      "tl": "🇬🇧 English language selected",
-      "filters": {
-        "all": "🎮 All Games",
-        "kids": "👶 Kids Games",
-        "arcade": "🕹️ Arcade",
-        "relax": "😌 Relax"
-      },
-      "audio": {
-        "langChanged": "English language enabled"
-      }
+      "nb0": "Home", "nb1": "Kids", "nb2": "Arcade", "nb3": "Relax", "nb4": "Lang",
+      "ls1": "UZBEK", "ls2": "RUSSIAN", "ls3": "ENGLISH", "lr": "ACTIVE",
+      "back": "← Back", "soon": "⏳ Coming soon!", "loading": "Loading...",
+      "countSuffix": " games", "badgeNew": "🆕 NEW", "badgeHot": "🔥 TOP",
+      "tl": "🇬🇧 English language selected", "guideTitle": "For Parents",
+      "bestScore": "Best: ",
+      "filters": { "all": "🎮 All Games", "kids": "👶 Kids Games", "arcade": "🕹️ Arcade", "relax": "😌 Relax" }
     }
   },
   "games": {
-    "bubble-pop": {"title": {"uz": "Bubble Pop", "ru": "Пузыри", "en": "Bubble Pop"}, "desc": {"uz": "Pufaklarni bos!", "ru": "Лопай пузыри!", "en": "Pop the bubbles!"}, "tag": {"uz": "Hyper-Casual", "ru": "Гипер-казуал", "en": "Hyper-Casual"}},
-    "color-rush": {"title": {"uz": "Color Rush", "ru": "Цвет Спринт", "en": "Color Rush"}, "desc": {"uz": "Rangni tez top!", "ru": "Найди цвет!", "en": "Find the color!"}, "tag": {"uz": "Reflex", "ru": "Рефлексы", "en": "Reflex"}},
-    "memory-game": {"title": {"uz": "Xotira", "ru": "Память", "en": "Memory Game"}, "desc": {"uz": "Juft kartalar", "ru": "Найди пары", "en": "Match the cards"}, "tag": {"uz": "Puzzle", "ru": "Головоломка", "en": "Puzzle"}},
-    "animals": {"title": {"uz": "Hayvonlar", "ru": "Животные", "en": "Animal World"}, "desc": {"uz": "Ovozlarni o'rgan", "ru": "Звуки животных", "en": "Learn animal sounds"}, "tag": {"uz": "Bolalar", "ru": "Детские", "en": "Kids"}},
-    "math-kids": {"title": {"uz": "Raqamlar", "ru": "Числа", "en": "Numbers"}, "desc": {"uz": "Sanash va qo'shish", "ru": "Счет и сложение", "en": "Count and add"}, "tag": {"uz": "Ta'lim", "ru": "Обучение", "en": "Education"}},
-    "colors-shapes": {"title": {"uz": "Rang va Shakl", "ru": "Цвета и Фигуры", "en": "Colors and Shapes"}, "desc": {"uz": "Ranglarni o'rgan", "ru": "Учи цвета", "en": "Learn your colors"}, "tag": {"uz": "Ta'lim", "ru": "Обучение", "en": "Education"}},
-    "stack-tower": {"title": {"uz": "Stack Tower", "ru": "Башня", "en": "Stack Tower"}, "desc": {"uz": "Blok ustiga blok", "ru": "Блок на блок", "en": "Stack the blocks"}, "tag": {"uz": "Arkada", "ru": "Аркада", "en": "Arcade"}},
-    "helix-jump": {"title": {"uz": "Helix Jump", "ru": "Helix Jump", "en": "Helix Jump"}, "desc": {"uz": "Shar tushirish", "ru": "Спуск шара", "en": "Drop the ball"}, "tag": {"uz": "Arkada", "ru": "Аркада", "en": "Arcade"}},
-    "zen-garden": {"title": {"uz": "Zen Garden", "ru": "Дзен Сад", "en": "Zen Garden"}, "desc": {"uz": "Tinchlanish", "ru": "Расслабься", "en": "Relax"}, "tag": {"uz": "Relax", "ru": "Релакс", "en": "Relax"}},
-    "rain-tap": {"title": {"uz": "Rain Tap", "ru": "Дождь", "en": "Rain Tap"}, "desc": {"uz": "Yomg'ir ovozi", "ru": "Звук дождя", "en": "Soothing rain"}, "tag": {"uz": "Relax", "ru": "Релакс", "en": "Relax"}},
-    "quick-tap": {"title": {"uz": "Tez Bos", "ru": "Быстрый Тап", "en": "Quick Tap"}, "desc": {"uz": "Nishonni ushla", "ru": "Лови цель", "en": "Catch the target"}, "tag": {"uz": "Reflex", "ru": "Рефлексы", "en": "Reflex"}},
-    "shape-match": {"title": {"uz": "Shakl Top", "ru": "Найди Форму", "en": "Shape Match"}, "desc": {"uz": "Bir xilini tanla", "ru": "Выбери пару", "en": "Pick the match"}, "tag": {"uz": "Bolalar", "ru": "Детские", "en": "Kids"}},
-    "word-sprint": {"title": {"uz": "So'z Sprint", "ru": "Слово Спринт", "en": "Word Sprint"}, "desc": {"uz": "To'g'ri so'zni bos", "ru": "Нажми верное слово", "en": "Tap the right word"}, "tag": {"uz": "Ta'lim", "ru": "Обучение", "en": "Education"}},
-    "pattern-trace": {"title": {"uz": "Pattern Trace", "ru": "Паттерн", "en": "Pattern Trace"}, "desc": {"uz": "Ketma-ketlikni takrorla", "ru": "Повтори шаблон", "en": "Repeat sequence"}, "tag": {"uz": "Puzzle", "ru": "Головоломка", "en": "Puzzle"}},
-    "melody-memory": {"title": {"uz": "Melodiya Xotira", "ru": "Память Мелодий", "en": "Melody Memory"}, "desc": {"uz": "Ovoz ketma-ketligi", "ru": "Запомни ноты", "en": "Remember tones"}, "tag": {"uz": "Relax", "ru": "Релакс", "en": "Relax"}},
-    "star-catcher": {"title": {"uz": "Yulduz Tut", "ru": "Лови Звезды", "en": "Star Catcher"}, "desc": {"uz": "Yulduzlarni yig'", "ru": "Собери звезды", "en": "Collect stars"}, "tag": {"uz": "Arkada", "ru": "Аркада", "en": "Arcade"}},
-    "gentle-breath": {"title": {"uz": "Nafas", "ru": "Дыхание", "en": "Gentle Breath"}, "desc": {"uz": "Sekin ritm", "ru": "Спокойный ритм", "en": "Calm breathing"}, "tag": {"uz": "Relax", "ru": "Релакс", "en": "Relax"}},
-    "focus-flow": {"title": {"uz": "Diqqat", "ru": "Фокус", "en": "Focus Flow"}, "desc": {"uz": "Faqat to'g'ri rang", "ru": "Только нужный цвет", "en": "Tap only safe color"}, "tag": {"uz": "Reflex", "ru": "Рефлексы", "en": "Reflex"}},
-    "number-path": {"title": {"uz": "Raqam Yo'li", "ru": "Путь Чисел", "en": "Number Path"}, "desc": {"uz": "1 dan 9 gacha", "ru": "От 1 до 9", "en": "Tap 1 to 9"}, "tag": {"uz": "Ta'lim", "ru": "Обучение", "en": "Education"}},
-    "puzzle-slide": {"title": {"uz": "Slide Puzzle", "ru": "Слайд Пазл", "en": "Slide Puzzle"}, "desc": {"uz": "Bloklarni joyiga qo'y", "ru": "Собери картину", "en": "Arrange the tiles"}, "tag": {"uz": "Puzzle", "ru": "Головоломка", "en": "Puzzle"}}
+    "bubble-pop": {
+      "title": {"uz": "Bubble Pop Mania", "ru": "Бабл Поп Мания", "en": "Bubble Pop Mania"},
+      "desc": {"uz": "Pufaklarni portlat!", "ru": "Лопни их всех!", "en": "Pop them all!"},
+      "tag": {"uz": "Motorika", "ru": "Моторика", "en": "Motor Skills"},
+      "guide": {
+        "uz": "Bolaga pufaklarni bosishni o'rgating. Bu barmoqlar harakatini yaxshilaydi.",
+        "ru": "Помогите ребенку лопать пузыри. Это развивает координацию.",
+        "en": "Help your child pop bubbles. Great for hand-eye coordination."
+      }
+    },
+    "animals": {
+      "title": {"uz": "Zoo Friends Safari", "ru": "Зоо Сафари", "en": "Zoo Friends Safari"},
+      "desc": {"uz": "Hayvonlar dunyosi", "ru": "Мир животных", "en": "Animal Friends"},
+      "tag": {"uz": "Dunyoqarash", "ru": "Кругозор", "en": "Explorer"},
+      "guide": {
+        "uz": "Hayvon ovozini qaytarishni so'rang. Bu nutq rivojiga juda foydali.",
+        "ru": "Повторяйте звуки вместе. Это стимулирует речь ребенка.",
+        "en": "Imitate sounds together. Excellent for speech development."
+      }
+    },
+    "math-kids": {
+      "title": {"uz": "Math Quest Academy", "ru": "Академия Математики", "en": "Math Quest Academy"},
+      "desc": {"uz": "Raqamli sarguzasht", "ru": "Приключения чисел", "en": "Number Quest"},
+      "tag": {"uz": "Mantiq", "ru": "Логика", "en": "Logic"},
+      "guide": {
+        "uz": "Mevalarni birga sanang. Har bir raqamni baland ovozda ayting.",
+        "ru": "Считайте фрукты вслух. Это лучший способ учить числа.",
+        "en": "Count the fruits out loud. Best way to learn basic numbers."
+      }
+    },
+    "memory-game": {
+      "title": {"uz": "Brain Match Master", "ru": "Мастер Памяти", "en": "Brain Match Master"},
+      "desc": {"uz": "Xotira mashqi", "ru": "Тренировка памяти", "en": "Memory Match"},
+      "tag": {"uz": "Diqqat", "ru": "Внимание", "en": "Focus"},
+      "guide": {
+        "uz": "Kartalarni birga toping. Bu diqqatni jamlashni o'rgatadi.",
+        "ru": "Ищите пары вместе. Это развивает концентрацию внимания.",
+        "en": "Find pairs together. Great for improving focus and memory."
+      }
+    }
   }
 }
-

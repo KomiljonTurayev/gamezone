@@ -1,37 +1,188 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Focus Flow</title>
-<link rel="stylesheet" href="mini-game-base.css">
+<title>Focus Flow Academy 🎯</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; touch-action:manipulation; }
+body {
+  min-height: 100vh;
+  background: #0f172a;
+  font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+  overflow: hidden;
+  color: white;
+  display: flex; flex-direction: column;
+}
+#header { padding: 15px; display: flex; justify-content: space-between; background: #1e293b; }
+.stat { text-align: center; }
+.stat-val { font-size: 24px; font-weight: 900; color: #10b981; }
+.stat-lbl { font-size: 10px; opacity: 0.6; }
+
+#arena {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 20px;
+}
+
+#word-box {
+  background: white;
+  padding: 30px 50px;
+  border-radius: 25px;
+  margin-bottom: 40px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+#word { font-size: 48px; font-weight: 900; text-transform: uppercase; }
+
+#options {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 15px; width: 100%; max-width: 350px;
+}
+.opt {
+  padding: 20px; border-radius: 15px; border: none;
+  font-size: 18px; font-weight: 900; cursor: pointer;
+  color: white; transition: transform 0.1s;
+}
+.opt:active { transform: scale(0.95); }
+
+#screen-start, #screen-over {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(15, 23, 42, 0.98);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px; text-align: center;
+}
+.hidden { display: none !important; }
+.btn {
+  background: #10b981; color: white; border: none; padding: 15px 45px;
+  border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer;
+  margin-top: 25px;
+}
+#timer-bar-wrap { height: 6px; background: #334155; }
+#timer-bar { height: 100%; background: #10b981; width: 100%; transition: width 0.1s linear; }
+</style>
 <script src="admob.js"></script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent('rewardGranted',{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
 </head>
 <body>
 <div id="app">
-  <div id="top"><div id="title"></div><div id="badge"></div></div>
-  <div id="hint"></div>
-  <div id="hud">
-    <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
-    <div class="hud-box"><div class="hud-label">TIME</div><div class="hud-value" id="timer">0</div></div>
+  <div id="header">
+    <div class="stat"><span class="stat-lbl" id="lbl-best">BEST</span><br><span class="stat-val" id="best">0</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-score">SCORE</span><br><span class="stat-val" id="score">0</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-time">TIME</span><br><span class="stat-val" id="timer">30</span></div>
   </div>
-  <div id="arena"><button id="target">🎯</button></div>
-  <div id="status"></div>
-  <button id="startBtn"></button>
+  <div id="timer-bar-wrap"><div id="timer-bar"></div></div>
+  <div id="arena">
+    <div id="word-box"><div id="word">TEXT</div></div>
+    <div id="options"></div>
+  </div>
 </div>
+
+<div id="screen-start">
+  <div style="font-size: 80px">🎯</div>
+  <h1 id="start-title">Focus Flow</h1>
+  <p id="start-desc">So'zning mazmuniga emas, uning RANGIGA qarab bosing!</p>
+  <button class="btn" onclick="startGame()" id="btn-start">START</button>
+</div>
+
+<div id="screen-over" class="hidden">
+  <h1 id="over-title">O'yin Tugadi</h1>
+  <div style="font-size: 60px; margin: 20px 0; color: #10b981" id="final-score">0</div>
+  <button class="btn" onclick="startGame()" id="btn-again">PLAY AGAIN</button>
+</div>
+
 <script>
-window.MINI_GAME_CONFIG = {
-  icon: "🎯",
-  duration: 35,
-  title: { uz: "Diqqat", ru: "Фокус", en: "Focus Flow" },
-  hint: { uz: "Diqqatni yoqotmang", ru: "Не теряй концентрацию", en: "Keep your focus" },
-  groupLabel: { uz: "Sog'liq guruhi", ru: "Группа здоровья", en: "Health group" },
-  start: { uz: "BOSHLASH", ru: "СТАРТ", en: "START" },
-  playAgain: { uz: "QAYTA O'YNASH", ru: "СЫГРАТЬ ЕЩЕ", en: "PLAY AGAIN" },
-  done: { uz: "Yakuniy ball:", ru: "Итоговый счет:", en: "Final score:" }
+const params = new URLSearchParams(window.location.search);
+const LANG = (params.get('lang') || 'uz').toLowerCase();
+const I18N = {
+  uz: { best:"REKORD", score:"BALL", time:"VAQT", start:"Focus Flow", desc:"So'zning o'ziga emas, uning RANGIGA qarab bosing!", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"O'yin Tugadi" },
+  ru: { best:"РЕКОРД", score:"СЧЕТ", time:"ВРЕМЯ", start:"Фокус", desc:"Нажимай на ЦВЕТ слова, а не на само слово!", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"Игра Окончена" },
+  en: { best:"BEST", score:"SCORE", time:"TIME", start:"Focus Flow", desc:"Tap the COLOR of the word, not the text!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Game Over" }
 };
+const t = I18N[LANG] || I18N.en;
+
+document.getElementById('lbl-best').textContent = t.best;
+document.getElementById('lbl-score').textContent = t.score;
+document.getElementById('lbl-time').textContent = t.time;
+document.getElementById('start-title').textContent = t.start;
+document.getElementById('start-desc').textContent = t.desc;
+document.getElementById('btn-start').textContent = t.btnStart;
+document.getElementById('btn-again').textContent = t.btnAgain;
+document.getElementById('over-title').textContent = t.over;
+
+const COLORS = [
+  { name: {uz:"Qizil", ru:"Красный", en:"Red"}, hex: "#ef4444" },
+  { name: {uz:"Ko'k", ru:"Синий", en:"Blue"}, hex: "#3b82f6" },
+  { name: {uz:"Yashil", ru:"Зеленый", en:"Green"}, hex: "#10b981" },
+  { name: {uz:"Sariq", ru:"Желтый", en:"Yellow"}, hex: "#fbbf24" }
+];
+
+let score = 0, timeLeft = 30, gameActive = false;
+let best = parseInt(localStorage.getItem('gz-best-focus-flow') || '0');
+document.getElementById('best').textContent = best;
+let timerInterval;
+
+function startGame() {
+  score = 0; timeLeft = 30; gameActive = true;
+  document.getElementById('score').textContent = "0";
+  document.getElementById('timer').textContent = "30";
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-over').classList.add('hidden');
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft -= 0.1;
+    document.getElementById('timer').textContent = Math.ceil(timeLeft);
+    document.getElementById('timer-bar').style.width = (timeLeft/30*100) + "%";
+    if (timeLeft <= 0) endGame();
+  }, 100);
+
+  nextQuestion();
+}
+
+function nextQuestion() {
+  if (!gameActive) return;
+  const wordIdx = Math.floor(Math.random() * COLORS.length);
+  const colorIdx = Math.floor(Math.random() * COLORS.length);
+
+  const wordEl = document.getElementById('word');
+  wordEl.textContent = COLORS[wordIdx].name[LANG] || COLORS[wordIdx].name.en;
+  wordEl.style.color = COLORS[colorIdx].hex;
+
+  const optionsEl = document.getElementById('options');
+  optionsEl.innerHTML = "";
+
+  const shuffled = [...COLORS].sort(() => Math.random() - 0.5);
+  shuffled.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.style.backgroundColor = c.hex;
+    btn.textContent = c.name[LANG] || c.name.en;
+    btn.onclick = () => {
+      if (c.hex === COLORS[colorIdx].hex) {
+        score += 10;
+        document.getElementById('score').textContent = score;
+        nextQuestion();
+      } else {
+        timeLeft -= 2; // Penalty
+        nextQuestion();
+      }
+    };
+    optionsEl.appendChild(btn);
+  });
+}
+
+function endGame() {
+  gameActive = false;
+  clearInterval(timerInterval);
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('screen-over').classList.remove('hidden');
+  if (score > best) {
+    best = score;
+    localStorage.setItem('gz-best-focus-flow', best);
+    document.getElementById('best').textContent = best;
+  }
+  window.parent.postMessage({ type: "game:score", id: "focus-flow", score: score }, "*");
+  window.parent.__gameEnd?.();
+}
 </script>
-<script src="mini-game-core.js"></script>
 </body>
 </html>

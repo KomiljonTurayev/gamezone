@@ -1,37 +1,197 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Puzzle Slide</title>
-<link rel="stylesheet" href="mini-game-base.css">
+<title>Slide Puzzle Master 🧱</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; touch-action:manipulation; }
+body {
+  min-height: 100vh;
+  background: #1e293b;
+  font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+  overflow: hidden;
+  color: white;
+  display: flex; flex-direction: column;
+}
+#header { padding: 15px; display: flex; justify-content: space-between; background: #0f172a; }
+.stat { text-align: center; }
+.stat-val { font-size: 24px; font-weight: 900; color: #38bdf8; }
+.stat-lbl { font-size: 10px; opacity: 0.6; }
+
+#arena {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1/1;
+}
+
+.tile {
+  background: #334155;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #1e293b;
+  transition: transform 0.1s;
+}
+.tile:active { transform: scale(0.95); }
+.tile.empty { background: transparent; box-shadow: none; cursor: default; }
+.tile.correct { background: #0f766e; color: #5eead4; }
+
+#screen-start, #screen-over {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(15, 23, 42, 0.98);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px; text-align: center;
+}
+.hidden { display: none !important; }
+.btn {
+  background: #38bdf8; color: #0f172a; border: none; padding: 15px 45px;
+  border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer;
+  margin-top: 25px;
+}
+</style>
 <script src="admob.js"></script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent('rewardGranted',{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
 </head>
 <body>
 <div id="app">
-  <div id="top"><div id="title"></div><div id="badge"></div></div>
-  <div id="hint"></div>
-  <div id="hud">
-    <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
-    <div class="hud-box"><div class="hud-label">TIME</div><div class="hud-value" id="timer">0</div></div>
+  <div id="header">
+    <div class="stat"><span class="stat-lbl" id="lbl-best">BEST TIME</span><br><span class="stat-val" id="best">--</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-moves">MOVES</span><br><span class="stat-val" id="moves">0</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-time">TIME</span><br><span class="stat-val" id="timer">0</span></div>
   </div>
-  <div id="arena"><button id="target">🧱</button></div>
-  <div id="status"></div>
-  <button id="startBtn"></button>
+  <div id="arena"><div id="grid"></div></div>
 </div>
+
+<div id="screen-start">
+  <div style="font-size: 80px">🧱</div>
+  <h1 id="start-title">Slide Puzzle</h1>
+  <p id="start-desc">Bloklarni 1 dan 8 gacha tartibda joylashtiring!</p>
+  <button class="btn" onclick="startGame()" id="btn-start">START</button>
+</div>
+
+<div id="screen-over" class="hidden">
+  <div style="font-size: 80px">🎉</div>
+  <h1 id="over-title">TABRIKLAYMIZ!</h1>
+  <p id="over-desc">Siz jumboqni yechdingiz!</p>
+  <div style="font-size: 24px; margin: 20px 0" id="final-stats">Vaqt: 0s | Yurishlar: 0</div>
+  <button class="btn" onclick="startGame()" id="btn-again">PLAY AGAIN</button>
+</div>
+
 <script>
-window.MINI_GAME_CONFIG = {
-  icon: "🧱",
-  duration: 39,
-  title: { uz: "Slide Puzzle", ru: "Слайд Пазл", en: "Slide Puzzle" },
-  hint: { uz: "Barqaror bosish bilan ochko yiging", ru: "Набирай очки спокойными тапами", en: "Score with steady taps" },
-  groupLabel: { uz: "Sog'liq guruhi", ru: "Группа здоровья", en: "Health group" },
-  start: { uz: "BOSHLASH", ru: "СТАРТ", en: "START" },
-  playAgain: { uz: "QAYTA O'YNASH", ru: "СЫГРАТЬ ЕЩЕ", en: "PLAY AGAIN" },
-  done: { uz: "Yakuniy ball:", ru: "Итоговый счет:", en: "Final score:" }
+const params = new URLSearchParams(window.location.search);
+const LANG = (params.get('lang') || 'uz').toLowerCase();
+const I18N = {
+  uz: { best:"ENG YAXSHI", moves:"YURISHLAR", time:"VAQT", start:"Slide Puzzle", desc:"Raqamlarni 1 dan 8 gacha tartibda joylang!", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"TABRIKLAYMIZ!", final:"Vaqt: {t}s | Yurishlar: {m}" },
+  ru: { best:"РЕКОРД", moves:"ХОДЫ", time:"ВРЕМЯ", start:"Слайд Пазл", desc:"Расставьте числа от 1 до 8 по порядку!", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"ПОЗДРАВЛЯЕМ!", final:"Время: {t}с | Ходы: {m}" },
+  en: { best:"BEST", moves:"MOVES", time:"TIME", start:"Slide Puzzle", desc:"Arrange numbers 1 to 8 in order!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"CONGRATS!", final:"Time: {t}s | Moves: {m}" }
 };
+const t = I18N[LANG] || I18N.en;
+
+document.getElementById('lbl-best').textContent = t.best;
+document.getElementById('lbl-moves').textContent = t.moves;
+document.getElementById('lbl-time').textContent = t.time;
+document.getElementById('start-title').textContent = t.start;
+document.getElementById('start-desc').textContent = t.desc;
+document.getElementById('btn-start').textContent = t.btnStart;
+document.getElementById('btn-again').textContent = t.btnAgain;
+document.getElementById('over-title').textContent = t.over;
+
+let moves = 0, seconds = 0, gameActive = false;
+let tiles = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+let best = parseInt(localStorage.getItem('gz-best-puzzle-slide') || '9999');
+document.getElementById('best').textContent = best === 9999 ? "--" : best + "s";
+let timerInterval;
+
+function startGame() {
+  moves = 0; seconds = 0; gameActive = true;
+  document.getElementById('moves').textContent = "0";
+  document.getElementById('timer').textContent = "0";
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-over').classList.add('hidden');
+
+  shuffleTiles();
+  renderGrid();
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    seconds++;
+    document.getElementById('timer').textContent = seconds;
+  }, 1000);
+}
+
+function shuffleTiles() {
+  // Simple shuffle might result in unsolvable puzzle
+  // Let's do random valid moves from solved state
+  tiles = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+  for (let i = 0; i < 100; i++) {
+    const emptyIdx = tiles.indexOf(0);
+    const neighbors = getNeighbors(emptyIdx);
+    const moveIdx = neighbors[Math.floor(Math.random() * neighbors.length)];
+    [tiles[emptyIdx], tiles[moveIdx]] = [tiles[moveIdx], tiles[emptyIdx]];
+  }
+}
+
+function getNeighbors(idx) {
+  const neighbors = [];
+  if (idx >= 3) neighbors.push(idx - 3); // Up
+  if (idx < 6) neighbors.push(idx + 3);  // Down
+  if (idx % 3 !== 0) neighbors.push(idx - 1); // Left
+  if (idx % 3 !== 2) neighbors.push(idx + 1); // Right
+  return neighbors;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = "";
+  tiles.forEach((val, idx) => {
+    const el = document.createElement('div');
+    el.className = 'tile' + (val === 0 ? ' empty' : '') + (val !== 0 && val === idx + 1 ? ' correct' : '');
+    el.textContent = val === 0 ? "" : val;
+    el.onclick = () => moveTile(idx);
+    grid.appendChild(el);
+  });
+}
+
+function moveTile(idx) {
+  if (!gameActive) return;
+  const emptyIdx = tiles.indexOf(0);
+  const neighbors = getNeighbors(idx);
+  if (neighbors.includes(emptyIdx)) {
+    [tiles[idx], tiles[emptyIdx]] = [tiles[emptyIdx], tiles[idx]];
+    moves++;
+    document.getElementById('moves').textContent = moves;
+    renderGrid();
+    checkWin();
+  }
+}
+
+function checkWin() {
+  const isWin = tiles.slice(0, 8).every((val, i) => val === i + 1);
+  if (isWin) {
+    gameActive = false;
+    clearInterval(timerInterval);
+    document.getElementById('final-stats').textContent = t.final.replace('{t}', seconds).replace('{m}', moves);
+    document.getElementById('screen-over').classList.remove('hidden');
+    if (seconds < best) {
+      best = seconds;
+      localStorage.setItem('gz-best-puzzle-slide', best);
+      document.getElementById('best').textContent = best + "s";
+    }
+    window.parent.postMessage({ type: "game:score", id: "puzzle-slide", score: 1000 - seconds }, "*");
+    window.parent.__gameEnd?.();
+  }
+}
 </script>
-<script src="mini-game-core.js"></script>
 </body>
 </html>

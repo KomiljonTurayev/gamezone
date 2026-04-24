@@ -151,21 +151,21 @@ body {
 
 .choice-btn {
   background: white;
-  border: 3px solid transparent;
-  border-radius: 22px;
-  padding: 14px 8px;
-  font-size: 40px;
+  border: 4px solid #F3F4F6;
+  border-radius: 30px;
+  padding: 20px 10px;
+  font-size: 50px;
   cursor: pointer;
   transition: all 0.15s;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
 }
 .choice-btn span.name {
-  font-size: 13px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 900;
   color: #4C1D95;
 }
 .choice-btn:active { transform: scale(0.92); }
@@ -313,9 +313,32 @@ body {
   100% { transform: translateX(-50%) translateY(-40px) scale(1); opacity: 0; }
 }
 </style>
-<script src="admob.js">window.addEventListener('load', () => window.AdMobMgr?.init('animals'));
+<script src="admob.js"></script>
+<script>
+  // Bridge & Localization
+  const params = new URLSearchParams(window.location.search);
+  const LANG = (params.get('lang') || 'uz').toLowerCase();
+
+  const I18N = {
+    uz: { title: "Hayvonlar Olami", q: "Bu qaysi hayvon?", soundHint: "Hayvonni bosing — ovozini eshiting! 🔊", start: "🚀 O'YINNI BOSHLASH", again: "🔄 QAYTA O'YNASH", score: "Ball", best: "Eng yaxshi", result: "Natija" },
+    ru: { title: "Мир Животных", q: "Кто это?", soundHint: "Нажми на животное — послушай звук! 🔊", start: "🚀 НАЧАТЬ ИГРУ", again: "🔄 ИГRАТЬ СНОВА", score: "Баллы", best: "Рекорд", result: "Результат" },
+    en: { title: "Animal World", q: "Which animal?", soundHint: "Tap animal to hear sound! 🔊", start: "🚀 START GAME", again: "🔄 PLAY AGAIN", score: "Score", best: "Best", result: "Result" }
+  };
+  const t = I18N[LANG] || I18N.en;
+
+  window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};
+  window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};
+  window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};
+
+  // Apply translations on load
+  window.addEventListener('DOMContentLoaded', () => {
+    document.title = t.title;
+    document.querySelector('#title-box h1').textContent = "🐾 " + t.title;
+    document.querySelector('#start-screen .card-title').textContent = t.title;
+    document.querySelector('#start-screen .play-btn').textContent = t.start;
+    document.querySelector('#result-screen .play-btn').textContent = t.again;
+  });
 </script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
 </head>
 <body>
 
@@ -406,27 +429,24 @@ body {
 */
 
 // ── HAYVONLAR MA'LUMOTLARI ──────────────────────────────────────────────────
-const ANIMALS = [
-  { emoji:"🐶", name:"Kuchuk",     sound:"Vov-vov!",      freq:440,  color:"#FEF3C7" },
-  { emoji:"🐱", name:"Mushuk",     sound:"Miyov-miyov!",  freq:600,  color:"#FCE7F3" },
-  { emoji:"🐮", name:"Sigir",      sound:"Moo-moo!",      freq:200,  color:"#DBEAFE" },
-  { emoji:"🐷", name:"Cho'chqa",   sound:"Oink-oink!",    freq:350,  color:"#FEE2E2" },
-  { emoji:"🐸", name:"Qurbaqa",    sound:"Qva-qva!",      freq:300,  color:"#D1FAE5" },
-  { emoji:"🐔", name:"Tovuq",      sound:"Qug-qug!",      freq:800,  color:"#FEF9C3" },
-  { emoji:"🦆", name:"O'rdak",     sound:"Vak-vak!",      freq:500,  color:"#BFDBFE" },
-  { emoji:"🐑", name:"Qo'y",       sound:"Me-me!",        freq:400,  color:"#E0E7FF" },
-  { emoji:"🐴", name:"Ot",         sound:"Igg-hihi!",     freq:250,  color:"#FED7AA" },
-  { emoji:"🦁", name:"Sher",       sound:"Ro'o'r!",       freq:100,  color:"#FEF08A" },
-  { emoji:"🐘", name:"Fil",        sound:"Trrrr!",        freq:80,   color:"#E5E7EB" },
-  { emoji:"🐧", name:"Pingvin",    sound:"Ork-ork!",      freq:650,  color:"#BAE6FD" },
-  { emoji:"🦊", name:"Tulki",      sound:"Yip-yip!",      freq:700,  color:"#FED7AA" },
-  { emoji:"🐰", name:"Quyon",      sound:"Pip-pip!",      freq:900,  color:"#FCE7F3" },
-  { emoji:"🐻", name:"Ayiq",       sound:"Grr-grr!",      freq:150,  color:"#D6B896" },
-  { emoji:"🦒", name:"Jiraf",      sound:"Hmm~",          freq:450,  color:"#FEF08A" },
+const ANIMALS_DATA = [
+  { emoji:"🐶", name:{uz:"Kuchuk", ru:"Собака", en:"Dog"}, sound:"Vov-vov!", freq:440, color:"#FEF3C7" },
+  { emoji:"🐱", name:{uz:"Mushuk", ru:"Кошка", en:"Cat"}, sound:"Miyov-miyov!", freq:600, color:"#FCE7F3" },
+  { emoji:"🐮", name:{uz:"Sigir", ru:"Корова", en:"Cow"}, sound:"Moo-moo!", freq:200, color:"#DBEAFE" },
+  { emoji:"🐷", name:{uz:"Cho'chqa", ru:"Свинья", en:"Pig"}, sound:"Oink-oink!", freq:350, color:"#FEE2E2" },
+  { emoji:"🐸", name:{uz:"Qurbaqa", ru:"Лягушка", en:"Frog"}, sound:"Qva-qva!", freq:300, color:"#D1FAE5" },
+  { emoji:"🐔", name:{uz:"Tovuq", ru:"Курица", en:"Chicken"}, sound:"Qug-qug!", freq:800, color:"#FEF9C3" },
+  { emoji:"🦁", name:{uz:"Sher", ru:"Лев", en:"Lion"}, sound:"Ro'o'r!", freq:100, color:"#FEF08A" },
+  { emoji:"🐘", name:{uz:"Fil", ru:"Слон", en:"Elephant"}, sound:"Trrrr!", freq:80, color:"#E5E7EB" },
 ];
 
+const ANIMALS = ANIMALS_DATA.map(a => ({
+  ...a,
+  name: a.name[LANG] || a.name.en
+}));
+
 let score = 0;
-let best  = parseInt(localStorage.getItem("animalBest") || "0");
+let best  = parseInt(localStorage.getItem("gz-best-animals") || "0");
 let current = null;
 let choices = [];
 let answered = false;
@@ -504,9 +524,9 @@ function nextQuestion() {
   document.getElementById("animal-display").textContent = current.emoji;
   document.getElementById("animal-display").style.animation = "none";
   setTimeout(() => document.getElementById("animal-display").style.animation = "bounce 2s ease-in-out infinite", 10);
-  document.getElementById("question-text").textContent = `${questionNum + 1}-savol: Bu qaysi hayvon? 👇`;
+  document.getElementById("question-text").textContent = `${questionNum + 1}. ${t.q}`;
   document.getElementById("animal-name").textContent = current.sound;
-  document.getElementById("animal-sound").textContent = "Hayvonni bosing — ovozini eshiting! 🔊";
+  document.getElementById("animal-sound").textContent = t.soundHint;
   document.getElementById("question-card").style.background = current.color;
 
   // Build choices
@@ -593,9 +613,14 @@ function startGame() {
 
 function endGame() {
   const correct = results.filter(Boolean).length;
+  const gameScore = score;
+
+  // Send score to parent window
+  window.parent.postMessage({ type: "game:score", id: "animals", score: gameScore }, "*");
+
   if (score > best) {
     best = score;
-    localStorage.setItem("animalBest", best);
+    localStorage.setItem("gz-best-animals", best);
     document.getElementById("best").textContent = best;
   }
 

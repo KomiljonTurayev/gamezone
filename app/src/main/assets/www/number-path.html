@@ -1,37 +1,174 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Number Path</title>
-<link rel="stylesheet" href="mini-game-base.css">
+<title>Number Path Adventure 🔢</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; touch-action:manipulation; }
+body {
+  min-height: 100vh;
+  background: #111827;
+  font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+  overflow: hidden;
+  color: white;
+}
+#app { display: flex; flex-direction: column; height: 100vh; }
+#header { padding: 15px; display: flex; justify-content: space-between; background: #1f2937; }
+.stat { text-align: center; }
+.stat-val { font-size: 24px; font-weight: 900; color: #fbbf24; }
+.stat-lbl { font-size: 10px; opacity: 0.6; }
+
+#arena { flex: 1; position: relative; }
+
+.num-node {
+  position: absolute;
+  width: 60px; height: 60px;
+  background: #374151;
+  border: 3px solid #4b5563;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 900; cursor: pointer;
+  transition: all 0.2s;
+}
+.num-node.next { border-color: #fbbf24; box-shadow: 0 0 15px #fbbf2488; background: #4b5563; }
+.num-node.done { opacity: 0; transform: scale(0.5); pointer-events: none; }
+
+#screen-start, #screen-over {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(17, 24, 39, 0.98);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px; text-align: center;
+}
+.hidden { display: none !important; }
+.btn {
+  background: #fbbf24; color: #111827; border: none; padding: 15px 45px;
+  border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer;
+  margin-top: 25px;
+}
+</style>
 <script src="admob.js"></script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent('rewardGranted',{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
 </head>
 <body>
 <div id="app">
-  <div id="top"><div id="title"></div><div id="badge"></div></div>
-  <div id="hint"></div>
-  <div id="hud">
-    <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
-    <div class="hud-box"><div class="hud-label">TIME</div><div class="hud-value" id="timer">0</div></div>
+  <div id="header">
+    <div class="stat"><span class="stat-lbl" id="lbl-best">BEST</span><br><span class="stat-val" id="best">0</span></div>
+    <div id="target-box" class="stat">
+      <span class="stat-lbl" id="lbl-next">NEXT</span><br>
+      <span class="stat-val" id="next-num" style="font-size: 32px">1</span>
+    </div>
+    <div class="stat"><span class="stat-lbl" id="lbl-time">TIME</span><br><span class="stat-val" id="timer">60</span></div>
   </div>
-  <div id="arena"><button id="target">🔢</button></div>
-  <div id="status"></div>
-  <button id="startBtn"></button>
+  <div id="arena"></div>
 </div>
+
+<div id="screen-start">
+  <div style="font-size: 80px">🔢</div>
+  <h1 id="start-title">Number Path</h1>
+  <p id="start-desc">Raqamlarni tartib bilan bosing: 1, 2, 3...</p>
+  <button class="btn" onclick="startGame()" id="btn-start">START</button>
+</div>
+
+<div id="screen-over" class="hidden">
+  <h1 id="over-title">VAQT TUGADI</h1>
+  <div style="font-size: 24px; color: #9ca3af" id="lbl-final">Yakuniy raqam:</div>
+  <div style="font-size: 80px; margin: 10px 0; color: #fbbf24" id="final-score">0</div>
+  <button class="btn" onclick="startGame()" id="btn-again">TRY AGAIN</button>
+</div>
+
 <script>
-window.MINI_GAME_CONFIG = {
-  icon: "🔢",
-  duration: 37,
-  title: { uz: "Raqam Yoli", ru: "Путь Чисел", en: "Number Path" },
-  hint: { uz: "Raqamli nishonni bosishda davom eting", ru: "Нажимай по числовой цели", en: "Keep tapping the number target" },
-  groupLabel: { uz: "Sog'liq guruhi", ru: "Группа здоровья", en: "Health group" },
-  start: { uz: "BOSHLASH", ru: "СТАРТ", en: "START" },
-  playAgain: { uz: "QAYTA O'YNASH", ru: "СЫГРАТЬ ЕЩЕ", en: "PLAY AGAIN" },
-  done: { uz: "Yakuniy ball:", ru: "Итоговый счет:", en: "Final score:" }
+const params = new URLSearchParams(window.location.search);
+const LANG = (params.get('lang') || 'uz').toLowerCase();
+const I18N = {
+  uz: { best:"REKORD", next:"KEYINGI", time:"VAQT", start:"Raqam Yo'li", desc:"Raqamlarni tartib bilan bosing (1, 2, 3...)", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"Vaqt Tugadi", final:"Oxirgi raqam:" },
+  ru: { best:"РЕКОРД", next:"СЛЕДУЮЩИЙ", time:"ВРЕМЯ", start:"Путь Чисел", desc:"Нажимай на числа по порядку (1, 2, 3...)", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"Время Вышло", final:"Последнее число:" },
+  en: { best:"BEST", next:"NEXT", time:"TIME", start:"Number Path", desc:"Tap numbers in order (1, 2, 3...)", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Time's Up", final:"Final number:" }
 };
+const t = I18N[LANG] || I18N.en;
+
+document.getElementById('lbl-best').textContent = t.best;
+document.getElementById('lbl-next').textContent = t.next;
+document.getElementById('lbl-time').textContent = t.time;
+document.getElementById('start-title').textContent = t.start;
+document.getElementById('start-desc').textContent = t.desc;
+document.getElementById('btn-start').textContent = t.btnStart;
+document.getElementById('btn-again').textContent = t.btnAgain;
+document.getElementById('over-title').textContent = t.over;
+document.getElementById('lbl-final').textContent = t.final;
+
+let current = 1, timeLeft = 60, gameActive = false;
+let best = parseInt(localStorage.getItem('gz-best-number-path') || '0');
+document.getElementById('best').textContent = best;
+const arena = document.getElementById('arena');
+let timerInterval;
+
+function startGame() {
+  current = 1; timeLeft = 60; gameActive = true;
+  document.getElementById('next-num').textContent = "1";
+  document.getElementById('timer').textContent = "60";
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-over').classList.add('hidden');
+  arena.innerHTML = "";
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer').textContent = timeLeft;
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+
+  spawnBatch();
+}
+
+function spawnBatch() {
+  arena.innerHTML = "";
+  const count = 5;
+  for (let i = 0; i < count; i++) {
+    createNode(current + i);
+  }
+}
+
+function createNode(val) {
+  const el = document.createElement('div');
+  el.className = 'num-node' + (val === current ? ' next' : '');
+  el.textContent = val;
+
+  const x = Math.random() * (arena.offsetWidth - 70) + 5;
+  const y = Math.random() * (arena.offsetHeight - 70) + 5;
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+
+  el.onclick = () => {
+    if (val === current) {
+      el.classList.add('done');
+      current++;
+      document.getElementById('next-num').textContent = current;
+      // Mark next node
+      const nodes = document.querySelectorAll('.num-node');
+      nodes.forEach(n => {
+        if (parseInt(n.textContent) === current) n.classList.add('next');
+      });
+      // If batch finished
+      if (current % 5 === 1) spawnBatch();
+    }
+  };
+  arena.appendChild(el);
+}
+
+function endGame() {
+  gameActive = false;
+  clearInterval(timerInterval);
+  const score = current - 1;
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('screen-over').classList.remove('hidden');
+  if (score > best) {
+    best = score;
+    localStorage.setItem('gz-best-number-path', best);
+    document.getElementById('best').textContent = best;
+  }
+  window.parent.postMessage({ type: "game:score", id: "number-path", score: score }, "*");
+  window.parent.__gameEnd?.();
+}
 </script>
-<script src="mini-game-core.js"></script>
 </body>
 </html>

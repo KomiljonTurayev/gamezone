@@ -1,37 +1,164 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Quick Tap</title>
-<link rel="stylesheet" href="mini-game-base.css">
+<title>Quick Tap Reflex ⚡</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; touch-action:manipulation; }
+body {
+  min-height: 100vh;
+  background: #0f172a;
+  font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+  overflow: hidden;
+  color: white;
+}
+#app { display: flex; flex-direction: column; height: 100vh; }
+#header { padding: 15px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); }
+.stat { background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 12px; text-align: center; }
+.stat-val { font-size: 24px; font-weight: 900; color: #38bdf8; }
+.stat-lbl { font-size: 10px; opacity: 0.5; }
+
+#arena { flex: 1; position: relative; }
+
+.target {
+  position: absolute;
+  width: 70px; height: 70px;
+  background: radial-gradient(circle, #38bdf8, #0284c7);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; cursor: pointer;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+}
+@keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+.bomb {
+  background: radial-gradient(circle, #ef4444, #991b1b);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+#screen-start, #screen-over {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(15, 23, 42, 0.98);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px; text-align: center;
+}
+.hidden { display: none !important; }
+.btn {
+  background: #38bdf8; color: #0f172a; border: none; padding: 18px 50px;
+  border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer;
+  margin-top: 25px;
+}
+</style>
 <script src="admob.js"></script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent('rewardGranted',{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
 </head>
 <body>
 <div id="app">
-  <div id="top"><div id="title"></div><div id="badge"></div></div>
-  <div id="hint"></div>
-  <div id="hud">
-    <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
-    <div class="hud-box"><div class="hud-label">TIME</div><div class="hud-value" id="timer">0</div></div>
+  <div id="header">
+    <div class="stat"><span class="stat-lbl" id="lbl-score">SCORE</span><br><span class="stat-val" id="score">0</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-best">BEST</span><br><span class="stat-val" id="best">0</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-lives">LIVES</span><br><span class="stat-val" id="lives">3</span></div>
   </div>
-  <div id="arena"><button id="target">⚡</button></div>
-  <div id="status"></div>
-  <button id="startBtn"></button>
+  <div id="arena"></div>
 </div>
+
+<div id="screen-start">
+  <div style="font-size: 80px">⚡</div>
+  <h1 id="start-title">Quick Tap</h1>
+  <p id="start-desc">Ko'k doiralarni tez bosing! Qizillaridan ehtiyot bo'ling!</p>
+  <button class="btn" onclick="startGame()" id="btn-start">START</button>
+</div>
+
+<div id="screen-over" class="hidden">
+  <h1 id="over-title">GAME OVER</h1>
+  <div style="font-size: 60px; margin: 20px 0" id="final-score">0</div>
+  <div id="new-record" class="hidden" style="color: #fbbf24; font-weight: 900">NEW BEST! 🏆</div>
+  <button class="btn" onclick="startGame()" id="btn-again">TRY AGAIN</button>
+</div>
+
 <script>
-window.MINI_GAME_CONFIG = {
-  icon: "⚡",
-  duration: 30,
-  title: { uz: "Tez Bos", ru: "Быстрый Тап", en: "Quick Tap" },
-  hint: { uz: "Har bosishda nishon joyi almashadi", ru: "Цель меняет место после каждого тапа", en: "Target moves after each tap" },
-  groupLabel: { uz: "Sog'liq guruhi", ru: "Группа здоровья", en: "Health group" },
-  start: { uz: "BOSHLASH", ru: "СТАРТ", en: "START" },
-  playAgain: { uz: "QAYTA O'YNASH", ru: "СЫГРАТЬ ЕЩЕ", en: "PLAY AGAIN" },
-  done: { uz: "Yakuniy ball:", ru: "Итоговый счет:", en: "Final score:" }
+const params = new URLSearchParams(window.location.search);
+const LANG = (params.get('lang') || 'uz').toLowerCase();
+const I18N = {
+  uz: { score:"BALL", best:"REKORD", lives:"HAYOT", start:"Tezkor Tap", desc:"Moviy doiralarni bosing, qizil (bomba)lardan qoching!", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"O'yin Tugadi" },
+  ru: { score:"СЧЕТ", best:"РЕКОРД", lives:"ЖИЗНИ", start:"Быстрый Тап", desc:"Нажимай на синие круги, избегай красных бомб!", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"Игра Окончена" },
+  en: { score:"SCORE", best:"BEST", lives:"LIVES", start:"Quick Tap", desc:"Tap blue circles, avoid red bombs!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Game Over" }
 };
+const t = I18N[LANG] || I18N.en;
+
+document.getElementById('lbl-score').textContent = t.score;
+document.getElementById('lbl-best').textContent = t.best;
+document.getElementById('lbl-lives').textContent = t.lives;
+document.getElementById('start-title').textContent = t.start;
+document.getElementById('start-desc').textContent = t.desc;
+document.getElementById('btn-start').textContent = t.btnStart;
+document.getElementById('btn-again').textContent = t.btnAgain;
+document.getElementById('over-title').textContent = t.over;
+
+let score = 0, lives = 3, gameActive = false;
+let best = parseInt(localStorage.getItem('gz-best-quick-tap') || '0');
+document.getElementById('best').textContent = best;
+const arena = document.getElementById('arena');
+
+function startGame() {
+  score = 0; lives = 3; gameActive = true;
+  document.getElementById('score').textContent = "0";
+  document.getElementById('lives').textContent = "3";
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-over').classList.add('hidden');
+  arena.innerHTML = "";
+  spawnCycle();
+}
+
+function spawnCycle() {
+  if (!gameActive) return;
+  const isBomb = Math.random() < 0.25;
+  createTarget(isBomb);
+  const nextDelay = Math.max(400, 1000 - (score * 5));
+  setTimeout(spawnCycle, nextDelay);
+}
+
+function createTarget(isBomb) {
+  const el = document.createElement('div');
+  el.className = 'target' + (isBomb ? ' bomb' : '');
+  el.textContent = isBomb ? '💣' : '⚡';
+
+  const x = Math.random() * (arena.offsetWidth - 80) + 5;
+  const y = Math.random() * (arena.offsetHeight - 80) + 5;
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+
+  el.onclick = () => {
+    if (!gameActive) return;
+    if (isBomb) {
+      lives--;
+      document.getElementById('lives').textContent = lives;
+      if (lives <= 0) endGame();
+    } else {
+      score += 10;
+      document.getElementById('score').textContent = score;
+    }
+    el.remove();
+  };
+
+  arena.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 1500);
+}
+
+function endGame() {
+  gameActive = false;
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('screen-over').classList.remove('hidden');
+  if (score > best) {
+    best = score;
+    localStorage.setItem('gz-best-quick-tap', best);
+    document.getElementById('best').textContent = best;
+    document.getElementById('new-record').classList.remove('hidden');
+  }
+  window.parent.postMessage({ type: "game:score", id: "quick-tap", score: score }, "*");
+  window.parent.__gameEnd?.();
+}
 </script>
-<script src="mini-game-core.js"></script>
 </body>
 </html>

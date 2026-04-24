@@ -1,37 +1,243 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Shape Match</title>
-<link rel="stylesheet" href="mini-game-base.css">
+<title>Shape Matcher 🔷</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; touch-action:manipulation; }
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+  overflow: hidden;
+  color: white;
+}
+
+#app { display: flex; flex-direction: column; height: 100vh; padding-bottom: 60px; }
+
+#header {
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,0.2);
+}
+
+.stat { background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 15px; text-align: center; }
+.stat-val { font-size: 24px; font-weight: 900; display: block; }
+.stat-lbl { font-size: 10px; opacity: 0.6; text-transform: uppercase; }
+
+#game-canvas {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.falling-shape {
+  position: absolute;
+  font-size: 50px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+  z-index: 10;
+}
+
+#dock {
+  height: 120px;
+  background: rgba(255,255,255,0.05);
+  border-top: 2px solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.slot {
+  width: 70px;
+  height: 70px;
+  border: 3px dashed rgba(255,255,255,0.2);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  transition: all 0.2s;
+}
+.slot.active { border-color: #6366F1; background: rgba(99,102,241,0.1); }
+.slot.correct { border-color: #10B981; background: #10B98133; transform: scale(1.1); }
+.slot.wrong { border-color: #EF4444; background: #EF444433; }
+
+#screen-start, #screen-over {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(15, 23, 42, 0.95);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px; text-align: center;
+}
+.hidden { display: none !important; }
+
+.btn {
+  background: #6366F1; color: white; border: none; padding: 15px 40px;
+  border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer;
+  margin-top: 20px; box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+}
+
+#best-badge { color: #FBBF24; font-weight: 900; margin-top: 10px; }
+</style>
 <script src="admob.js"></script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent('rewardGranted',{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
 </head>
 <body>
+
 <div id="app">
-  <div id="top"><div id="title"></div><div id="badge"></div></div>
-  <div id="hint"></div>
-  <div id="hud">
-    <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
-    <div class="hud-box"><div class="hud-label">TIME</div><div class="hud-value" id="timer">0</div></div>
+  <div id="header">
+    <div class="stat"><span class="stat-lbl" id="lbl-score">SCORE</span><span class="stat-val" id="score">0</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-best">BEST</span><span class="stat-val" id="best">0</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-time">TIME</span><span class="stat-val" id="timer">30</span></div>
   </div>
-  <div id="arena"><button id="target">🔷</button></div>
-  <div id="status"></div>
-  <button id="startBtn"></button>
+
+  <div id="game-canvas"></div>
+
+  <div id="dock">
+    <div class="slot" data-shape="🔴">🔴</div>
+    <div class="slot" data-shape="🔷">🔷</div>
+    <div class="slot" data-shape="⭐">⭐</div>
+    <div class="slot" data-shape="🔺">🔺</div>
+  </div>
 </div>
+
+<div id="screen-start">
+  <div style="font-size: 80px">🔷</div>
+  <h1 id="start-title">Shape Matcher</h1>
+  <p id="start-desc">Shakllarni o'z joyiga bosing!</p>
+  <button class="btn" onclick="startGame()" id="btn-start">START</button>
+</div>
+
+<div id="screen-over" class="hidden">
+  <h1 id="over-title">O'yin Tugadi</h1>
+  <div style="font-size: 40px; margin: 20px 0" id="final-score">0</div>
+  <div id="best-badge" class="hidden">NEW RECORD! 🏆</div>
+  <button class="btn" onclick="startGame()" id="btn-again">PLAY AGAIN</button>
+</div>
+
 <script>
-window.MINI_GAME_CONFIG = {
-  icon: "🔷",
-  duration: 36,
-  title: { uz: "Shakl Top", ru: "Найди Форму", en: "Shape Match" },
-  hint: { uz: "Shakl belgini tez ushlang", ru: "Нажимай на символ фигуры", en: "Tap the shape symbol quickly" },
-  groupLabel: { uz: "Sog'liq guruhi", ru: "Группа здоровья", en: "Health group" },
-  start: { uz: "BOSHLASH", ru: "СТАРТ", en: "START" },
-  playAgain: { uz: "QAYTA O'YNASH", ru: "СЫГРАТЬ ЕЩЕ", en: "PLAY AGAIN" },
-  done: { uz: "Yakuniy ball:", ru: "Итоговый счет:", en: "Final score:" }
+const params = new URLSearchParams(window.location.search);
+const LANG = (params.get('lang') || 'uz').toLowerCase();
+
+const I18N = {
+  uz: { score:"BALL", best:"REKORD", time:"VAQT", start:"Shape Matcher", desc:"Shakllarni pastdagi mos kataklarga bosing!", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"O'yin Tugadi" },
+  ru: { score:"СЧЕТ", best:"РЕКОРД", time:"ВРЕМЯ", start:"Подбор Фигур", desc:"Нажимай на фигуры, когда они совпадают!", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"Игра Окончена" },
+  en: { score:"SCORE", best:"BEST", time:"TIME", start:"Shape Matcher", desc:"Tap the shapes when they match the slots!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Game Over" }
 };
+
+const t = I18N[LANG] || I18N.en;
+
+// UI Setup
+document.getElementById('lbl-score').textContent = t.score;
+document.getElementById('lbl-best').textContent = t.best;
+document.getElementById('lbl-time').textContent = t.time;
+document.getElementById('start-title').textContent = t.start;
+document.getElementById('start-desc').textContent = t.desc;
+document.getElementById('btn-start').textContent = t.btnStart;
+document.getElementById('btn-again').textContent = t.btnAgain;
+document.getElementById('over-title').textContent = t.over;
+
+let score = 0;
+let timeLeft = 30;
+let gameActive = false;
+let best = parseInt(localStorage.getItem('gz-best-shape-match') || '0');
+document.getElementById('best').textContent = best;
+
+const SHAPES = ["🔴", "🔷", "⭐", "🔺"];
+const canvas = document.getElementById('game-canvas');
+let timerInterval;
+
+function startGame() {
+  score = 0;
+  timeLeft = 30;
+  gameActive = true;
+  document.getElementById('score').textContent = "0";
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-over').classList.add('hidden');
+  document.getElementById('best-badge').classList.add('hidden');
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer').textContent = timeLeft;
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+
+  spawnShape();
+}
+
+function spawnShape() {
+  if (!gameActive) return;
+
+  const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+  const el = document.createElement('div');
+  el.className = 'falling-shape';
+  el.textContent = shape;
+  el.style.left = Math.random() * (canvas.offsetWidth - 60) + "px";
+  el.style.top = "-60px";
+  canvas.appendChild(el);
+
+  let pos = -60;
+  const speed = 2 + (score / 100);
+
+  const move = () => {
+    if (!gameActive) { el.remove(); return; }
+    pos += speed;
+    el.style.top = pos + "px";
+
+    if (pos > canvas.offsetHeight) {
+      el.remove();
+      spawnShape();
+    } else {
+      requestAnimationFrame(move);
+    }
+  };
+
+  el.onclick = () => {
+    const slots = document.querySelectorAll('.slot');
+    let hit = false;
+    slots.forEach(slot => {
+      if (slot.dataset.shape === shape) {
+        score += 10;
+        document.getElementById('score').textContent = score;
+        slot.classList.add('correct');
+        setTimeout(() => slot.classList.remove('correct'), 200);
+        hit = true;
+      }
+    });
+    el.remove();
+    spawnShape();
+  };
+
+  requestAnimationFrame(move);
+}
+
+function endGame() {
+  gameActive = false;
+  clearInterval(timerInterval);
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('screen-over').classList.remove('hidden');
+
+  if (score > best) {
+    best = score;
+    localStorage.setItem('gz-best-shape-match', best);
+    document.getElementById('best').textContent = best;
+    document.getElementById('best-badge').classList.remove('hidden');
+  }
+
+  if (window.parent && window.parent.postMessage) {
+    window.parent.postMessage({ type: "game:score", id: "shape-match", score: score }, "*");
+    window.parent.__gameEnd?.();
+  }
+}
 </script>
-<script src="mini-game-core.js"></script>
 </body>
 </html>

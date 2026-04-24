@@ -3,45 +3,21 @@ package uz.gamezone.app;
 import static uz.gamezone.app.CallGeminiKt.callGemini;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.net.ConnectivityManager;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import androidx.activity.OnBackPressedCallback;
+import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
-import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.LinearLayout;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.splashscreen.SplashScreen;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
-import com.google.android.gms.ads.rewarded.RewardedAd;
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.splashscreen.SplashScreen;
 
 public class MainActivity extends AppCompatActivity implements AdManager.AdStatusListener {
 
@@ -55,8 +31,10 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         
-        // UI Settings
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        // Full screen
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
         setContentView(R.layout.activity_main);
         
         loadingProgress = findViewById(R.id.loadingProgress);
@@ -67,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
         adManager.initialize();
         
         setupWebView();
+        
+        // AI fun facts
         callGemini("O'yinlar haqida qiziqarli faktlar ayt");
 
         setupBackNavigation();
@@ -149,10 +129,14 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
         super.onPause();
     }
     @Override protected void onDestroy() {
-        adManager.removeStatusListener(this);
-        adManager.destroy();
+        if (adManager != null) {
+            adManager.removeStatusListener(this);
+            adManager.destroy();
+        }
         if (webView != null) {
-            ((android.view.ViewGroup) webView.getParent()).removeView(webView);
+            if (webView.getParent() != null) {
+                ((android.view.ViewGroup) webView.getParent()).removeView(webView);
+            }
             webView.stopLoading();
             webView.destroy();
         }

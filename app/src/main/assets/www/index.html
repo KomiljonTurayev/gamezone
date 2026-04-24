@@ -103,6 +103,7 @@ body{background:var(--bg);min-height:100vh;min-height:100dvh;min-height:var(--ap
          backdrop-filter:blur(8px);border-top:1px solid var(--brd)}
 .gc-nm{font-size:var(--fs);font-weight:900;line-height:1.2}
 .gc-meta{display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap}
+.gc-best{font-size:10px;color:var(--a1);font-weight:900;margin-top:2px}
 .gc-tg{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:bold}
 .gc-ds{font-size:9px;color:var(--txt2)}
 
@@ -135,16 +136,30 @@ body{background:var(--bg);min-height:100vh;min-height:100dvh;min-height:var(--ap
 #admob-inner{color:rgba(255,255,255,.15);font-size:10px;text-align:center;padding:0 10px}
 
 /* GAME SCREEN */
-#gs{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column}
-#gs.h{display:none}
-#gs-top{height:calc(var(--hh) + env(safe-area-inset-top));background:rgba(8,8,24,.97);border-bottom:1px solid var(--brd);
-        display:flex;align-items:center;padding:env(safe-area-inset-top) var(--pad) 0;gap:10px;flex-shrink:0}
-#gs-back{background:var(--surf);border:1px solid var(--brd);border-radius:11px;
-         padding:7px 14px;color:var(--txt);font-size:13px;cursor:pointer;font-weight:bold}
-#gs-title{font-size:14px;font-weight:900;flex:1;text-align:center}
-#gs-fs{background:var(--surf);border:1px solid var(--brd);border-radius:11px;
-       padding:7px 11px;color:var(--txt);font-size:15px;cursor:pointer}
-#gs-frame{flex:1;width:100%;border:none}
+#gs { position:fixed; inset:0; z-index:50; background:var(--bg); display:flex; flex-direction:column }
+#gs.h { display:none }
+#gs-top { height:calc(var(--hh) + env(safe-area-inset-top)); background:rgba(8,8,24,.97); border-bottom:1px solid var(--brd);
+        display:flex; align-items:center; padding:env(safe-area-inset-top) var(--pad) 0; gap:10px; flex-shrink:0 }
+#gs-back { background:var(--surf); border:1px solid var(--brd); border-radius:11px;
+         padding:7px 14px; color:var(--txt); font-size:13px; cursor:pointer; font-weight:bold }
+#gs-title { font-size:14px; font-weight:900; flex:1; text-align:center }
+#gs-info-btn { background:var(--surf); border:1px solid var(--brd); border-radius:11px;
+       padding:7px 11px; color:var(--a1); font-size:15px; cursor:pointer; font-weight:bold }
+#gs-fs { background:var(--surf); border:1px solid var(--brd); border-radius:11px;
+       padding:7px 11px; color:var(--txt); font-size:15px; cursor:pointer }
+#gs-frame { flex:1; width:100%; border:none }
+
+/* PARENT GUIDE OVERLAY */
+#pg-overlay { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.85);
+             backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; padding:24px }
+#pg-overlay.h { display:none }
+.pg-card { background:var(--surf); border:2px solid var(--a1); border-radius:28px; padding:24px;
+          max-width:340px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5) }
+.pg-icon { font-size:50px; margin-bottom:12px }
+.pg-title { font-size:18px; font-weight:900; color:var(--a1); margin-bottom:8px }
+.pg-text { font-size:14px; color:var(--txt); line-height:1.6; margin-bottom:20px }
+.pg-btn { background:linear-gradient(135deg, var(--a1), var(--a2)); color:#fff; border:none;
+         border-radius:16px; padding:12px 30px; font-weight:bold; cursor:pointer }
 
 /* TOAST */
 #toast{position:fixed;top:calc(var(--hh) + env(safe-area-inset-top) + 10px);left:50%;transform:translateX(-50%);
@@ -232,9 +247,20 @@ body{background:var(--bg);min-height:100vh;min-height:100dvh;min-height:var(--ap
   <div id="gs-top">
     <button id="gs-back" onclick="closeGame()">←</button>
     <div id="gs-title">O'yin</div>
+    <button id="gs-info-btn" onclick="showGuide()">💡</button>
     <button id="gs-fs" onclick="toggleFS()">⛶</button>
   </div>
   <iframe id="gs-frame" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+</div>
+
+<!-- PARENT GUIDE -->
+<div id="pg-overlay" class="h" onclick="hideGuide()">
+  <div class="pg-card" onclick="event.stopPropagation()">
+    <div class="pg-icon">👨‍👩‍👧‍👦</div>
+    <div class="pg-title" id="pg-title">Ota-onalar uchun</div>
+    <div class="pg-text" id="pg-text">Yo'riqnoma...</div>
+    <button class="pg-btn" onclick="hideGuide()">Tushunarli</button>
+  </div>
 </div>
 
 <!-- HEADER -->

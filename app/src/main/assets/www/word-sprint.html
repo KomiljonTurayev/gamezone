@@ -1,37 +1,190 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Word Sprint</title>
-<link rel="stylesheet" href="mini-game-base.css">
+<title>Word Sprint Academy 🔤</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; touch-action:manipulation; }
+body {
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+  overflow: hidden;
+  color: #1e293b;
+  display: flex; flex-direction: column;
+}
+#header { padding: 15px; display: flex; justify-content: space-between; background: white; border-bottom: 2px solid #e2e8f0; }
+.stat { text-align: center; }
+.stat-val { font-size: 24px; font-weight: 900; color: #6366f1; }
+.stat-lbl { font-size: 10px; opacity: 0.6; }
+
+#arena {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 20px;
+}
+
+#target-box {
+  background: #6366f1; color: white;
+  padding: 20px 40px; border-radius: 20px;
+  margin-bottom: 30px; font-size: 32px; font-weight: 900;
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+}
+
+#options {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 15px; width: 100%; max-width: 400px;
+}
+.opt {
+  padding: 20px; border-radius: 15px; border: 2px solid #e2e8f0;
+  background: white; font-size: 18px; font-weight: 900; cursor: pointer;
+  transition: all 0.1s;
+}
+.opt:active { transform: scale(0.95); background: #f1f5f9; }
+.opt.correct { background: #10b981; border-color: #10b981; color: white; }
+.opt.wrong { background: #ef4444; border-color: #ef4444; color: white; }
+
+#screen-start, #screen-over {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(255, 255, 255, 0.98);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px; text-align: center;
+}
+.hidden { display: none !important; }
+.btn {
+  background: #6366f1; color: white; border: none; padding: 15px 45px;
+  border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer;
+  margin-top: 25px;
+}
+</style>
 <script src="admob.js"></script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent('rewardGranted',{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
 </head>
 <body>
 <div id="app">
-  <div id="top"><div id="title"></div><div id="badge"></div></div>
-  <div id="hint"></div>
-  <div id="hud">
-    <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
-    <div class="hud-box"><div class="hud-label">TIME</div><div class="hud-value" id="timer">0</div></div>
+  <div id="header">
+    <div class="stat"><span class="stat-lbl" id="lbl-best">BEST</span><br><span class="stat-val" id="best">0</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-score">SCORE</span><br><span class="stat-val" id="score">0</span></div>
+    <div class="stat"><span class="stat-lbl" id="lbl-time">TIME</span><br><span class="stat-val" id="timer">45</span></div>
   </div>
-  <div id="arena"><button id="target">🔤</button></div>
-  <div id="status"></div>
-  <button id="startBtn"></button>
+  <div id="arena">
+    <div id="target-box">APPLE</div>
+    <div id="options"></div>
+  </div>
 </div>
+
+<div id="screen-start">
+  <div style="font-size: 80px">🔤</div>
+  <h1 id="start-title">Word Sprint</h1>
+  <p id="start-desc">Tepadagi so'zni pastdagilar ichidan toping!</p>
+  <button class="btn" onclick="startGame()" id="btn-start">START</button>
+</div>
+
+<div id="screen-over" class="hidden">
+  <h1 id="over-title">Vaqt Tugadi</h1>
+  <div style="font-size: 60px; margin: 20px 0; color: #6366f1" id="final-score">0</div>
+  <button class="btn" onclick="startGame()" id="btn-again">PLAY AGAIN</button>
+</div>
+
 <script>
-window.MINI_GAME_CONFIG = {
-  icon: "🔤",
-  duration: 34,
-  title: { uz: "Soz Sprint", ru: "Слово Спринт", en: "Word Sprint" },
-  hint: { uz: "Sozga mos belgini bosing", ru: "Тапай по словесной цели", en: "Tap the word target fast" },
-  groupLabel: { uz: "Sog'liq guruhi", ru: "Группа здоровья", en: "Health group" },
-  start: { uz: "BOSHLASH", ru: "СТАРТ", en: "START" },
-  playAgain: { uz: "QAYTA O'YNASH", ru: "СЫГРАТЬ ЕЩЕ", en: "PLAY AGAIN" },
-  done: { uz: "Yakuniy ball:", ru: "Итоговый счет:", en: "Final score:" }
+const params = new URLSearchParams(window.location.search);
+const LANG = (params.get('lang') || 'uz').toLowerCase();
+
+const WORDS = [
+  { uz: "OLMA", ru: "ЯБЛОКО", en: "APPLE" },
+  { uz: "KUCHUK", ru: "СОБАКА", en: "DOG" },
+  { uz: "MUSHUK", ru: "КОШКА", en: "CAT" },
+  { uz: "UY", ru: "ДОМ", en: "HOUSE" },
+  { uz: "QUYOSH", ru: "СОЛНЦЕ", en: "SUN" },
+  { uz: "SUV", ru: "ВОДА", en: "WATER" },
+  { uz: "KITOB", ru: "КНИГА", en: "BOOK" },
+  { uz: "MASHINA", ru: "МАШИНА", en: "CAR" }
+];
+
+const I18N = {
+  uz: { best:"REKORD", score:"BALL", time:"VAQT", start:"So'z Sprint", desc:"Tepadagi so'zni pastdan topib bosing!", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"Vaqt Tugadi" },
+  ru: { best:"РЕКОРД", score:"СЧЕТ", time:"ВРЕМЯ", start:"Слово Спринт", desc:"Найди слово сверху среди вариантов!", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"Время Вышло" },
+  en: { best:"BEST", score:"SCORE", time:"TIME", start:"Word Sprint", desc:"Find the top word among options!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Time's Up" }
 };
+const t = I18N[LANG] || I18N.en;
+
+document.getElementById('lbl-best').textContent = t.best;
+document.getElementById('lbl-score').textContent = t.score;
+document.getElementById('lbl-time').textContent = t.time;
+document.getElementById('start-title').textContent = t.start;
+document.getElementById('start-desc').textContent = t.desc;
+document.getElementById('btn-start').textContent = t.btnStart;
+document.getElementById('btn-again').textContent = t.btnAgain;
+document.getElementById('over-title').textContent = t.over;
+
+let score = 0, timeLeft = 45, gameActive = false;
+let best = parseInt(localStorage.getItem('gz-best-word-sprint') || '0');
+document.getElementById('best').textContent = best;
+let timerInterval;
+
+function startGame() {
+  score = 0; timeLeft = 45; gameActive = true;
+  document.getElementById('score').textContent = "0";
+  document.getElementById('timer').textContent = "45";
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-over').classList.add('hidden');
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer').textContent = timeLeft;
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+
+  nextQuestion();
+}
+
+function nextQuestion() {
+  if (!gameActive) return;
+  const wordIdx = Math.floor(Math.random() * WORDS.length);
+  const target = WORDS[wordIdx][LANG] || WORDS[wordIdx].en;
+
+  document.getElementById('target-box').textContent = target;
+
+  const optionsEl = document.getElementById('options');
+  optionsEl.innerHTML = "";
+
+  const pool = [...WORDS].sort(() => Math.random() - 0.5).slice(0, 4);
+  if (!pool.find(w => (w[LANG] || w.en) === target)) pool[0] = WORDS[wordIdx];
+
+  const shuffled = pool.sort(() => Math.random() - 0.5);
+  shuffled.forEach(w => {
+    const wordText = w[LANG] || w.en;
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = wordText;
+    btn.onclick = () => {
+      if (wordText === target) {
+        score += 10;
+        document.getElementById('score').textContent = score;
+        nextQuestion();
+      } else {
+        btn.classList.add('wrong');
+        setTimeout(() => btn.classList.remove('wrong'), 300);
+      }
+    };
+    optionsEl.appendChild(btn);
+  });
+}
+
+function endGame() {
+  gameActive = false;
+  clearInterval(timerInterval);
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('screen-over').classList.remove('hidden');
+  if (score > best) {
+    best = score;
+    localStorage.setItem('gz-best-word-sprint', best);
+    document.getElementById('best').textContent = best;
+  }
+  window.parent.postMessage({ type: "game:score", id: "word-sprint", score: score }, "*");
+  window.parent.__gameEnd?.();
+}
 </script>
-<script src="mini-game-core.js"></script>
 </body>
 </html>

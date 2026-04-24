@@ -128,6 +128,7 @@
   let viewportTimer = null;
   let points = parseInt(localStorage.getItem("gz-pts") || "0", 10);
   let healthGroup = parseInt(localStorage.getItem("gz-health-group") || "2", 10);
+  let currentGameId = null;
 
   function byId(id) {
     return document.getElementById(id);
@@ -235,8 +236,10 @@
     const list = visibleGames(currentFilter);
     const fragment = document.createDocumentFragment();
 
-    byId("sec-c").textContent = `${list.length}${t.countSuffix}`;
-    byId("sec-t").textContent = t.filters[currentFilter] || t.sec;
+    const countEl = byId("sec-c");
+    const titleEl = byId("sec-t");
+    if (countEl) countEl.textContent = `${list.length}${t.countSuffix}`;
+    if (titleEl) titleEl.textContent = t.filters[currentFilter] || t.sec;
 
     list.forEach((g) => {
       const text = gameText(g.id);
@@ -252,11 +255,18 @@
         <div class="gc-art"><div class="gc-em">${g.em}</div></div>
         <div class="gc-info">
           <div class="gc-nm"></div>
+          <div class="gc-best"></div>
           <div class="gc-meta">
             <span class="gc-tg" style="background:${g.tc}22;color:${g.tc}"></span>
             <span class="gc-ds"></span>
           </div>
         </div>`;
+
+      const bestScore = localStorage.getItem(`gz-best-${g.id}`) || "0";
+      const bestEl = card.querySelector(".gc-best");
+      if (bestScore !== "0" && bestEl) {
+        bestEl.textContent = `${t.bestScore}${bestScore}`;
+      }
 
       card.querySelector(".gc-nm").textContent = text.title;
       card.querySelector(".gc-tg").textContent = text.tag;
@@ -265,7 +275,12 @@
       fragment.appendChild(card);
     });
 
-    els.grid.replaceChildren(fragment);
+    if (els.grid) {
+      while (els.grid.firstChild) {
+        els.grid.removeChild(els.grid.firstChild);
+      }
+      els.grid.appendChild(fragment);
+    }
   }
 
   function showToast(msg) {
@@ -342,6 +357,7 @@
       return;
     }
 
+    currentGameId = id;
     const params = new URLSearchParams({
       lang,
       hg: String(healthGroup),
@@ -351,12 +367,35 @@
     els.gsTitle.textContent = title;
     els.gsFrame.src = `${game.file}?${params.toString()}`;
     els.gs.classList.remove("h");
+
+    // Show guide automatically for kids category if first time or for specific games
+    if (game.cat.includes("kids")) {
+      setTimeout(showGuide, 1000);
+    }
+
     if (window.AndroidAdMob) window.AndroidAdMob.showInterstitial();
     enterFullscreenForMobile();
 
     points += healthGroup === 3 ? 8 : 10;
     localStorage.setItem("gz-pts", String(points));
     els.points.textContent = String(points);
+  }
+
+  function showGuide() {
+    if (!currentGameId) return;
+    const source = translations || FALLBACK_TRANSLATIONS;
+    const gameInfo = source.games[currentGameId];
+    const uiInfo = ui();
+
+    if (gameInfo && gameInfo.guide) {
+      byId("pg-title").textContent = uiInfo.guideTitle || "Guide";
+      byId("pg-text").textContent = gameInfo.guide[lang] || gameInfo.guide.en;
+      byId("pg-overlay").classList.remove("h");
+    }
+  }
+
+  function hideGuide() {
+    byId("pg-overlay").classList.add("h");
   }
 
   function closeGame() {
@@ -425,6 +464,8 @@
     window.closeGame = closeGame;
     window.toggleFS = toggleFS;
     window.showRev = showRev;
+    window.showGuide = showGuide;
+    window.hideGuide = hideGuide;
     window.__gameRegistry = GAMES.map((g) => g.id);
   }
 
@@ -449,19 +490,35 @@
     if (resizeTimer) clearTimeout(resizeTimer);
   }
 
-  async function init() {
-    bindDom();
-    installGlobals();
-    updateViewportCssVars();
-    applyAutomaticAccessibility();
-    els.points.textContent = String(points);
+  function onMessage(ev) {
+    if (ev.data?.type === "game:dispose") {
+      closeGame();
+    }
+    if (ev.data?.type === "game:score") {
+      const { id, score } = ev.data;
+      const key = `gz-best-${id}`;
+      const best = parseInt(localStorage.getItem(key) || "0", 10);
+      if (score > best) {
+        localStorage.setItem(key, String(score));
+        buildGrid(filter); // Refresh high score on card
+      }
+    }
+  }
 
+  async function init() {
     try {
+      bindDom();
+      installGlobals();
+      updateViewportCssVars();
+      applyAutomaticAccessibility();
+      if (els.points) els.points.textContent = String(points);
+      window.addEventListener("message", onMessage);
+
       await loadTranslations();
       const startupLang = detectStartupLang();
       setLang(startupLang, true);
 
-      if (localStorage.getItem("gz-lang")) {
+      if (localStorage.getItem("gz-lang") && els.lp) {
         els.lp.classList.add("h");
       }
 
@@ -469,14 +526,14 @@
       buildGrid(filter);
       preloadGames();
     } catch (e) {
-      console.error("init failed", e);
+      console.error("FATAL: init failed", e);
+      // Fallback
       translations = FALLBACK_TRANSLATIONS;
-      setLang(detectStartupLang(), true);
-      applyTranslations();
-      buildGrid(filter);
-      showToast(ui().soon);
+      if (els.ld) els.ld.classList.add("h");
     } finally {
-      setTimeout(() => els.ld.classList.add("h"), 700);
+      if (els.ld) {
+        setTimeout(() => els.ld.classList.add("h"), 150);
+      }
       window.addEventListener("resize", onResize);
       window.addEventListener("orientationchange", onResize);
       window.visualViewport?.addEventListener("resize", onResize);
@@ -484,5 +541,5 @@
     }
   }
 
-  window.addEventListener("load", init, { once: true });
+  window.addEventListener("DOMContentLoaded", init, { once: true });
 })();

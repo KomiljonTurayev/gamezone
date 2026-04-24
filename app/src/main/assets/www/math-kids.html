@@ -289,9 +289,31 @@ body {
   100% { transform: translateY(-80px); opacity: 0; }
 }
 </style>
-<script src="admob.js">window.addEventListener('load', () => window.AdMobMgr?.init('math-kids'));
+<script src="admob.js"></script>
+<script>
+  // Bridge & Localization
+  const params = new URLSearchParams(window.location.search);
+  const LANG = (params.get('lang') || 'uz').toLowerCase();
+
+  const I18N = {
+    uz: { title: "Raqamlar O'yini", q: "SAVOL", count: "SANASH", add: "QO'SHISH", sub: "AYIRISH", restart: "🔄 QAYTA", home: "🏠 BOSH SAHIFA", streak: "SERIYA", score: "BALL" },
+    ru: { title: "Игра Чисел", q: "ВОПРОС", count: "СЧЕТ", add: "СЛОЖЕНИЕ", sub: "ВЫЧИТАНИЕ", restart: "🔄 ЗАНОВО", home: "🏠 ГЛАВНАЯ", streak: "СЕРИЯ", score: "БАЛЛЫ" },
+    en: { title: "Number Game", q: "QUESTION", count: "COUNTING", add: "ADDITION", sub: "SUBTRACTION", restart: "🔄 RESTART", home: "🏠 HOME", streak: "STREAK", score: "SCORE" }
+  };
+  const t = I18N[LANG] || I18N.en;
+
+  window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};
+  window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};
+  window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.title = t.title;
+    document.querySelector('.t1').textContent = t.title;
+    document.querySelector('#q-label').textContent = t.q;
+    document.querySelectorAll('.pill-label')[0].textContent = t.score;
+    document.querySelectorAll('.pill-label')[1].textContent = t.streak;
+  });
 </script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
 </head>
 <body>
 
@@ -561,6 +583,10 @@ function startGame(m) {
 
 function endGame() {
   clearInterval(timerInterval);
+
+  // Send score to parent window
+  window.parent.postMessage({ type: "game:score", id: "math-kids", score: score }, "*");
+
   const pct = correctAns / totalQ;
   const emoji = pct >= 0.9 ? "🏆" : pct >= 0.7 ? "🎉" : pct >= 0.5 ? "⭐" : "💪";
   const title = pct >= 0.9 ? "AQLLI BOLA!" : pct >= 0.7 ? "AJOYIB!" : pct >= 0.5 ? "YO'RG'AY!" : "DAVOM ET!";

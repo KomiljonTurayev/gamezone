@@ -38,7 +38,7 @@ public class WebAppInterface {
     public void showRewarded() {
         activity.runOnUiThread(() -> {
             if (adManager != null) {
-                adManager.showRewarded(amount -> sendRewardToJs(amount));
+                adManager.showRewarded(this::sendRewardToJs);
             }
         });
     }
@@ -59,7 +59,7 @@ public class WebAppInterface {
      */
     private void sendRewardToJs(int amount) {
         webView.post(() -> {
-            String jsCode = String.format("if(window.onRewardGranted) { window.onRewardGranted(%d); }", amount);
+            String jsCode = String.format(java.util.Locale.US, "if(window.onRewardGranted) { window.onRewardGranted(%d); }", amount);
             webView.evaluateJavascript(jsCode, null);
         });
     }
