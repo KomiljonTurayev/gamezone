@@ -3,8 +3,8 @@
 -keep class com.google.ads.** { *; }
 
 # WebView JavaScript interface
--keepclassmembers class uz.gamezone.app.MainActivity$AdMobBridge {
-    public *;
+-keepclassmembers class uz.gamezone.app.WebAppInterface {
+    @android.webkit.JavascriptInterface <methods>;
 }
 -keepattributes JavascriptInterface
 
