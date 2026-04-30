@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Infinite Dash Neo 🏃</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+  body {
+    background: #050510;
+    color: #fff;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  canvas { display: block; width: 100%; flex: 1; cursor: pointer; }
+
+  #ui {
+    position: absolute; top: 0; left: 0; right: 0; padding: 20px;
+    display: flex; justify-content: space-between; pointer-events: none;
+    z-index: 10;
+  }
+  .stat { text-align: center; }
+  .val { font-size: 28px; font-weight: 900; color: #00f2ff; text-shadow: 0 0 10px #00f2ff; }
+  .lbl { font-size: 10px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; }
+
+  #screens { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; }
+  .screen {
+    background: rgba(5, 5, 20, 0.95);
+    padding: 40px; border-radius: 30px; text-align: center;
+    border: 2px solid #00f2ff; box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+    max-width: 85%;
+  }
+  .hidden { display: none !important; }
+
+  h1 { font-size: 32px; margin-bottom: 10px; background: linear-gradient(to right, #00f2ff, #7000ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  p { font-size: 14px; opacity: 0.8; line-height: 1.5; margin-bottom: 25px; }
+
+  .btn {
+    background: linear-gradient(135deg, #00f2ff, #7000ff);
+    color: #fff; border: none; padding: 16px 45px; border-radius: 50px;
+    font-size: 18px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3);
+    transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.95); }
+
+  #combo {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 60px; font-weight: 900; color: #ff00ea;
+    text-shadow: 0 0 20px #ff00ea; pointer-events: none; opacity: 0;
+  }
+  .pop { animation: pop 0.4s ease-out; }
+  @keyframes pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -100%) scale(1.2); opacity: 0; } }
+</style>
+<script src="game-api.js"></script>
+</head>
+<body>
+
+<div id="ui">
+  <div class="stat"><div class="lbl" id="l-best">BEST</div><div class="val" id="v-best">0</div></div>
+  <div class="stat"><div class="lbl" id="l-score">SCORE</div><div class="val" id="v-score">0</div></div>
+</div>
+
+<div id="combo">X2</div>
+
+<canvas id="game"></canvas>
+
+<div id="screens">
+  <div class="screen" id="s-start">
+    <div style="font-size: 60px; margin-bottom: 15px;">🚀</div>
+    <h1 id="t-start">Infinite Dash</h1>
+    <p id="d-start">To'siqlardan sakrab o'ting! Ekranga bosing.</p>
+    <button class="btn" onclick="start()">START</button>
+  </div>
+
+  <div class="screen hidden" id="s-over">
+    <h1 id="t-over">O'yin Tugadi</h1>
+    <div style="font-size: 48px; margin: 20px 0; color: #ff00ea;" id="v-final">0</div>
+    <button class="btn" onclick="start()">RESTART</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const GAME_ID = 'infinite-dash';
+
+const I18N = {
+  uz: { best:"REKORD", score:"BALL", start:"Sakrash!", desc:"To'siqlardan sakrab o'ting. Har bir sakrash ball beradi!", over:"O'yin Tugadi" },
+  ru: { best:"РЕКОРД", score:"БАЛЛЫ", start:"Прыгай!", desc:"Перепрыгивай препятствия. Каждый прыжок дает баллы!", over:"Игра Окончена" },
+  en: { best:"BEST", score:"SCORE", start:"Jump!", desc:"Jump over obstacles. Each successful jump gives points!", over:"Game Over" }
+};
+const t = GameAPI.t.bind(GameAPI, I18N);
+
+let score = 0, best = GameAPI.getBestScore(GAME_ID), active = false;
+let player, obstacles = [], frame = 0, speed = 5;
+
+function setupUI() {
+  document.getElementById('l-best').textContent = t('best');
+  document.getElementById('l-score').textContent = t('score');
+  document.getElementById('t-start').textContent = t('start');
+  document.getElementById('d-start').textContent = t('desc');
+  document.getElementById('t-over').textContent = t('over');
+  document.getElementById('v-best').textContent = best;
+}
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = canvas.clientHeight;
+  if(player) player.y = canvas.height - 50;
+}
+window.addEventListener('resize', resize);
+
+class Player {
+  constructor() {
+    this.x = 50; this.y = 0; this.w = 30; this.h = 30;
+    this.vy = 0; this.jumpPower = -12; this.gravity = 0.6;
+    this.grounded = false;
+  }
+  update() {
+    this.vy += this.gravity;
+    this.y += this.vy;
+    const ground = canvas.height - 50;
+    if(this.y > ground) { this.y = ground; this.vy = 0; this.grounded = true; }
+    else this.grounded = false;
+  }
+  draw() {
+    ctx.fillStyle = '#00f2ff';
+    ctx.shadowBlur = 15; ctx.shadowColor = '#00f2ff';
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.shadowBlur = 0;
+  }
+  jump() { if(this.grounded) { this.vy = this.jumpPower; GameAPI.vibrate(20); } }
+}
+
+class Obstacle {
+  constructor() {
+    this.w = 20 + Math.random() * 30;
+    this.h = 30 + Math.random() * 40;
+    this.x = canvas.width;
+    this.y = canvas.height - 50 - this.h + 30;
+    this.passed = false;
+  }
+  update() { this.x -= speed; }
+  draw() {
+    ctx.fillStyle = '#ff00ea';
+    ctx.shadowBlur = 10; ctx.shadowColor = '#ff00ea';
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.shadowBlur = 0;
+  }
+}
+
+function start() {
+  active = true; score = 0; obstacles = []; speed = 5 * GameAPI.profile.speed;
+  player = new Player();
+  document.getElementById('s-start').classList.add('hidden');
+  document.getElementById('s-over').classList.add('hidden');
+  document.getElementById('v-score').textContent = '0';
+  loop();
+}
+
+function die() {
+  active = false; GameAPI.vibrate(100);
+  document.getElementById('v-final').textContent = score;
+  document.getElementById('s-over').classList.remove('hidden');
+  if(GameAPI.saveBestScore(GAME_ID, score)) {
+    best = score; document.getElementById('v-best').textContent = best;
+  }
+  GameAPI.reportScore(GAME_ID, score);
+  GameAPI.endGame();
+}
+
+function loop() {
+  if(!active) return;
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+
+  // Ground line
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.beginPath(); ctx.moveTo(0, canvas.height - 20); ctx.lineTo(canvas.width, canvas.height - 20); ctx.stroke();
+
+  player.update(); player.draw();
+
+  if(frame % 100 === 0) obstacles.push(new Obstacle());
+
+  obstacles.forEach((o, i) => {
+    o.update(); o.draw();
+    if(o.x + o.w < 0) obstacles.splice(i, 1);
+
+    // Collision
+    if(player.x < o.x + o.w && player.x + player.w > o.x && player.y < o.y + o.h && player.y + player.h > o.y) die();
+
+    if(!o.passed && o.x < player.x) {
+      o.passed = true; score++;
+      document.getElementById('v-score').textContent = score;
+      if(score % 10 === 0) speed += 0.5;
+    }
+  });
+
+  frame++;
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('mousedown', () => player && player.jump());
+window.addEventListener('touchstart', (e) => { e.preventDefault(); player && player.jump(); });
+window.addEventListener('DOMContentLoaded', () => { setupUI(); resize(); });
+</script>
+</body>
+</html>
