@@ -314,29 +314,27 @@ body {
 }
 </style>
 <script src="admob.js"></script>
+<script src="game-api.js"></script>
 <script>
   // Bridge & Localization
-  const params = new URLSearchParams(window.location.search);
-  const LANG = (params.get('lang') || 'uz').toLowerCase();
+  const GAME_ID = 'animals';
+  const LANG = GameAPI.lang;
 
   const I18N = {
-    uz: { title: "Hayvonlar Olami", q: "Bu qaysi hayvon?", soundHint: "Hayvonni bosing — ovozini eshiting! 🔊", start: "🚀 O'YINNI BOSHLASH", again: "🔄 QAYTA O'YNASH", score: "Ball", best: "Eng yaxshi", result: "Natija" },
-    ru: { title: "Мир Животных", q: "Кто это?", soundHint: "Нажми на животное — послушай звук! 🔊", start: "🚀 НАЧАТЬ ИГРУ", again: "🔄 ИГRАТЬ СНОВА", score: "Баллы", best: "Рекорд", result: "Результат" },
-    en: { title: "Animal World", q: "Which animal?", soundHint: "Tap animal to hear sound! 🔊", start: "🚀 START GAME", again: "🔄 PLAY AGAIN", score: "Score", best: "Best", result: "Result" }
+    uz: { title: "Hayvonlar Olami", q: "Bu qaysi hayvon?", soundHint: "Hayvonni bosing — ovozini eshiting! 🔊", start: "🚀 O'YINNI BOSHLASH", again: "🔄 QAYTA O'YNASH", score: "Ball", best: "Eng yaxshi", result: "Natija", home: "🏠 BOSHQA DARAJA" },
+    ru: { title: "Мир Животных", q: "Кто это?", soundHint: "Нажми на животное — послушай звук! 🔊", start: "🚀 НАЧАТЬ ИГРУ", again: "🔄 ИГRАТЬ СНОВА", score: "Баллы", best: "Рекорд", result: "Результат", home: "🏠 ДРУГОЙ УРОВЕНЬ" },
+    en: { title: "Animal World", q: "Which animal?", soundHint: "Tap animal to hear sound! 🔊", start: "🚀 START GAME", again: "🔄 PLAY AGAIN", score: "Score", best: "Best", result: "Result", home: "🏠 OTHER LEVEL" }
   };
-  const t = I18N[LANG] || I18N.en;
-
-  window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};
-  window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};
-  window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};
+  const t = GameAPI.t.bind(GameAPI, I18N);
 
   // Apply translations on load
   window.addEventListener('DOMContentLoaded', () => {
-    document.title = t.title;
-    document.querySelector('#title-box h1').textContent = "🐾 " + t.title;
-    document.querySelector('#start-screen .card-title').textContent = t.title;
-    document.querySelector('#start-screen .play-btn').textContent = t.start;
-    document.querySelector('#result-screen .play-btn').textContent = t.again;
+    document.title = t('title');
+    document.querySelector('#title-box h1').textContent = "🐾 " + t('title');
+    document.querySelector('#start-screen .card-title').textContent = t('title');
+    document.querySelector('#start-screen .play-btn').textContent = t('start');
+    document.querySelector('#result-screen .play-btn').textContent = t('again');
+    document.querySelector('#result-screen .secondary-btn').textContent = t('home');
   });
 </script>
 </head>
@@ -442,7 +440,7 @@ const ANIMALS_DATA = [
 
 const ANIMALS = ANIMALS_DATA.map(a => ({
   ...a,
-  name: a.name[LANG] || a.name.en
+  get name() { return GameAPI.localize(a.name); }
 }));
 
 let score = 0;
@@ -456,6 +454,14 @@ let results = [];
 let audioCtx = null;
 
 document.getElementById("best").textContent = best;
+
+function updateStaticText() {
+  document.getElementById("best").textContent = best;
+  document.getElementById("score").textContent = "0";
+  document.getElementById("question-text").textContent = t('q');
+  document.getElementById("animal-sound").textContent = t('soundHint');
+}
+updateStaticText();
 
 // Build progress dots
 function buildProgress() {
@@ -615,27 +621,35 @@ function endGame() {
   const correct = results.filter(Boolean).length;
   const gameScore = score;
 
-  // Send score to parent window
-  window.parent.postMessage({ type: "game:score", id: "animals", score: gameScore }, "*");
-
-  if (score > best) {
-    best = score;
-    localStorage.setItem("gz-best-animals", best);
+  GameAPI.reportScore(GAME_ID, gameScore);
+  const isNewBest = GameAPI.saveBestScore(GAME_ID, gameScore);
+  if (isNewBest) {
+    best = gameScore;
     document.getElementById("best").textContent = best;
+
+function updateStaticText() {
+  document.getElementById("best").textContent = best;
+  document.getElementById("score").textContent = "0";
+  document.getElementById("question-text").textContent = t('q');
+  document.getElementById("animal-sound").textContent = t('soundHint');
+}
+updateStaticText();
   }
 
   const stars = correct >= 9 ? "⭐⭐⭐" : correct >= 6 ? "⭐⭐" : "⭐";
   const emoji  = correct >= 9 ? "🏆" : correct >= 6 ? "🎉" : "😊";
-  const title  = correct >= 9 ? "AJOYIB!" : correct >= 6 ? "YO'RG'AY!" : "HARAKATLANING!";
+  const title  = correct >= 9 ? (GameAPI.lang === 'uz' ? "AJOYIB!" : (GameAPI.lang === 'ru' ? "ОТЛИЧНО!" : "EXCELLENT!")) : (GameAPI.lang === 'uz' ? "YAXSHI!" : (GameAPI.lang === 'ru' ? "ХОРОШО!" : "GOOD!"));
 
   document.getElementById("result-emoji").textContent = emoji;
   document.getElementById("result-title").textContent = title;
   document.getElementById("stars-row").textContent = stars;
+  const resultSubText = `${correct}/${totalQ} ` + (GameAPI.lang === 'uz' ? "to'g'ri javob!" : (GameAPI.lang === 'ru' ? "правильных ответов!" : "correct answers!"));
   document.getElementById("result-sub").textContent =
-    `${correct}/${totalQ} to'g'ri javob!\nBall: ${score} ⭐`;
+    resultSubText + `\n${t('score')}: ${score} ⭐`;
 
   if (correct >= 8) fireFireworks();
   document.getElementById("result-screen").classList.remove("hidden");
+  GameAPI.endGame();
 }
 
 function showLevel() {

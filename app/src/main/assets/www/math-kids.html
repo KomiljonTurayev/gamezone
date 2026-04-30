@@ -290,28 +290,34 @@ body {
 }
 </style>
 <script src="admob.js"></script>
+<script src="game-api.js"></script>
 <script>
   // Bridge & Localization
-  const params = new URLSearchParams(window.location.search);
-  const LANG = (params.get('lang') || 'uz').toLowerCase();
+  const GAME_ID = 'math-kids';
+  const LANG = GameAPI.lang;
 
   const I18N = {
-    uz: { title: "Raqamlar O'yini", q: "SAVOL", count: "SANASH", add: "QO'SHISH", sub: "AYIRISH", restart: "🔄 QAYTA", home: "🏠 BOSH SAHIFA", streak: "SERIYA", score: "BALL" },
-    ru: { title: "Игра Чисел", q: "ВОПРОС", count: "СЧЕТ", add: "СЛОЖЕНИЕ", sub: "ВЫЧИТАНИЕ", restart: "🔄 ЗАНОВО", home: "🏠 ГЛАВНАЯ", streak: "СЕРИЯ", score: "БАЛЛЫ" },
-    en: { title: "Number Game", q: "QUESTION", count: "COUNTING", add: "ADDITION", sub: "SUBTRACTION", restart: "🔄 RESTART", home: "🏠 HOME", streak: "STREAK", score: "SCORE" }
+    uz: { title: "Raqamlar O'yini", q: "SAVOL", count: "SANASH", add: "QO'SHISH", sub: "AYIRISH", restart: "🔄 QAYTA", home: "🏠 BOSH SAHIFA", streak: "SERIYA", score: "BALL", level: "Daraja", easy: "Oson", med: "O'rta", hard: "Qiyin" },
+    ru: { title: "Игра Чисел", q: "ВОПРОС", count: "СЧЕТ", add: "СЛОЖЕНИЕ", sub: "ВЫЧИТАНИЕ", restart: "🔄 ЗАНОВО", home: "🏠 ГЛАВНАЯ", streak: "СЕРИЯ", score: "БАЛЛЫ", level: "Уровень", easy: "Легко", med: "Средне", hard: "Сложно" },
+    en: { title: "Number Game", q: "QUESTION", count: "COUNTING", add: "ADDITION", sub: "SUBTRACTION", restart: "🔄 RESTART", home: "🏠 HOME", streak: "STREAK", score: "SCORE", level: "Level", easy: "Easy", med: "Medium", hard: "Hard" }
   };
-  const t = I18N[LANG] || I18N.en;
-
-  window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};
-  window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};
-  window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};
+  const t = GameAPI.t.bind(GameAPI, I18N);
 
   window.addEventListener('DOMContentLoaded', () => {
-    document.title = t.title;
-    document.querySelector('.t1').textContent = t.title;
-    document.querySelector('#q-label').textContent = t.q;
-    document.querySelectorAll('.pill-label')[0].textContent = t.score;
-    document.querySelectorAll('.pill-label')[1].textContent = t.streak;
+    document.title = t('title');
+    document.querySelector('.t1').textContent = t('title');
+    document.querySelector('#q-label').textContent = t('q');
+    document.querySelectorAll('.pill-label')[0].textContent = t('score');
+    document.querySelectorAll('.pill-label')[1].textContent = t('streak');
+    document.querySelector('.play-btn').textContent = t('restart');
+    document.querySelector('.back-btn').textContent = t('home');
+    document.querySelector('#level-badge').childNodes[0].textContent = t('level') + ": ";
+
+    // Update mode buttons
+    const mBtns = document.querySelectorAll('.mode-btn');
+    mBtns[0].querySelector('div div').textContent = t('count');
+    mBtns[1].querySelector('div div').textContent = t('add');
+    mBtns[2].querySelector('div div').textContent = t('sub');
   });
 </script>
 </head>
@@ -574,7 +580,11 @@ function startGame(m) {
   score = 0; streak = 0; qNum = 0; correctAns = 0;
   document.getElementById("score-val").textContent = "0";
   document.getElementById("streak-val").textContent = "0";
-  const names = { count: "Sanash", add: "Qo'shish", sub: "Ayirish" };
+  const names = {
+    count: t('count'),
+    add: t('add'),
+    sub: t('sub')
+  };
   document.getElementById("level-name").textContent = names[m];
   document.getElementById("start-screen").classList.add("hidden");
   document.getElementById("result-screen").classList.add("hidden");
@@ -584,22 +594,38 @@ function startGame(m) {
 function endGame() {
   clearInterval(timerInterval);
 
-  // Send score to parent window
-  window.parent.postMessage({ type: "game:score", id: "math-kids", score: score }, "*");
+  GameAPI.reportScore(GAME_ID, score);
+  GameAPI.saveBestScore(GAME_ID, score);
 
   const pct = correctAns / totalQ;
   const emoji = pct >= 0.9 ? "🏆" : pct >= 0.7 ? "🎉" : pct >= 0.5 ? "⭐" : "💪";
-  const title = pct >= 0.9 ? "AQLLI BOLA!" : pct >= 0.7 ? "AJOYIB!" : pct >= 0.5 ? "YO'RG'AY!" : "DAVOM ET!";
-  const msg   = pct >= 0.9 ? "Hamma savolga deyarli to'g'ri javob berding!" :
-                pct >= 0.7 ? "Juda yaxshi! Yana bir oz mashq qil." :
-                "Qiyin edi, lekin keyingi safar yaxshiroq bo'lasan!";
+
+  const titles = {
+    uz: pct >= 0.9 ? "AQLLI BOLA!" : "AJOYIB!",
+    ru: pct >= 0.9 ? "УМНИЦА!" : "ОТЛИЧНО!",
+    en: pct >= 0.9 ? "SMART KID!" : "GREAT!"
+  };
+  const title = titles[GameAPI.lang] || titles.en;
+
+  const messages = {
+    uz: pct >= 0.9 ? "Hamma savolga deyarli to'g'ri javob berding!" : "Juda yaxshi! Yana bir oz mashq qil.",
+    ru: pct >= 0.9 ? "Ты ответил почти на все вопросы правильно!" : "Очень хорошо! Потренируйся еще немного.",
+    en: pct >= 0.9 ? "Almost all answers are correct!" : "Very good! Keep practicing."
+  };
+  const msg = messages[GameAPI.lang] || messages.en;
 
   document.getElementById("r-emoji").textContent   = emoji;
   document.getElementById("r-title").textContent   = title;
+
+  const correctLabel = { uz: "TO'G'RI", ru: "ВЕРНО", en: "CORRECT" }[GameAPI.lang] || "CORRECT";
+  document.querySelectorAll(".r-num .lbl")[0].textContent = correctLabel;
+  document.querySelectorAll(".r-num .lbl")[1].textContent = t('score');
+
   document.getElementById("r-correct").textContent = `${correctAns}/${totalQ}`;
   document.getElementById("r-score").textContent   = score;
   document.getElementById("r-msg").textContent     = msg;
   document.getElementById("result-screen").classList.remove("hidden");
+  GameAPI.endGame();
 }
 
 function restartGame() { startGame(mode); }

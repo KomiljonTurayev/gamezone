@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
 
@@ -56,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
     public void onAdLoaded(String adType) {
         runOnUiThread(() -> {
             if (loadingProgress != null) loadingProgress.setVisibility(View.GONE);
+            if ("BANNER".equals(adType)) {
+                webView.evaluateJavascript("window.setBannerVisibility(true)", null);
+            }
             android.util.Log.d("GameZone", adType + " yuklandi va tayyor.");
         });
     }
@@ -65,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
         runOnUiThread(() -> {
             if (loadingProgress != null) loadingProgress.setVisibility(View.GONE);
             // Faqat rewarded reklama bo'lsa xatolikni ko'rsatishimiz mumkin
+            if ("BANNER".equals(adType)) {
+                webView.evaluateJavascript("window.setBannerVisibility(false)", null);
+            }
             if ("REWARDED".equals(adType)) {
                 Toast.makeText(this, "Video yuklanishda xatolik: " + error, Toast.LENGTH_SHORT).show();
             }
@@ -77,6 +84,12 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
         WebSettings settings = webView.getSettings();
         
         WebViewConfigurator.apply(settings, isNetworkAvailable());
+        
+        // Professional Performance Settings
+        settings.setDomStorageEnabled(true);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setOffscreenPreRaster(true);
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         
         webView.addJavascriptInterface(new WebAppInterface(this, adManager, webView), "AndroidAdMob");
         webView.setWebViewClient(new AppWebViewClient());
@@ -106,8 +119,25 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (webView != null && webView.canGoBack()) webView.goBack();
-                else finish();
+                if (webView != null) {
+                    webView.evaluateJavascript("typeof currentGameId !== 'undefined' && currentGameId !== null", value -> {
+                        if ("true".equals(value)) {
+                            webView.evaluateJavascript("window.showGameExitConfirmationFromParent()", null);
+                        } else if (webView.canGoBack()) {
+                            webView.goBack();
+                        } else {
+                            // Asosiy ekranda dasturdan chiqishni tasdiqlash (Professional UX)
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Chiqish")
+                                    .setMessage("Dasturdan chiqmoqchimisiz?")
+                                    .setPositiveButton("Ha", (dialog, which) -> finish())
+                                    .setNegativeButton("Yo'q", null)
+                                    .show();
+                        }
+                    });
+                } else {
+                    finish();
+                }
             }
         });
     }

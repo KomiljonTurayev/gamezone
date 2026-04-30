@@ -38,6 +38,12 @@ public class AdMobManager implements AdManager {
     private RewardedAd rewardedAd;
     private final List<AdStatusListener> listeners = new ArrayList<>();
 
+    // Frequency capping variables
+    private long lastInterstitialTime = 0;
+    private int interstitialCounter = 0;
+    private static final long MIN_AD_INTERVAL_MS = 180000; // 3 minutes
+    private static final int AD_EVERY_N_TIMES = 3;
+
     public AdMobManager(Activity activity, ViewGroup bannerContainer) {
         this.activity = activity;
         this.bannerContainer = bannerContainer;
@@ -123,11 +129,24 @@ public class AdMobManager implements AdManager {
 
     @Override
     public void showInterstitial() {
-        if (interstitialAd != null) {
+        if (activity == null || activity.isFinishing()) return;
+
+        long currentTime = System.currentTimeMillis();
+        interstitialCounter++;
+
+        if (interstitialAd != null && 
+            (currentTime - lastInterstitialTime >= MIN_AD_INTERVAL_MS) && 
+            (interstitialCounter % AD_EVERY_N_TIMES == 0)) {
+            
+            Log.d(TAG, "Showing Interstitial (Freq Cap passed)");
             interstitialAd.show(activity);
-            loadInterstitial(); // Keyingi safar uchun qayta yuklash
+            lastInterstitialTime = currentTime;
+            loadInterstitial(); // Reload for next time
         } else {
-            Log.w(TAG, "Interstitial ad not ready yet");
+            String reason = interstitialAd == null ? "Not loaded" : 
+                           (currentTime - lastInterstitialTime < MIN_AD_INTERVAL_MS) ? "Too soon" : 
+                           "Counter not reached (" + (interstitialCounter % AD_EVERY_N_TIMES) + "/" + AD_EVERY_N_TIMES + ")";
+            Log.d(TAG, "Interstitial skip: " + reason);
         }
     }
 

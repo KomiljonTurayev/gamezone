@@ -12,13 +12,21 @@
     </style>
 </head>
 <body>
-    <div id="ui">Tap to make ripples</div>
+    <div id="ui"></div>
     <canvas id="canvas"></canvas>
-
+    <script src="game-api.js"></script>
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let ripples = [];
+
+        const I18N = {
+            uz: { hint: "Harakat qilish uchun bosing" },
+            ru: { hint: "Нажимай, чтобы создавать круги" },
+            en: { hint: "Tap to make ripples" }
+        };
+        const t = GameAPI.t.bind(GameAPI, I18N);
+        document.getElementById('ui').textContent = t('hint');
 
         function init() {
             canvas.width = window.innerWidth;

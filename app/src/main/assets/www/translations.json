@@ -5,10 +5,12 @@
       "nb0": "Bosh", "nb1": "Bolalar", "nb2": "Arkada", "nb3": "Relax", "nb4": "Til",
       "ls1": "O'ZBEK", "ls2": "RUSCHA", "ls3": "INGLIZ", "lr": "FAOL",
       "back": "← Orqaga", "soon": "⏳ Tez orada!", "loading": "Yuklanmoqda...",
-      "countSuffix": " ta", "badgeNew": "🆕 YANGI", "badgeHot": "🔥 TOP",
-      "tl": "🇺🇿 O'zbek tili tanlandi", "guideTitle": "Ota-onalar uchun",
-      "bestScore": "Eng yaxshi: ",
-      "filters": { "all": "🎮 Barcha O'yinlar", "kids": "👶 Bolalar", "arcade": "🕹️ Arkada", "relax": "😌 Relax" }
+      "countSuffix": " ta", "badgeNew": "🆕 YANGI", "badgeHot": "🔥 TOP", "tl": "🇺🇿 O'zbek tili tanlandi",
+      "guideTitle": "Ota-onalar uchun", "bestScore": "Eng yaxshi: ",
+      "filters": { "all": "🎮 Barcha O'yinlar", "kids": "👶 Bolalar", "arcade": "🕹️ Arkada", "relax": "😌 Relax" },
+      "exitGameMessage": "Haqiqatan ham o'yindan chiqmoqchimisiz? To'plangan ballaringiz saqlanmasligi mumkin.",
+      "yes": "Ha",
+      "no": "Yo'q"
     },
     "ru": {
       "sec": "🎮 Игры",
@@ -16,9 +18,11 @@
       "ls1": "УЗБЕКСКИЙ", "ls2": "РУССКИЙ", "ls3": "АНГЛИЙСКИЙ", "lr": "АКТИВНО",
       "back": "← Назад", "soon": "⏳ Скоро будет!", "loading": "Загрузка...",
       "countSuffix": " игр", "badgeNew": "🆕 НОВОЕ", "badgeHot": "🔥 ТОП",
-      "tl": "🇷🇺 Выбран русский язык", "guideTitle": "Для родителей",
-      "bestScore": "Рекорд: ",
-      "filters": { "all": "🎮 Все Игры", "kids": "👶 Детские", "arcade": "🕹️ Аркады", "relax": "😌 Релакс" }
+      "tl": "🇷🇺 Выбран русский язык", "guideTitle": "Для родителей", "bestScore": "Рекорд: ",
+      "filters": { "all": "🎮 Все Игры", "kids": "👶 Детские", "arcade": "🕹️ Аркады", "relax": "😌 Релакс" },
+      "exitGameMessage": "Вы действительно хотите выйти из игры? Набранные очки могут быть не сохранены.",
+      "yes": "Да",
+      "no": "Нет"
     },
     "en": {
       "sec": "🎮 Games",
@@ -26,9 +30,11 @@
       "ls1": "UZBEK", "ls2": "RUSSIAN", "ls3": "ENGLISH", "lr": "ACTIVE",
       "back": "← Back", "soon": "⏳ Coming soon!", "loading": "Loading...",
       "countSuffix": " games", "badgeNew": "🆕 NEW", "badgeHot": "🔥 TOP",
-      "tl": "🇬🇧 English language selected", "guideTitle": "For Parents",
-      "bestScore": "Best: ",
-      "filters": { "all": "🎮 All Games", "kids": "👶 Kids Games", "arcade": "🕹️ Arcade", "relax": "😌 Relax" }
+      "tl": "🇬🇧 English language selected", "guideTitle": "For Parents", "bestScore": "Best: ",
+      "filters": { "all": "🎮 All Games", "kids": "👶 Kids Games", "arcade": "🕹️ Arcade", "relax": "😌 Relax" },
+      "exitGameMessage": "Are you sure you want to exit the game? Your progress may not be saved.",
+      "yes": "Yes",
+      "no": "No"
     }
   },
   "games": {

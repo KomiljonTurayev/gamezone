@@ -214,105 +214,63 @@ body {
   100% { transform: translate(var(--tx), 100vh) rotate(360deg); opacity: 0; }
 }
 </style>
-<script src="admob.js">window.addEventListener('load', () => window.AdMobMgr?.init('colors-shapes'));
-</script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
-</head>
-<body>
-
-<div id="rainbow"></div>
-
-<div id="app">
-  <div id="topbar">
-    <div class="badge">
-      <div class="badge-label">BALL</div>
-      <div class="badge-val" id="score">0</div>
-    </div>
-    <div class="badge" style="background:linear-gradient(135deg,#FFECD2,#FCB69F)">
-      <div class="badge-label">DARAJA</div>
-      <div class="badge-val" id="mode-label" style="font-size:14px">🎨 Rang</div>
-    </div>
-    <div class="badge">
-      <div class="badge-label">REKORD</div>
-      <div class="badge-val" id="best">0</div>
-    </div>
-  </div>
-
-  <div id="mode-tabs" style="width:100%;max-width:480px">
-    <button class="tab active" id="tab-color" style="background:linear-gradient(135deg,#FF6B6B,#FF9F43)" onclick="setMode('color')">🎨 Ranglar</button>
-    <button class="tab" id="tab-shape" onclick="setMode('shape')">🔷 Shakllar</button>
-    <button class="tab" id="tab-mix" onclick="setMode('mix')">🌈 Aralash</button>
-  </div>
-
-  <div id="prog-outer"><div id="prog-inner" style="width:0%"></div></div>
-
-  <div id="q-section" style="margin-top:12px">
-    <div id="q-card">
-      <div id="q-instruction">TOPISH KERAK</div>
-      <div id="q-target">🔴</div>
-      <svg id="q-target-shape" class="shape-svg" viewBox="0 0 56 56" style="display:none"></svg>
-      <div id="q-name">QIZIL RANG</div>
-      <div id="q-hint">Qizil rangni toping 👇</div>
-    </div>
-  </div>
-
-  <div id="choices-grid"></div>
-</div>
-
-<div id="admob">📢 AdMob — Bolalar uchun xavfsiz reklama</div>
-
-<!-- START -->
-<div class="screen" id="start-screen">
-  <div class="white-card">
-    <div class="wc-big">🌈</div>
-    <div class="wc-title">Ranglar & Shakllar!</div>
-    <div class="wc-sub">Ranglarni va shakllarni<br>o'yin orqali o'rganing!<br>🎨 🔷 ⭐ 🔴</div>
-  </div>
-  <button class="action-btn" onclick="startGame()">🎮 BOSHLASH!</button>
-</div>
-
-<!-- RESULT -->
-<div class="screen hidden" id="result-screen">
-  <div class="white-card">
-    <div class="wc-big" id="r-emoji">🏆</div>
-    <div class="wc-title" id="r-title">Ajoyib!</div>
-    <div style="display:flex;justify-content:center;gap:12px;margin:12px 0">
-      <div style="background:#FFF3CD;border-radius:16px;padding:12px 20px;text-align:center">
-        <div style="font-size:28px;font-weight:900;color:#D63031" id="r-score">0</div>
-        <div style="font-size:11px;color:#999">BALL</div>
-      </div>
-      <div style="background:#D1FAE5;border-radius:16px;padding:12px 20px;text-align:center">
-        <div style="font-size:28px;font-weight:900;color:#00B894" id="r-correct">0/0</div>
-        <div style="font-size:11px;color:#999">TO'G'RI</div>
-      </div>
-    </div>
-    <div class="wc-sub" id="r-msg"></div>
-  </div>
-  <button class="action-btn" onclick="startGame()">🔄 QAYTA</button>
-  <button class="ghost-btn" onclick="goHome()">🏠 BOSH SAHIFA</button>
-</div>
-
+<script src="admob.js"></script>
+<script src="game-api.js"></script>
 <script>
 // ── DATA ─────────────────────────────────────────────────────────────────────
+const GAME_ID = 'colors-shapes';
+const I18N = {
+  uz: { ball: "BALL", level: "DARAJA", rekord: "REKORD", color: "🎨 Ranglar", shape: "🔷 Shakllar", mix: "🌈 Aralash", find: "TOPISH KERAK", colorSuffix: " RANG", shapeHint: "Shu shaklni topib bosing 👇", colorHint: "Shu rangni topib bosing 👇", start: "BOSHLASH!", again: "QAYTA", home: "BOSH SAHIFA", winTitle: "Ajoyib!", smart: "AQLLI BOLA!", great: "ZO'R!", good: "YAXSHI URINISH!", msgSmart: "Barcha ranglar va shakllarni bilasiz! 🌟", msgGreat: "Deyarli hammasi to'g'ri! Davom eting 💪", msgGood: "Yana bir oz mashq qiling! 📚", correct: "TO'G'RI", qizil: "Qizil", kok: "Ko'k", yashil: "Yashil", sariq: "Sariq", toqSariq: "To'q sariq", binafsha: "Binafsha", pushti: "Pushti", jigarrang: "Jigarrang", doira: "Doira", kvadrat: "Kvadrat", uchburchak: "Uchburchak", yulduz: "Yulduz", yurak: "Yurak", olmoscha: "Olmoscha" },
+  ru: { ball: "БАЛЛЫ", level: "УРОВЕНЬ", rekord: "РЕКОРД", color: "🎨 Цвета", shape: "🔷 Фигуры", mix: "🌈 Смешано", find: "НУЖНО НАЙТИ", colorSuffix: " ЦВЕТ", shapeHint: "Найди эту фигуру 👇", colorHint: "Найди этот цвет 👇", start: "НАЧАТЬ!", again: "ЗАНОВО", home: "ГЛАВНАЯ", winTitle: "Отлично!", smart: "УМНИЦА!", great: "СУПЕР!", good: "ХОРОШО!", msgSmart: "Ты знаешь все цвета и фигуры! 🌟", msgGreat: "Почти всё правильно! Продолжай 💪", msgGood: "Потренируйся еще немного! 📚", correct: "ВЕРНО", qizil: "Красный", kok: "Синий", yashil: "Зеленый", sariq: "Желтый", toqSariq: "Оранжевый", binafsha: "Фиолетовый", pushti: "Розовый", jigarrang: "Коричневый", doira: "Круг", kvadrat: "Квадрат", uchburchak: "Треугольник", yulduz: "Звезда", yurak: "Сердце", olmoscha: "Ромб" },
+  en: { ball: "SCORE", level: "LEVEL", rekord: "BEST", color: "🎨 Colors", shape: "🔷 Shapes", mix: "🌈 Mixed", find: "MUST FIND", colorSuffix: " COLOR", shapeHint: "Find this shape 👇", colorHint: "Find this color 👇", start: "START!", again: "RESTART", home: "HOME", winTitle: "Great!", smart: "SMART KID!", great: "GREAT!", good: "GOOD TRY!", msgSmart: "You know all colors and shapes! 🌟", msgGreat: "Almost all correct! Keep it up 💪", msgGood: "Practice a bit more! 📚", correct: "CORRECT", qizil: "Red", kok: "Blue", yashil: "Green", sariq: "Yellow", toqSariq: "Orange", binafsha: "Purple", pushti: "Pink", jigarrang: "Brown", doira: "Circle", kvadrat: "Square", uchburchak: "Triangle", yulduz: "Star", yurak: "Heart", olmoscha: "Diamond" }
+};
+
+const t = GameAPI.t.bind(GameAPI, I18N);
+
 const COLORS_DATA = [
-  { name:"Qizil",     emoji:"🔴", hex:"#FF6B6B", light:"#FFE5E5" },
-  { name:"Ko'k",      emoji:"🔵", hex:"#4ECDC4", light:"#E0FAF8" },
-  { name:"Yashil",    emoji:"🟢", hex:"#55EFC4", light:"#E0FAF0" },
-  { name:"Sariq",     emoji:"🟡", hex:"#FECA57", light:"#FFFBE0" },
-  { name:"To'q sariq",emoji:"🟠", hex:"#FF9F43", light:"#FFF0D9" },
-  { name:"Binafsha",  emoji:"🟣", hex:"#A29BFE", light:"#F0EEFF" },
-  { name:"Pushti",    emoji:"🩷", hex:"#FD79A8", light:"#FFE5F0" },
-  { name:"Jigarrang", emoji:"🟤", hex:"#CD853F", light:"#F5E6D0" },
+  { get name() { return t('qizil'); },     emoji: "🔴", hex: "#FF6B6B", light: "#FFE5E5" },
+  { get name() { return t('kok'); },      emoji: "🔵", hex: "#4ECDC4", light: "#E0FAF8" },
+  { get name() { return t('yashil'); },    emoji: "🟢", hex: "#55EFC4", light: "#E0FAF0" },
+  { get name() { return t('sariq'); },     emoji: "🟡", hex: "#FECA57", light: "#FFFBE0" },
+  { get name() { return t('toqSariq'); },  emoji: "🟠", hex: "#FF9F43", light: "#FFF0D9" },
+  { get name() { return t('binafsha'); },  emoji: "🟣", hex: "#A29BFE", light: "#F0EEFF" },
+  { get name() { return t('pushti'); },    emoji: "🩷", hex: "#FD79A8", light: "#FFE5F0" },
+  { get name() { return t('jigarrang'); }, emoji: "🟤", hex: "#CD853F", light: "#F5E6D0" },
 ];
 
 const SHAPES_DATA = [
-  { name:"Doira",        type:"circle" },
-  { name:"Kvadrat",      type:"square" },
-  { name:"Uchburchak",   type:"triangle" },
-  { name:"Yulduz",       type:"star" },
-  { name:"Yurak",        type:"heart" },
-  { name:"Olmoscha",     type:"diamond" },
+  { get name() { return t('doira'); },        type: "circle" },
+  { get name() { return t('kvadrat'); },      type: "square" },
+  { get name() { return t('uchburchak'); },   type: "triangle" },
+  { get name() { return t('yulduz'); },       type: "star" },
+  { get name() { return t('yurak'); },        type: "heart" },
+  { get name() { return t('olmoscha'); },     type: "diamond" },
 ];
+
+function applyTranslations() {
+  document.querySelectorAll('.badge-label')[0].textContent = t('ball');
+  document.querySelectorAll('.badge-label')[1].textContent = t('level');
+  document.querySelectorAll('.badge-label')[2].textContent = t('rekord');
+
+  document.getElementById('tab-color').textContent = t('color');
+  document.getElementById('tab-shape').textContent = t('shape');
+  document.getElementById('tab-mix').textContent = t('mix');
+
+  document.querySelector('#start-screen .wc-title').textContent = "Ranglar & Shakllar!";
+  document.querySelector('#start-screen .wc-sub').innerHTML = t('msgSmart');
+  document.querySelector('#start-screen .action-btn').textContent = "🎮 " + t('start');
+
+  document.getElementById('r-title').textContent = t('winTitle');
+  document.querySelectorAll('#result-screen .white-card div div div')[1].textContent = t('ball');
+  document.querySelectorAll('#result-screen .white-card div div div')[3].textContent = t('correct');
+  document.querySelectorAll('#result-screen .action-btn')[0].textContent = "🔄 " + t('again');
+  document.querySelectorAll('#result-screen .ghost-btn')[0].textContent = "🏠 " + t('home');
+
+  const labels = { color: t('color'), shape: t('shape'), mix: t('mix') };
+  document.getElementById("mode-label").textContent = labels[gameMode];
+}
+
+window.addEventListener('DOMContentLoaded', applyTranslations);
 
 function drawShape(svgEl, type, color, size=56) {
   svgEl.innerHTML = "";
@@ -376,7 +334,7 @@ function setMode(m) {
       tab.style.color = "";
     }
   });
-  const labels = {color:"🎨 Rang", shape:"🔷 Shakl", mix:"🌈 Aralash"};
+  const labels = {color: t('color'), shape: t('shape'), mix: t('mix')};
   document.getElementById("mode-label").textContent = labels[m];
 }
 
@@ -417,9 +375,9 @@ function nextQ() {
     emojiEl.style.display = "block";
     svgEl.style.display   = "none";
     emojiEl.textContent   = currentItem.emoji;
-    nameEl.textContent    = currentItem.name.toUpperCase() + " RANG";
+    nameEl.textContent    = currentItem.name.toUpperCase() + t('colorSuffix');
     nameEl.style.color    = currentItem.hex;
-    hintEl.textContent    = "Shu rangni topib bosing 👇";
+    hintEl.textContent    = t('colorHint');
     cardEl.style.background = currentItem.light;
   } else {
     emojiEl.style.display = "none";
@@ -428,10 +386,10 @@ function nextQ() {
     svgEl.setAttribute("width","72"); svgEl.setAttribute("height","72");
     nameEl.textContent  = currentItem.name.toUpperCase();
     nameEl.style.color  = currentItem.color.hex;
-    hintEl.textContent  = "Shu shaklni topib bosing 👇";
+    hintEl.textContent  = t('shapeHint');
     cardEl.style.background = currentItem.color.light;
   }
-  document.getElementById("q-instruction").textContent = `${qNum+1} / ${totalQ} — TOPISH KERAK`;
+  document.getElementById("q-instruction").textContent = `${qNum+1} / ${totalQ} — ` + t('find');
 
   // Build choices
   const grid = document.getElementById("choices-grid");
@@ -508,21 +466,24 @@ function startGame() {
 }
 
 function endGame() {
-  if (score>best) {
-    best=score;
-    localStorage.setItem("colorShapeBest",best);
-    document.getElementById("best").textContent=best;
+  GameAPI.reportScore(GAME_ID, score);
+  if (GameAPI.saveBestScore(GAME_ID, score)) {
+    best = score;
+    document.getElementById("best").textContent = best;
   }
+
   const pct = correctCount/totalQ;
   document.getElementById("r-emoji").textContent = pct>=0.9?"🏆":pct>=0.7?"🎉":"⭐";
-  document.getElementById("r-title").textContent = pct>=0.9?"AQLLI BOLA!":pct>=0.7?"ZO'R!":"YAXSHI URINISH!";
+  document.getElementById("r-title").textContent = pct>=0.9 ? t('smart') : (pct>=0.7 ? t('great') : t('good'));
   document.getElementById("r-score").textContent   = score;
   document.getElementById("r-correct").textContent = `${correctCount}/${totalQ}`;
   document.getElementById("r-msg").textContent = pct>=0.9
-    ? "Barcha ranglar va shakllarni bilasiz! 🌟"
-    : pct>=0.7 ? "Deyarli hammasi to'g'ri! Davom eting 💪"
-    : "Yana bir oz mashq qiling! 📚";
-  if (pct>=0.8) confetti(); confetti();
+    ? t('msgSmart')
+    : pct>=0.7 ? t('msgGreat')
+    : t('msgGood');
+  if (pct>=0.8) confetti();
+
+  GameAPI.endGame();
   document.getElementById("result-screen").classList.remove("hidden");
 }
 function goHome() {

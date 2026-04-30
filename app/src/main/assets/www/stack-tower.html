@@ -20,22 +20,34 @@
         <button onclick="reset()">Play Again</button>
     </div>
     <div id="game"></div>
-
+    <script src="game-api.js"></script>
     <script>
+        const GAME_ID = 'stack-tower';
         const game = document.getElementById('game');
         const scoreEl = document.getElementById('score');
         const msg = document.getElementById('msg');
+
+        const I18N = {
+            uz: { over: "O'YIN TUGADI", restart: "Qayta o'ynash" },
+            ru: { over: "ИГРА ОКОНЧЕНА", restart: "Сыграть еще" },
+            en: { over: "GAME OVER", restart: "Play Again" }
+        };
+        const t = GameAPI.t.bind(GameAPI, I18N);
+
         let score = 0;
         let width = 150;
         let currentBlock;
         let direction = 1;
-        let speed = 2;
+        let speed = 2 * GameAPI.profile.speed;
         let blocks = [];
         let gameOver = false;
         let offset = 0;
 
         function createBlock() {
+            msg.querySelector('h1').textContent = t('over');
+            msg.querySelector('button').textContent = t('restart');
             const b = document.createElement('div');
+            // ... (rest same as before)
             b.className = 'block';
             b.style.width = width + 'px';
             b.style.bottom = (blocks.length * 40) + 'px';
@@ -98,14 +110,16 @@
         function endGame() {
             gameOver = true;
             msg.style.display = 'block';
-            if(window.parent && window.parent.__gameEnd) window.parent.__gameEnd();
+            GameAPI.reportScore(GAME_ID, score);
+            GameAPI.saveBestScore(GAME_ID, score);
+            GameAPI.endGame();
         }
 
         function reset() {
             blocks = [];
             score = 0;
             width = 150;
-            speed = 2;
+            speed = 2 * GameAPI.profile.speed;
             gameOver = false;
             offset = 0;
             game.innerHTML = '';

@@ -1,11 +1,20 @@
+/**
+ * Mini Game Core Engine
+ * Used for simple tap/reaction games.
+ */
 (() => {
   "use strict";
 
-  const params = new URLSearchParams(window.location.search);
-  const hg = parseInt(params.get("hg") || "2", 10);
-  const lang = (params.get("lang") || "en").toLowerCase();
-  const group = [1, 2, 3].includes(hg) ? hg : 2;
+  // Wait for GameAPI to load
+  if (!window.GameAPI) {
+    console.error("GameAPI not found. Ensure game-api.js is loaded before mini-game-core.js");
+    return;
+  }
 
+  const cfg = window.MINI_GAME_CONFIG;
+  if (!cfg) return;
+
+  const GAME_ID = cfg.id || "generic-game";
   const ROOT = document.getElementById("app");
   const scoreEl = document.getElementById("score");
   const timerEl = document.getElementById("timer");
@@ -13,11 +22,8 @@
   const statusEl = document.getElementById("status");
   const startBtn = document.getElementById("startBtn");
 
-  const cfg = window.MINI_GAME_CONFIG;
-  if (!cfg) return;
-
-  const pace = group === 3 ? 0.72 : group === 2 ? 0.88 : 1;
-  const duration = Math.round((cfg.duration || 30) / pace);
+  const pace = GameAPI.profile.speed;
+  const duration = Math.round((cfg.duration || 30) * GameAPI.profile.timer);
 
   let score = 0;
   let left = duration;
@@ -26,12 +32,12 @@
   let y = 50;
   let timerId = null;
 
-  function txt(obj) {
-    return obj[lang] || obj.uz || obj.en || "";
+  function txt(key) {
+    return cfg[key]?.[GameAPI.lang] || cfg[key]?.en || "";
   }
 
   function moveTarget() {
-    const jitter = (group === 3 ? 22 : 34) * pace;
+    const jitter = (GameAPI.healthGroup === 3 ? 22 : 34) * pace;
     x = Math.max(10, Math.min(90, x + (Math.random() * jitter - jitter / 2)));
     y = Math.max(12, Math.min(88, y + (Math.random() * jitter - jitter / 2)));
     targetEl.style.left = `${x}%`;
@@ -43,10 +49,13 @@
     run = false;
     clearInterval(timerId);
     timerId = null;
-    statusEl.textContent = `${txt(cfg.done)} ${score}`;
-    startBtn.textContent = txt(cfg.playAgain);
+    statusEl.textContent = `${txt('done')} ${score}`;
+    startBtn.textContent = txt('playAgain');
     startBtn.disabled = false;
-    window.parent?.__gameEnd?.();
+
+    GameAPI.reportScore(GAME_ID, score);
+    GameAPI.saveBestScore(GAME_ID, score);
+    GameAPI.endGame();
   }
 
   function tick() {
@@ -64,7 +73,7 @@
     run = true;
     scoreEl.textContent = "0";
     timerEl.textContent = String(left);
-    statusEl.textContent = txt(cfg.hint);
+    statusEl.textContent = txt('hint');
     startBtn.disabled = true;
     moveTarget();
     clearInterval(timerId);
@@ -73,39 +82,47 @@
 
   function onTap() {
     if (!run) return;
-    const gain = group === 3 ? 2 : 1;
+    const gain = GameAPI.healthGroup === 3 ? 2 : 1;
     score += gain;
     scoreEl.textContent = String(score);
-    moveTarget();
+    
+    // Innovation: Haptic and Visual feedback
+    GameAPI.vibrate(40);
+    
+    targetEl.animate([
+      { transform: "translate(-50%, -50%) scale(1)" },
+      { transform: "translate(-50%, -50%) scale(1.3)" },
+      { transform: "translate(-50%, -50%) scale(1)" }
+    ], { duration: 150 });
+
+    // Debounce target move slightly to let animation breathe
+    requestAnimationFrame(() => moveTarget());
   }
 
   function dispose() {
     run = false;
     clearInterval(timerId);
     timerId = null;
-    targetEl.removeEventListener("click", onTap);
-    startBtn.removeEventListener("click", startGame);
-    window.removeEventListener("message", onMessage);
+    if (targetEl) targetEl.removeEventListener("click", onTap);
+    if (startBtn) startBtn.removeEventListener("click", startGame);
+    console.log(`[${GAME_ID}] Core Engine disposed`);
   }
 
-  function onMessage(ev) {
-    if (ev.data?.type === "game:dispose") {
-      dispose();
-    }
-  }
+  window.addEventListener('gameDispose', dispose);
 
-  document.title = txt(cfg.title);
-  document.getElementById("title").textContent = `${cfg.icon} ${txt(cfg.title)}`;
-  document.getElementById("hint").textContent = txt(cfg.hint);
-  document.getElementById("badge").textContent = `${txt(cfg.groupLabel)} ${group}`;
-  startBtn.textContent = txt(cfg.start);
+  document.title = txt('title');
+  document.getElementById("title").textContent = `${cfg.icon} ${txt('title')}`;
+  document.getElementById("hint").textContent = txt('hint');
+
+  const groupLabels = { uz: "Guruh", ru: "Группа", en: "Group" };
+  document.getElementById("badge").textContent = `${groupLabels[GameAPI.lang] || "Group"} ${GameAPI.healthGroup}`;
+
+  startBtn.textContent = txt('start');
   startBtn.addEventListener("click", startGame);
   targetEl.addEventListener("click", onTap, { passive: true });
-  window.addEventListener("message", onMessage);
 
-  if (group === 3) {
+  if (GameAPI.healthGroup === 3) {
     ROOT.classList.add("low-stress");
     targetEl.style.transitionDuration = "300ms";
   }
 })();
-

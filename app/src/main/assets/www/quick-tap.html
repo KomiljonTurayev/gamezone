@@ -77,27 +77,29 @@ body {
   <button class="btn" onclick="startGame()" id="btn-again">TRY AGAIN</button>
 </div>
 
+<script src="game-api.js"></script>
 <script>
-const params = new URLSearchParams(window.location.search);
-const LANG = (params.get('lang') || 'uz').toLowerCase();
+const GAME_ID = 'quick-tap';
+const LANG = GameAPI.lang;
 const I18N = {
-  uz: { score:"BALL", best:"REKORD", lives:"HAYOT", start:"Tezkor Tap", desc:"Moviy doiralarni bosing, qizil (bomba)lardan qoching!", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"O'yin Tugadi" },
-  ru: { score:"СЧЕТ", best:"РЕКОРД", lives:"ЖИЗНИ", start:"Быстрый Тап", desc:"Нажимай на синие круги, избегай красных бомб!", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"Игра Окончена" },
-  en: { score:"SCORE", best:"BEST", lives:"LIVES", start:"Quick Tap", desc:"Tap blue circles, avoid red bombs!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Game Over" }
+  uz: { score:"BALL", best:"REKORD", lives:"HAYOT", start:"Tezkor Tap", desc:"Moviy doiralarni bosing, qizil (bomba)lardan qoching!", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"O'yin Tugadi", newBest:"🏆 YANGI REKORD!" },
+  ru: { score:"СЧЕТ", best:"РЕКОРД", lives:"ЖИЗНИ", start:"Быстрый Тап", desc:"Нажимай на синие круги, избегай красных бомб!", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"Игра Окончена", newBest:"🏆 НОВЫЙ РЕКОРД!" },
+  en: { score:"SCORE", best:"BEST", lives:"LIVES", start:"Quick Tap", desc:"Tap blue circles, avoid red bombs!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Game Over", newBest:"🏆 NEW BEST!" }
 };
-const t = I18N[LANG] || I18N.en;
+const t = GameAPI.t.bind(GameAPI, I18N);
 
-document.getElementById('lbl-score').textContent = t.score;
-document.getElementById('lbl-best').textContent = t.best;
-document.getElementById('lbl-lives').textContent = t.lives;
-document.getElementById('start-title').textContent = t.start;
-document.getElementById('start-desc').textContent = t.desc;
-document.getElementById('btn-start').textContent = t.btnStart;
-document.getElementById('btn-again').textContent = t.btnAgain;
-document.getElementById('over-title').textContent = t.over;
+document.getElementById('lbl-score').textContent = t('score');
+document.getElementById('lbl-best').textContent = t('best');
+document.getElementById('lbl-lives').textContent = t('lives');
+document.getElementById('start-title').textContent = t('start');
+document.getElementById('start-desc').textContent = t('desc');
+document.getElementById('btn-start').textContent = t('btnStart');
+document.getElementById('btn-again').textContent = t('btnAgain');
+document.getElementById('over-title').textContent = t('over');
+document.getElementById('new-record').textContent = t('newBest');
 
 let score = 0, lives = 3, gameActive = false;
-let best = parseInt(localStorage.getItem('gz-best-quick-tap') || '0');
+let best = GameAPI.getBestScore(GAME_ID);
 document.getElementById('best').textContent = best;
 const arena = document.getElementById('arena');
 
@@ -150,14 +152,13 @@ function endGame() {
   gameActive = false;
   document.getElementById('final-score').textContent = score;
   document.getElementById('screen-over').classList.remove('hidden');
-  if (score > best) {
+  if (GameAPI.saveBestScore(GAME_ID, score)) {
     best = score;
-    localStorage.setItem('gz-best-quick-tap', best);
     document.getElementById('best').textContent = best;
     document.getElementById('new-record').classList.remove('hidden');
   }
-  window.parent.postMessage({ type: "game:score", id: "quick-tap", score: score }, "*");
-  window.parent.__gameEnd?.();
+  GameAPI.reportScore(GAME_ID, score);
+  GameAPI.endGame();
 }
 </script>
 </body>

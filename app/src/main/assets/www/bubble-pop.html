@@ -254,36 +254,8 @@
   <span>📢 REKLAMA JOYI (AdMob Banner)</span>
 </div>
 
+<script src="game-api.js"></script>
 <script>
-// =============================================
-// ADMOB INTEGRATION — Android Capacitor uchun
-// =============================================
-/*
-  1. npm install @capacitor-community/admob
-  2. capacitor.config.ts ga qo'shing:
-     AdMob: { appId: "ca-app-pub-3940256099942544~3347511713" }
-
-  3. Quyidagi kod Android da ishlaydi:
-  
-  import { AdMob, BannerAdOptions, BannerAdSize, BannerAdPosition } from '@capacitor-community/admob';
-  
-  async function showBanner() {
-    await AdMob.initialize();
-    const options: BannerAdOptions = {
-      adId: 'ca-app-pub-3940256099942544/6300978111', // Google test Banner ID
-      adSize: BannerAdSize.BANNER,
-      position: BannerAdPosition.BOTTOM_CENTER,
-      isTesting: true // Test uchun true, chiqarish vaqti false
-    };
-    await AdMob.showBanner(options);
-  }
-  
-  async function showInterstitial() {
-    await AdMob.prepareInterstitial({ adId: 'ca-app-pub-3940256099942544/1033173712', isTesting: true });
-    await AdMob.showInterstitial();
-  }
-*/
-
 // =============================================
 // O'YIN KODI
 // =============================================
@@ -292,10 +264,20 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const gameArea = document.getElementById('game-area');
 
+const GAME_ID = 'bubble-pop';
+const I18N = {
+  uz: { score: "BALL", level: "DARAJA", best: "REKORD", start: "🚀 BOSHLASH", restart: "🔄 QAYTA", home: "🏠 BOSH", pop: "Pufaklarni tez bosing!", time: "Vaqt tugashidan oldin ko'proq ball yig'ing 🎯", good: "Yaxshi urinish!", great: "Zo'r!", amazing: "Ajoyib!", master: "Ustaxona!", newBest: "🏆 YANGI REKORD!" },
+  ru: { score: "БАЛЛЫ", level: "УРОВЕНЬ", best: "РЕКОРД", start: "🚀 НАЧАТЬ", restart: "🔄 ЗАНОВО", home: "🏠 ГЛАВНАЯ", pop: "Лопай пузыри быстро!", time: "Собери как можно больше баллов 🎯", good: "Хорошая попытка!", great: "Отлично!", amazing: "Великолепно!", master: "Мастер!", newBest: "🏆 НОВЫЙ РЕКОРД!" },
+  en: { score: "SCORE", level: "LEVEL", best: "BEST", start: "🚀 START", restart: "🔄 RESTART", home: "🏠 HOME", pop: "Pop bubbles fast!", time: "Collect points before time runs out 🎯", good: "Good try!", great: "Great!", amazing: "Amazing!", master: "Master!", newBest: "🏆 NEW BEST!" }
+};
+
+const t = GameAPI.t.bind(GameAPI, I18N);
+
 let bubbles = [];
 let score = 0;
-let bestScore = parseInt(localStorage.getItem('bubbleBest') || '0');
-let timeLeft = 30;
+let bestScore = GameAPI.getBestScore(GAME_ID);
+let timeLeft = 30 * GameAPI.profile.timer;
+let totalTime = timeLeft;
 let gameRunning = false;
 let animFrame;
 let timerInterval;
@@ -305,7 +287,19 @@ let level = 1;
 let spawnRate = 1200;
 let spawnTimer;
 
-document.getElementById('best').textContent = bestScore;
+function applyTranslations() {
+  document.getElementById('score-label').textContent = t('score');
+  document.getElementById('level-label').textContent = t('level');
+  document.getElementById('best-label').textContent = t('best');
+  document.querySelector('#start-screen h1').textContent = "Bubble Pop!";
+  document.querySelector('#start-screen p').innerHTML = `${t('pop')}<br>${t('time')}`;
+  document.querySelector('#start-screen .btn-primary').textContent = t('start');
+  document.querySelector('#gameover-screen .btn-primary').textContent = t('restart');
+  document.querySelector('#gameover-screen .btn-secondary').textContent = t('home');
+  document.getElementById('best').textContent = bestScore;
+}
+
+window.addEventListener('DOMContentLoaded', applyTranslations);
 
 const COLORS = [
   { fill: '#ff6b9d', glow: '#ff6b9d' },
@@ -347,8 +341,8 @@ class Bubble {
       if (this.popProgress >= 1) this.alive = false;
       return;
     }
-    this.y -= this.speed;
-    this.wobble += this.wobbleSpeed;
+    this.y -= this.speed * GameAPI.profile.speed;
+    this.wobble += this.wobbleSpeed * GameAPI.profile.motion;
     this.x += Math.sin(this.wobble) * 0.5;
     if (this.y + this.r < 0) this.alive = false;
   }
@@ -516,7 +510,8 @@ function startGame() {
   document.getElementById('gameover-screen').classList.add('hidden');
 
   score = 0;
-  timeLeft = 30;
+  timeLeft = 30 * GameAPI.profile.timer;
+  totalTime = timeLeft;
   level = 1;
   combo = 0;
   bubbles = [];
@@ -534,7 +529,7 @@ function startGame() {
   // Timer
   timerInterval = setInterval(() => {
     timeLeft -= 0.1;
-    const pct = (timeLeft / 30) * 100;
+    const pct = (timeLeft / totalTime) * 100;
     document.getElementById('timer-bar').style.width = pct + '%';
 
     if (pct < 30) {
@@ -542,7 +537,7 @@ function startGame() {
     }
 
     // Level up
-    level = Math.min(5, 1 + Math.floor((30 - timeLeft) / 8));
+    level = Math.min(5, 1 + Math.floor((totalTime - timeLeft) / (totalTime/4)));
     document.getElementById('level').textContent = level;
 
     if (timeLeft <= 0) {
@@ -560,28 +555,27 @@ function endGame() {
   clearTimeout(spawnTimer);
   cancelAnimationFrame(animFrame);
 
-  window.AdMobMgr?.showInterstitial(); // ✅ AdMob Interstitial
-  // showInterstitialAd(); // Android da bu funksiyani chaqiring
-
-  const isNewBest = score > bestScore;
+  GameAPI.reportScore(GAME_ID, score);
+  const isNewBest = GameAPI.saveBestScore(GAME_ID, score);
   if (isNewBest) {
     bestScore = score;
-    localStorage.setItem('bubbleBest', bestScore);
     document.getElementById('best').textContent = bestScore;
   }
 
   document.getElementById('final-score').textContent = score;
   document.getElementById('new-best-box').style.display = isNewBest ? 'block' : 'none';
+  document.getElementById('new-best-box').querySelector('.lbl').textContent = t('newBest');
 
-  let emoji = '😊', title = 'Yaxshi urinish!';
-  if (score >= 500) { emoji = '🏆'; title = 'Ustaxona!'; }
-  else if (score >= 300) { emoji = '🔥'; title = 'Ajoyib!'; }
-  else if (score >= 150) { emoji = '⭐'; title = 'Zo\'r!'; }
+  let emoji = '😊', title = t('good');
+  if (score >= 500) { emoji = '🏆'; title = t('master'); }
+  else if (score >= 300) { emoji = '🔥'; title = t('amazing'); }
+  else if (score >= 150) { emoji = '⭐'; title = t('great'); }
 
   document.getElementById('result-emoji').textContent = emoji;
   document.getElementById('result-title').textContent = title;
 
   document.getElementById('gameover-screen').classList.remove('hidden');
+  GameAPI.endGame();
 }
 
 function showStart() {

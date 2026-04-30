@@ -19,20 +19,31 @@
         <button onclick="reset()">Restart</button>
     </div>
     <canvas id="canvas"></canvas>
-
+    <script src="game-api.js"></script>
     <script>
+        const GAME_ID = 'helix-jump';
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const ui = document.getElementById('ui');
         const msg = document.getElementById('msg');
 
+        const I18N = {
+            uz: { over: "O'YIN TUGADI", restart: "Qayta boshlash", best: "REKORD: " },
+            ru: { over: "ИГРА ОКОНЧЕНА", restart: "Заново", best: "РЕКОРД: " },
+            en: { over: "GAME OVER", restart: "Restart", best: "BEST: " }
+        };
+        const t = GameAPI.t.bind(GameAPI, I18N);
+
         let score = 0, rotation = 0, ballY = 200, ballVY = 0;
         let platforms = [], gameOver = false;
+        let bestScore = GameAPI.getBestScore(GAME_ID);
         const gravity = 0.25, jumpForce = -7;
 
         function init() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            msg.querySelector('h1').textContent = t('over');
+            msg.querySelector('button').textContent = t('restart');
             platforms = [];
             for (let i = 0; i < 100; i++) {
                 platforms.push({
@@ -42,6 +53,8 @@
                 });
             }
         }
+
+        window.addEventListener('resize', init);
 
         function draw() {
             if (gameOver) return;
@@ -108,12 +121,25 @@
         function endGame() {
             gameOver = true;
             msg.style.display = 'block';
-            if(window.parent && window.parent.__gameEnd) window.parent.__gameEnd();
+            GameAPI.reportScore(GAME_ID, score);
+            const isNewBest = GameAPI.saveBestScore(GAME_ID, score);
+            if (isNewBest) bestScore = score;
+
+            const bestEl = document.createElement('div');
+            bestEl.style.fontSize = '18px';
+            bestEl.style.marginTop = '10px';
+            bestEl.style.color = '#ffd700';
+            bestEl.textContent = t('best') + bestScore;
+            msg.appendChild(bestEl);
+
+            GameAPI.endGame();
         }
 
         function reset() {
             score = 0; ballY = 200; ballVY = 0; rotation = 0;
             gameOver = false; msg.style.display = 'none';
+            const bestEl = msg.querySelector('div');
+            if(bestEl) bestEl.remove();
             ui.textContent = '0';
             init();
             draw();
@@ -123,14 +149,14 @@
         window.addEventListener('touchstart', e => lastX = e.touches[0].clientX);
         window.addEventListener('touchmove', e => {
             const dx = e.touches[0].clientX - lastX;
-            rotation += dx * 0.01;
+            rotation += dx * 0.01 * GameAPI.profile.speed;
             lastX = e.touches[0].clientX;
         });
 
         window.addEventListener('mousedown', e => lastX = e.clientX);
         window.addEventListener('mousemove', e => {
             if (e.buttons === 1) {
-                rotation += (e.clientX - lastX) * 0.01;
+                rotation += (e.clientX - lastX) * 0.01 * GameAPI.profile.speed;
                 lastX = e.clientX;
             }
         });

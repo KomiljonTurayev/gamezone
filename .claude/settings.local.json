@@ -3,7 +3,13 @@
     "allow": [
       "Skill(update-config)",
       "Bash(npx --yes @playwright/mcp@latest --version)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(adb devices *)",
+      "Bash(./gradlew assembleDebug)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
 }

@@ -308,7 +308,7 @@ body {
       <div class="rule-text"><b style="color:#ffd700">SARIQ</b> — sariq tugmani bos</div>
     </div>
   </div>
-  <button class="btn btn-primary" onclick="startGame()">🚀 BOSHLASH</button>
+  <button class="btn btn-primary" onclick="startGame()" id="btn-start">🚀 BOSHLASH</button>
 </div>
 
 <!-- GAME OVER -->
@@ -320,63 +320,66 @@ body {
     <div class="result-lbl">BALL</div>
   </div>
   <div class="new-best-badge hidden" id="new-best">🏆 YANGI REKORD!</div>
-  <button class="btn btn-primary" onclick="startGame()">🔄 QAYTA O'YNASH</button>
-  <button class="btn btn-ghost" onclick="goHome()">🏠 BOSH SAHIFA</button>
+  <button class="btn btn-primary" id="btn-again" onclick="startGame()">🔄 QAYTA O'YNASH</button>
+  <button class="btn btn-ghost" id="btn-home" onclick="goHome()">🏠 BOSH SAHIFA</button>
 </div>
 
+<script src="game-api.js"></script>
 <script>
-// =============================================
-// ADMOB KOD — Capacitor Android uchun tayyor
-// =============================================
-/*
-QADAMLAR:
-1. npm install @capacitor/core @capacitor/android @capacitor-community/admob
-2. npx cap init
-3. npx cap add android
-4. Quyidagi ID larni o'z AdMob ID laringiz bilan almashtiring:
-
-const ADMOB_APP_ID    = "ca-app-pub-3940256099942544~3347511713";
-const BANNER_ID       = "ca-app-pub-3940256099942544/6300978111";
-const INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712";
-
-5. AndroidManifest.xml ga qo'shing:
-<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
-           android:value="ca-app-pub-3940256099942544~3347511713"/>
-
-6. Ishlatish:
-import { AdMob } from '@capacitor-community/admob';
-await AdMob.initialize({ testingDevices: ['TEST_DEVICE_ID'] });
-// Banner
-await AdMob.showBanner({ adId: BANNER_ID, position: 'BOTTOM_CENTER', isTesting: true });
-// Interstitial (o'yin tugaganda)
-await AdMob.prepareInterstitial({ adId: INTERSTITIAL_ID, isTesting: true });
-await AdMob.showInterstitial();
-*/
-
 // =============================================
 // O'YIN LOGIKASI
 // =============================================
 
+const GAME_ID = 'color-rush';
+const I18N = {
+  uz: { ball: "BALL", rekord: "REKORD", which: "QAYSI RANG?", start: "BOSHLASH", again: "QAYTA O'YNASH", home: "BOSH SAHIFA", over: "O'yin Tugadi!", rules: "Ismga mos rangni toping<br>Tez va to'g'ri bosing! ⚡", qizil: "QIZIL", yashil: "YASHIL", kok: "KO'K", sariq: "SARIQ", newBest: "🏆 YANGI REKORD!", master: "Ustaxona!", amazing: "Ajoyib reflex!", good: "Yaxshi!", tryAgain: "Yana urining!" },
+  ru: { ball: "БАЛЛЫ", rekord: "РЕКОРД", which: "КАКОЙ ЦВЕТ?", start: "НАЧАТЬ", again: "ЗАНОВО", home: "ГЛАВНАЯ", over: "Игра Окончена!", rules: "Найди цвет по названию<br>Жми быстро и верно! ⚡", qizil: "КРАСНЫЙ", yashil: "ЗЕЛЕНЫЙ", kok: "СИНИЙ", sariq: "ЖЕЛТЫЙ", newBest: "🏆 НОВЫЙ РЕКОРД!", master: "Мастер!", amazing: "Отличный рефлекс!", good: "Хорошо!", tryAgain: "Попробуй еще!" },
+  en: { ball: "SCORE", rekord: "BEST", which: "WHICH COLOR?", start: "START", again: "PLAY AGAIN", home: "HOME", over: "Game Over!", rules: "Match color to name<br>Tap fast and right! ⚡", qizil: "RED", yashil: "GREEN", kok: "BLUE", sariq: "YELLOW", newBest: "🏆 NEW BEST!", master: "Master!", amazing: "Amazing reflex!", good: "Good!", tryAgain: "Try again!" }
+};
+
+const t = GameAPI.t.bind(GameAPI, I18N);
+
 const COLORS = [
-  { name: 'QIZIL',  hex: '#ff453a', dark: '#cc2a20' },
-  { name: 'YASHIL', hex: '#30d158', dark: '#1a8c36' },
-  { name: "KO'K",   hex: '#0a84ff', dark: '#0055cc' },
-  { name: 'SARIQ',  hex: '#ffd700', dark: '#cc9f00' },
+  { get name() { return t('qizil'); },  hex: '#ff453a', dark: '#cc2a20' },
+  { get name() { return t('yashil'); }, hex: '#30d158', dark: '#1a8c36' },
+  { get name() { return t('kok'); },   hex: '#0a84ff', dark: '#0055cc' },
+  { get name() { return t('sariq'); },  hex: '#ffd700', dark: '#cc9f00' },
 ];
 
 let score = 0;
-let best = parseInt(localStorage.getItem('colorBest') || '0');
+let best = GameAPI.getBestScore(GAME_ID);
 let lives = 3;
 let gameOn = false;
 let currentAnswer = 0;
 let buttonColors = [];
-let timePerQ = 3000;
+let timePerQ = 3000 * GameAPI.profile.timer;
 let timer = null;
 let barAnim = null;
 let barStart = 0;
 let streak = 0;
 
-document.getElementById('best-val').textContent = best;
+function applyTranslations() {
+  document.querySelectorAll('.stat-label')[0].textContent = t('ball');
+  document.querySelectorAll('.stat-label')[1].textContent = t('rekord');
+  document.getElementById('target-label').textContent = t('which');
+  document.querySelector('.screen-title').textContent = "Color Rush!";
+  document.querySelector('.screen-sub').innerHTML = t('rules');
+  document.getElementById('btn-start').textContent = "🚀 " + t('start');
+  document.getElementById('over-title').textContent = t('over');
+  document.querySelector('.result-lbl').textContent = t('ball');
+  document.getElementById('btn-again').textContent = "🔄 " + t('again');
+  document.getElementById('btn-home').textContent = "🏠 " + t('home');
+  document.getElementById('best-val').textContent = best;
+
+  // Rule box text
+  const rules = document.querySelectorAll('.rule-text b');
+  rules[0].textContent = t('qizil');
+  rules[1].textContent = t('yashil');
+  rules[2].textContent = t('kok');
+  rules[3].textContent = t('sariq');
+}
+
+window.addEventListener('DOMContentLoaded', applyTranslations);
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -394,7 +397,7 @@ function startGame() {
   lives = 3;
   streak = 0;
   gameOn = true;
-  timePerQ = 3000;
+  timePerQ = 3000 * GameAPI.profile.timer;
 
   updateScore();
   updateHearts();
@@ -529,27 +532,26 @@ function updateHearts() {
 function endGame() {
   gameOn = false;
 
-  window.AdMobMgr?.showInterstitial(); // ✅ AdMob
-  // await AdMob.showInterstitial();
-
-  const isNew = score > best;
+  GameAPI.reportScore(GAME_ID, score);
+  const isNew = GameAPI.saveBestScore(GAME_ID, score);
   if (isNew) {
     best = score;
-    localStorage.setItem('colorBest', best);
     document.getElementById('best-val').textContent = best;
   }
 
   document.getElementById('over-score').textContent = score;
   document.getElementById('new-best').classList.toggle('hidden', !isNew);
+  document.getElementById('new-best').textContent = t('newBest');
 
-  let icon = '😤', title = 'Yana urining!';
-  if (score >= 200) { icon = '🏆'; title = 'Ustaxona!'; }
-  else if (score >= 100) { icon = '🔥'; title = 'Ajoyib reflex!'; }
-  else if (score >= 50) { icon = '⭐'; title = 'Yaxshi!'; }
+  let icon = '😤', title = t('tryAgain');
+  if (score >= 200) { icon = '🏆'; title = t('master'); }
+  else if (score >= 100) { icon = '🔥'; title = t('amazing'); }
+  else if (score >= 50) { icon = '⭐'; title = t('good'); }
 
   document.getElementById('over-icon').textContent = icon;
   document.getElementById('over-title').textContent = title;
   document.getElementById('over-screen').classList.remove('hidden');
+  GameAPI.endGame();
 }
 
 window.addEventListener("load", () => window.AdMobMgr?.init("color-rush"));

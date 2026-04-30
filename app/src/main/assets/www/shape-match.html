@@ -123,9 +123,10 @@ body {
   <button class="btn" onclick="startGame()" id="btn-again">PLAY AGAIN</button>
 </div>
 
+<script src="game-api.js"></script>
 <script>
-const params = new URLSearchParams(window.location.search);
-const LANG = (params.get('lang') || 'uz').toLowerCase();
+const GAME_ID = 'shape-match';
+const LANG = GameAPI.lang;
 
 const I18N = {
   uz: { score:"BALL", best:"REKORD", time:"VAQT", start:"Shape Matcher", desc:"Shakllarni pastdagi mos kataklarga bosing!", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"O'yin Tugadi" },
@@ -133,22 +134,22 @@ const I18N = {
   en: { score:"SCORE", best:"BEST", time:"TIME", start:"Shape Matcher", desc:"Tap the shapes when they match the slots!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Game Over" }
 };
 
-const t = I18N[LANG] || I18N.en;
+const t = GameAPI.t.bind(GameAPI, I18N);
 
 // UI Setup
-document.getElementById('lbl-score').textContent = t.score;
-document.getElementById('lbl-best').textContent = t.best;
-document.getElementById('lbl-time').textContent = t.time;
-document.getElementById('start-title').textContent = t.start;
-document.getElementById('start-desc').textContent = t.desc;
-document.getElementById('btn-start').textContent = t.btnStart;
-document.getElementById('btn-again').textContent = t.btnAgain;
-document.getElementById('over-title').textContent = t.over;
+document.getElementById('lbl-score').textContent = t('score');
+document.getElementById('lbl-best').textContent = t('best');
+document.getElementById('lbl-time').textContent = t('time');
+document.getElementById('start-title').textContent = t('start');
+document.getElementById('start-desc').textContent = t('desc');
+document.getElementById('btn-start').textContent = t('btnStart');
+document.getElementById('btn-again').textContent = t('btnAgain');
+document.getElementById('over-title').textContent = t('over');
 
 let score = 0;
-let timeLeft = 30;
+let timeLeft = 30 * GameAPI.profile.timer;
 let gameActive = false;
-let best = parseInt(localStorage.getItem('gz-best-shape-match') || '0');
+let best = GameAPI.getBestScore(GAME_ID);
 document.getElementById('best').textContent = best;
 
 const SHAPES = ["🔴", "🔷", "⭐", "🔺"];
@@ -186,7 +187,7 @@ function spawnShape() {
   canvas.appendChild(el);
 
   let pos = -60;
-  const speed = 2 + (score / 100);
+  const speed = (2 + (score / 100)) * GameAPI.profile.speed;
 
   const move = () => {
     if (!gameActive) { el.remove(); return; }
@@ -226,17 +227,15 @@ function endGame() {
   document.getElementById('final-score').textContent = score;
   document.getElementById('screen-over').classList.remove('hidden');
 
-  if (score > best) {
+  GameAPI.reportScore(GAME_ID, score);
+  const isNewBest = GameAPI.saveBestScore(GAME_ID, score);
+  if (isNewBest) {
     best = score;
-    localStorage.setItem('gz-best-shape-match', best);
     document.getElementById('best').textContent = best;
     document.getElementById('best-badge').classList.remove('hidden');
   }
 
-  if (window.parent && window.parent.postMessage) {
-    window.parent.postMessage({ type: "game:score", id: "shape-match", score: score }, "*");
-    window.parent.__gameEnd?.();
-  }
+  GameAPI.endGame();
 }
 </script>
 </body>

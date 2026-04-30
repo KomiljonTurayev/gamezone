@@ -409,223 +409,58 @@ body {
 }
 </style>
 <script src="admob.js"></script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
-</head>
-<body>
-
-<!-- PARTICLES BG -->
-<div id="particles"></div>
-
-<!-- ROTATE HINT (small landscape) -->
-<div id="rotate-hint">
-  <div class="big">📱</div>
-  <div>Planshetni tik ushlab o'ynang yoki<br>katta planshet ishlatilsin</div>
-</div>
-
-<div id="app">
-  <!-- TOP BAR -->
-  <div id="topbar">
-    <div class="stat-card">
-      <div class="lbl">JUFT</div>
-      <div class="val" id="pairs-val">0/0</div>
-    </div>
-    <div class="stat-card">
-      <div class="lbl">BALL</div>
-      <div class="val" id="score-val">0</div>
-    </div>
-    <div id="level-info">
-      <div id="level-title">DARAJA</div>
-      <div id="level-name">🟢 Oson</div>
-    </div>
-    <div class="stat-card">
-      <div class="lbl">URINISH</div>
-      <div class="val" id="tries-val">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="lbl">REKORD</div>
-      <div class="val" id="best-val">0</div>
-    </div>
-  </div>
-
-  <!-- TIMER -->
-  <div id="timer-wrap"><div id="timer-bar" style="width:100%"></div></div>
-
-  <!-- DIFFICULTY TABS -->
-  <div id="diff-bar">
-    <button class="diff-btn active" id="d-easy"   onclick="changeDiff('easy')"   style="background:linear-gradient(135deg,#10B981,#059669);border-color:transparent;color:white">🟢 Oson (8)</button>
-    <button class="diff-btn"        id="d-medium" onclick="changeDiff('medium')" >🟡 O'rta (12)</button>
-    <button class="diff-btn"        id="d-hard"   onclick="changeDiff('hard')"   >🔴 Qiyin (16)</button>
-    <button class="diff-btn"        id="d-tablet" onclick="changeDiff('tablet')" >📱 Planshet (20)</button>
-  </div>
-
-  <!-- GAME GRID -->
-  <div id="grid-wrap">
-    <div id="grid"></div>
-  </div>
-</div>
-
-<!-- ADMOB BANNER (bottom) -->
-<div id="admob-banner">
-  <!--
-    ✅ ADMOB INTEGRATION — Capacitor
-    BANNER:
-    await AdMob.showBanner({
-      adId: 'ca-app-pub-3940256099942544/6300978111',
-      adSize: AdMobBannerSize.BANNER,           // phone
-      adSize: AdMobBannerSize.LEADERBOARD,      // tablet (728x90)
-      position: BannerAdPosition.BOTTOM_CENTER,
-      isTesting: true
-    });
-    
-    TABLET BANNER:
-    const isTablet = window.innerWidth >= 600;
-    adSize: isTablet ? AdMobBannerSize.LEADERBOARD : AdMobBannerSize.BANNER
-    
-    INTERSTITIAL (o'yin tugaganda):
-    await AdMob.prepareInterstitial({ adId: '...', isTesting: true });
-    await AdMob.showInterstitial();
-    
-    REWARDED (hint uchun):
-    await AdMob.prepareRewardVideoAd({ adId: '...', isTesting: true });
-    await AdMob.showRewardVideoAd();
-  -->
-  <span>📢 AdMob Banner — Tablet: 728×90 Leaderboard | Phone: 320×50</span>
-</div>
-
-<!-- TABLET SIDE BANNER -->
-<div id="admob-side" style="display:none">
-  <span>📢 AdMob 160×600 Side Banner (Tablet only)</span>
-</div>
-
-<!-- START SCREEN -->
-<div class="screen" id="start-screen">
-  <div class="modal">
-    <div class="big-icon">🧠</div>
-    <div class="modal-title">Xotira O'yini!</div>
-    <div class="modal-sub">Juft kartalarni toping!<br>Telefon va planshetda ishlaydi 📱📟</div>
-    <div class="diff-grid">
-      <button class="diff-card" style="background:linear-gradient(135deg,#10B981,#059669)" onclick="startWithDiff('easy')">
-        <span class="dc-emoji">🟢</span>
-        <span class="dc-label">OSON</span>
-        <span class="dc-detail">8 karta (4 juft)</span>
-      </button>
-      <button class="diff-card" style="background:linear-gradient(135deg,#F59E0B,#D97706)" onclick="startWithDiff('medium')">
-        <span class="dc-emoji">🟡</span>
-        <span class="dc-label">O'RTA</span>
-        <span class="dc-detail">12 karta (6 juft)</span>
-      </button>
-      <button class="diff-card" style="background:linear-gradient(135deg,#EF4444,#DC2626)" onclick="startWithDiff('hard')">
-        <span class="dc-emoji">🔴</span>
-        <span class="dc-label">QIYIN</span>
-        <span class="dc-detail">16 karta (8 juft)</span>
-      </button>
-      <button class="diff-card" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)" onclick="startWithDiff('tablet')">
-        <span class="dc-emoji">📱</span>
-        <span class="dc-label">PLANSHET</span>
-        <span class="dc-detail">20 karta (10 juft)</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- WIN SCREEN -->
-<div class="screen hidden" id="win-screen">
-  <div class="modal">
-    <div class="big-icon" id="win-emoji">🏆</div>
-    <div class="modal-title" id="win-title">Ajoyib!</div>
-    <div class="stars" id="win-stars">⭐⭐⭐</div>
-    <div class="result-grid">
-      <div class="r-stat">
-        <div class="big" id="r-score">0</div>
-        <div class="lbl">BALL</div>
-      </div>
-      <div class="r-stat">
-        <div class="big" id="r-time">0s</div>
-        <div class="lbl">VAQT</div>
-      </div>
-      <div class="r-stat">
-        <div class="big" id="r-tries">0</div>
-        <div class="lbl">URINISH</div>
-      </div>
-    </div>
-    <div class="modal-sub" id="win-msg"></div>
-  </div>
-  <button class="play-btn" onclick="restartGame()">🔄 QAYTA</button>
-  <button class="ghost-btn" onclick="goHome()">🏠 BOSH SAHIFA</button>
-</div>
-
+<script src="game-api.js"></script>
 <script>
-// ════════════════════════════════════════════════════════
-// ADMOB — PLANSHET UCHUN TO'LIQ INTEGRATSIYA
-// ════════════════════════════════════════════════════════
-/*
-import { AdMob, BannerAdSize, BannerAdPosition } from '@capacitor-community/admob';
-
-const isTablet = window.innerWidth >= 600;
-
-async function initAds() {
-  await AdMob.initialize({ testingDevices: ['YOUR_DEVICE_ID'] });
-  
-  // Banner: planshetda katta format
-  await AdMob.showBanner({
-    adId: isTablet
-      ? 'ca-app-pub-3940256099942544/6300978111'   // 728x90 Leaderboard
-      : 'ca-app-pub-3940256099942544/6300978111',    // 320x50 Banner
-    adSize: isTablet ? BannerAdSize.LEADERBOARD : BannerAdSize.BANNER,
-    position: BannerAdPosition.BOTTOM_CENTER,
-    isTesting: true
-  });
-  
-  // Tablet landscape: side banner ham ko'rsatish
-  if (isTablet && window.innerWidth > window.innerHeight) {
-    document.getElementById('admob-side').style.display = 'flex';
-  }
-}
-
-// Interstitial (o'yin tugaganda)
-async function showInterstitial() {
-  const opts = { adId: 'ca-app-pub-3940256099942544/1033173712', isTesting: true };
-  await AdMob.prepareInterstitial(opts);
-  await AdMob.showInterstitial();
-}
-
-// Rewarded (Hint tugmasi uchun — foydalanuvchi ixtiyoriy ko'radi)
-async function showRewarded(onRewarded) {
-  await AdMob.prepareRewardVideoAd({ adId: 'ca-app-pub-3940256099942544/5224354917', isTesting: true });
-  AdMob.addListener(RewardAdPluginEvents.Rewarded, onRewarded);
-  await AdMob.showRewardVideoAd();
-}
-
-initAds();
-*/
-
 // ════════════════════════════════════════════════════════
 // O'YIN KONFIGURATSIYASI
 // ════════════════════════════════════════════════════════
 
-const EMOJIS_POOL = [
-  "🐶","🐱","🐸","🐮","🦁","🐧","🦊","🐰",
-  "🌸","🌈","⭐","🎮","🍎","🍕","🚀","🎸",
-  "🏆","🦋","🐠","🌙","🎨","🧩","🎯","🎪",
-  "🦄","🐳","🌺","🎭","🍦","🎲"
-];
-
-const DIFFICULTY = {
-  easy:   { pairs: 4,  time: 60,  cols: 4,  label: "🟢 Oson" },
-  medium: { pairs: 6,  time: 90,  cols: 4,  label: "🟡 O'rta" },
-  hard:   { pairs: 8,  time: 120, cols: 4,  label: "🔴 Qiyin" },
-  tablet: { pairs: 10, time: 150, cols: 5,  label: "📱 Planshet" },
+const GAME_ID = 'memory-game';
+const I18N = {
+  uz: { pairs: "JUFT", ball: "BALL", level: "DARAJA", tries: "URINISH", rekord: "REKORD", oson: "🟢 Oson", orta: "🟡 O'rta", qiyin: "🔴 Qiyin", planshet: "📱 Planshet", title: "Xotira O'yini!", sub: "Juft kartalarni toping!", restart: "QAYTA", home: "BOSH SAHIFA", winTitle: "Ajoyib!", time: "VAQT", found: "juft topildi" },
+  ru: { pairs: "ПАРЫ", ball: "БАЛЛЫ", level: "УРОВЕНЬ", tries: "ПОПЫТКИ", rekord: "РЕКОРД", oson: "🟢 Легко", orta: "🟡 Средне", qiyin: "🔴 Сложно", planshet: "📱 Планшет", title: "Игра Памяти!", sub: "Найди парные карточки!", restart: "ЗАНОВО", home: "ГЛАВНАЯ", winTitle: "Отлично!", time: "ВРЕМЯ", found: "пар найдено" },
+  en: { pairs: "PAIRS", ball: "SCORE", level: "LEVEL", tries: "TRIES", rekord: "BEST", oson: "🟢 Easy", orta: "🟡 Medium", qiyin: "🔴 Hard", planshet: "📱 Tablet", title: "Memory Game!", sub: "Find the matching pairs!", restart: "RESTART", home: "HOME", winTitle: "Great!", time: "TIME", found: "pairs found" }
 };
 
-let diff = "easy";
-let cards = [], flipped = [], matched = 0;
-let tries = 0, score = 0, timeLeft = 60;
-let canFlip = true, timerInterval = null, gameStarted = false;
-let startTime = 0;
-let best = parseInt(localStorage.getItem("memoBest") || "0");
-let audioCtx = null;
+const t = GameAPI.t.bind(GameAPI, I18N);
 
-document.getElementById("best-val").textContent = best;
+const DIFFICULTY = {
+  easy:   { pairs: 4,  time: 60,  cols: 4,  get label() { return t('oson'); } },
+  medium: { pairs: 6,  time: 90,  cols: 4,  get label() { return t('orta'); } },
+  hard:   { pairs: 8,  time: 120, cols: 4,  get label() { return t('qiyin'); } },
+  tablet: { pairs: 10, time: 150, cols: 5,  get label() { return t('planshet'); } },
+};
+
+function applyTranslations() {
+  document.querySelectorAll('.stat-card .lbl')[0].textContent = t('pairs');
+  document.querySelectorAll('.stat-card .lbl')[1].textContent = t('ball');
+  document.getElementById('level-title').textContent = t('level');
+  document.querySelectorAll('.stat-card .lbl')[2].textContent = t('tries');
+  document.querySelectorAll('.stat-card .lbl')[3].textContent = t('rekord');
+
+  document.getElementById('d-easy').textContent = t('oson') + " (8)";
+  document.getElementById('d-medium').textContent = t('orta') + " (12)";
+  document.getElementById('d-hard').textContent = t('qiyin') + " (16)";
+  document.getElementById('d-tablet').textContent = t('planshet') + " (20)";
+
+  document.querySelector('#start-screen .modal-title').textContent = t('title');
+  document.querySelector('#start-screen .modal-sub').innerHTML = t('sub');
+
+  const diffCards = document.querySelectorAll('.diff-card');
+  diffCards[0].querySelector('.dc-label').textContent = t('oson').split(' ')[1].toUpperCase();
+  diffCards[1].querySelector('.dc-label').textContent = t('orta').split(' ')[1].toUpperCase();
+  diffCards[2].querySelector('.dc-label').textContent = t('qiyin').split(' ')[1].toUpperCase();
+  diffCards[3].querySelector('.dc-label').textContent = t('planshet').split(' ')[1].toUpperCase();
+
+  document.getElementById('win-title').textContent = t('winTitle');
+  document.querySelectorAll('.r-stat .lbl')[0].textContent = t('ball');
+  document.querySelectorAll('.r-stat .lbl')[1].textContent = t('time');
+  document.querySelectorAll('.r-stat .lbl')[2].textContent = t('tries');
+  document.querySelectorAll('#win-screen button')[0].textContent = "🔄 " + t('restart');
+  document.querySelectorAll('#win-screen button')[1].textContent = "🏠 " + t('home');
+}
+
+window.addEventListener('DOMContentLoaded', applyTranslations);
 
 // BUILD PARTICLES
 (function() {
@@ -787,12 +622,13 @@ function burst(card) {
 
 function startTimer() {
   const cfg = DIFFICULTY[diff];
-  timeLeft = cfg.time;
+  timeLeft = cfg.time * GameAPI.profile.timer;
+  const totalTime = timeLeft;
   clearInterval(timerInterval);
   const bar = document.getElementById("timer-bar");
   timerInterval = setInterval(() => {
     timeLeft -= 0.1;
-    const pct = Math.max(0, (timeLeft/cfg.time)*100);
+    const pct = Math.max(0, (timeLeft / totalTime) * 100);
     bar.style.width = pct + "%";
     if (pct < 25) bar.style.background = "linear-gradient(90deg,#EF4444,#F59E0B)";
     else if (pct < 50) bar.style.background = "linear-gradient(90deg,#F59E0B,#FBBF24)";
@@ -817,9 +653,9 @@ function winGame() {
 function showResult(won) {
   const elapsed = Math.round((Date.now() - startTime) / 1000);
 
-  if (score > best) {
+  GameAPI.reportScore(GAME_ID, score);
+  if (GameAPI.saveBestScore(GAME_ID, score)) {
     best = score;
-    localStorage.setItem("memoBest", best);
     document.getElementById("best-val").textContent = best;
   }
 
@@ -827,9 +663,16 @@ function showResult(won) {
   const pct = matched / DIFFICULTY[diff].pairs;
   const stars = pct >= 1 ? "⭐⭐⭐" : pct >= 0.7 ? "⭐⭐" : "⭐";
   const emoji = pct >= 1 ? "🏆" : pct >= 0.5 ? "🎉" : "💪";
+
+  const recordSpeed = { uz: "REKORD TEZLIK! ⚡", ru: "РЕКОРДНАЯ СКОРОСТЬ! ⚡", en: "RECORD SPEED! ⚡" }[GameAPI.lang] || "RECORD SPEED! ⚡";
+  const perfect = { uz: "MUKAMMAL! 🏆", ru: "ИДЕАЛЬНО! 🏆", en: "PERFECT! 🏆" }[GameAPI.lang] || "PERFECT! 🏆";
+  const great = { uz: "AJOYIB! 🌟", ru: "ОТЛИЧНО! 🌟", en: "GREAT! 🌟" }[GameAPI.lang] || "GREAT! 🌟";
+  const good = { uz: "YO'RG'AY!", ru: "ХОРОШО!", en: "GOOD!" }[GameAPI.lang] || "GOOD!";
+  const timeOutTitle = { uz: "VAQT TUGADI!", ru: "ВРЕМЯ ВЫШЛО!", en: "TIME'S UP!" }[GameAPI.lang] || "TIME'S UP!";
+
   const title = pct >= 1
-    ? (elapsed < 30 ? "REKORD TEZLIK! ⚡" : "MUKAMMAL! 🏆")
-    : pct >= 0.7 ? "AJOYIB! 🌟" : won ? "YO'RG'AY!" : "VAQT TUGADI!";
+    ? (elapsed < 30 ? recordSpeed : perfect)
+    : pct >= 0.7 ? great : won ? good : timeOutTitle;
 
   document.getElementById("win-emoji").textContent = emoji;
   document.getElementById("win-title").textContent = title;
@@ -838,10 +681,9 @@ function showResult(won) {
   document.getElementById("r-time").textContent    = elapsed + "s";
   document.getElementById("r-tries").textContent   = tries;
   document.getElementById("win-msg").textContent   =
-    `${matched}/${DIFFICULTY[diff].pairs} juft topildi`;
+    `${matched}/${DIFFICULTY[diff].pairs} ${t('found')}`;
 
-  window.AdMobMgr?.showInterstitial(); // ✅ AdMob
-  // await showInterstitial();
+  GameAPI.endGame();
 
   document.getElementById("win-screen").classList.remove("hidden");
 }
