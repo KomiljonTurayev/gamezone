@@ -61,11 +61,11 @@
         tl: "🇺🇿 O'zbek tili tanlandi",
         filters: { all: "🎮 Barcha O'yinlar", kids: "👶 Bolalar", arcade: "🕹️ Arkada", relax: "😌 Relax" },
         audio: { langChanged: "O'zbek tili yoqildi" },
-        newRecord: "YANGI REKORD! 🏆"
+        newRecord: "YANGI REKORD! 🏆",
+        exitGameMessage: "Haqiqatan ham o'yindan chiqmoqchimisiz? To'plangan ballaringiz saqlanmasligi mumkin.",
+        yes: "Ha",
+        no: "Yo'q"
       },
-      "exitGameMessage": "Haqiqatan ham o'yindan chiqmoqchimisiz? To'plangan ballaringiz saqlanmasligi mumkin.",
-      "yes": "Ha",
-      "no": "Yo'q"
       ru: {
         sec: "🎮 Игры",
         nb0: "Главная",
@@ -86,11 +86,11 @@
         tl: "🇷🇺 Выбран русский язык",
         filters: { all: "🎮 Все Игры", kids: "👶 Детские", arcade: "🕹️ Аркады", relax: "😌 Релакс" },
         audio: { langChanged: "Русский язык включен" },
-        newRecord: "НОВЫЙ РЕКОРД! 🏆"
+        newRecord: "НОВЫЙ РЕКОРД! 🏆",
+        exitGameMessage: "Вы действительно хотите выйти из игры? Набранные очки могут быть не сохранены.",
+        yes: "Да",
+        no: "Нет"
       },
-      "exitGameMessage": "Вы действительно хотите выйти из игры? Набранные очки могут быть не сохранены.",
-      "yes": "Да",
-      "no": "Нет"
       en: {
         sec: "🎮 Games",
         nb0: "Home",
@@ -507,6 +507,12 @@
     els.gs = byId("gs");
     els.gsTitle = byId("gs-title");
     els.gsFrame = byId("gs-frame");
+
+    // Exit modal elements (check for existence)
+    els.gameExitModal = byId("game-exit-modal");
+    els.exitModalMessage = byId("exit-modal-msg");
+    els.exitModalYes = byId("exit-modal-yes");
+    els.exitModalNo = byId("exit-modal-no");
   }
 
   function installGlobals() {
@@ -876,9 +882,13 @@
       buildGrid(filter);
       preloadGames();
 
-      // Exit confirmation modal event listeners
-      els.exitModalYes.onclick = () => { hideGameExitConfirmationFromParent(); closeGame(); };
-      els.exitModalNo.onclick = () => { hideGameExitConfirmationFromParent(); };
+      // Exit confirmation modal event listeners (with existence check)
+      if (els.exitModalYes) {
+        els.exitModalYes.onclick = () => { hideGameExitConfirmationFromParent(); closeGame(); };
+      }
+      if (els.exitModalNo) {
+        els.exitModalNo.onclick = () => { hideGameExitConfirmationFromParent(); };
+      }
 
     } catch (e) {
       console.error("FATAL: init failed", e);
