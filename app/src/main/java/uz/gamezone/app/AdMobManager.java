@@ -11,6 +11,7 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.ads.rewarded.RewardedAd;
@@ -25,10 +26,10 @@ import java.util.List;
 public class AdMobManager implements AdManager {
     private static final String TAG = "AdMobManager";
     
-    // Test ID-lar (Production-da haqiqiy ID-larga almashtiring)
-    private static final String BANNER_ID = "ca-app-pub-3940256099942544/6300978111";
-    private static final String INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712";
-    private static final String REWARDED_ID = "ca-app-pub-3940256099942544/5224354917";
+    // Production ID-lar o'rnatildi
+    private static final String BANNER_ID = "ca-app-pub-3428867455074987/5333621419";
+    private static final String INTERSTITIAL_ID = "ca-app-pub-3428867455074987/4609809001";
+    private static final String REWARDED_ID = "ca-app-pub-3428867455074987/1880572836";
 
     private final Activity activity;
     private final ViewGroup bannerContainer;
@@ -63,8 +64,16 @@ public class AdMobManager implements AdManager {
 
     @Override
     public void initialize() {
+        // Families Policy & COPPA Compliance: Barcha so'rovlar bolalarga xavfsiz bo'lishi kerak
+        RequestConfiguration requestConfiguration = MobileAds.getRequestConfiguration().toBuilder()
+                .setTagForChildDirectedTreatment(RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE)
+                .setTagForUnderAgeOfConsent(RequestConfiguration.TAG_FOR_UNDER_AGE_OF_CONSENT_TRUE)
+                .setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G)
+                .build();
+        MobileAds.setRequestConfiguration(requestConfiguration);
+
         MobileAds.initialize(activity, status -> {
-            Log.d(TAG, "AdMob Initialized");
+            Log.i(TAG, "AdMob Initialized: Production IDs + Families Policy Applied");
             loadBanner();
             loadInterstitial();
             loadRewarded();

@@ -26,10 +26,9 @@
         <!-- ✅ ADMOB APP ID — BU YERNI O'ZGARTIRING! -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-3428867455074987~9395150917"/>
         <!--
-            ☝️ TEST ID TURIBDI — O'Z ID INGIZ BILAN ALMASHTIRING:
-            android:value="ca-app-pub-3940256099942544~3347511713"
+            ☝️ PRODUCTION ID O'RNATILDI
         -->
 
         <activity
