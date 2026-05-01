@@ -46,14 +46,6 @@
     transition: transform 0.1s;
   }
   .btn:active { transform: scale(0.95); }
-
-  #combo {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    font-size: 60px; font-weight: 900; color: #ff00ea;
-    text-shadow: 0 0 20px #ff00ea; pointer-events: none; opacity: 0;
-  }
-  .pop { animation: pop 0.4s ease-out; }
-  @keyframes pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -100%) scale(1.2); opacity: 0; } }
 </style>
 <script src="game-api.js"></script>
 </head>
@@ -63,8 +55,6 @@
   <div class="stat"><div class="lbl" id="l-best">BEST</div><div class="val" id="v-best">0</div></div>
   <div class="stat"><div class="lbl" id="l-score">SCORE</div><div class="val" id="v-score">0</div></div>
 </div>
-
-<div id="combo">X2</div>
 
 <canvas id="game"></canvas>
 
@@ -95,66 +85,76 @@ const I18N = {
 };
 const t = GameAPI.t.bind(GameAPI, I18N);
 
-let score = 0, best = GameAPI.getBestScore(GAME_ID), active = false;
-let player, obstacles = [], frame = 0, speed = 5;
-
 function setupUI() {
   document.getElementById('l-best').textContent = t('best');
   document.getElementById('l-score').textContent = t('score');
   document.getElementById('t-start').textContent = t('start');
   document.getElementById('d-start').textContent = t('desc');
   document.getElementById('t-over').textContent = t('over');
-  document.getElementById('v-best').textContent = best;
+  document.getElementById('v-best').textContent = GameAPI.getBestScore(GAME_ID);
 }
+
+let score = 0, best = 0, active = false;
+let player, obstacles = [], frame = 0, speed = 5, particles = [];
 
 function resize() {
   canvas.width = window.innerWidth;
   canvas.height = canvas.clientHeight;
-  if(player) player.y = canvas.height - 50;
 }
 window.addEventListener('resize', resize);
 
 class Player {
   constructor() {
-    this.x = 50; this.y = 0; this.w = 30; this.h = 30;
-    this.vy = 0; this.jumpPower = -12; this.gravity = 0.6;
+    this.x = 80; this.y = 0; this.w = 35; this.h = 35;
+    this.vy = 0; this.jumpPower = -14; this.gravity = 0.7;
     this.grounded = false;
+    this.trail = [];
   }
   update() {
     this.vy += this.gravity;
     this.y += this.vy;
-    const ground = canvas.height - 50;
+    const ground = canvas.height - 60;
     if(this.y > ground) { this.y = ground; this.vy = 0; this.grounded = true; }
     else this.grounded = false;
+
+    this.trail.push({x: this.x, y: this.y});
+    if(this.trail.length > 10) this.trail.shift();
   }
   draw() {
+    // Trail
+    this.trail.forEach((p, i) => {
+      ctx.globalAlpha = i / 10;
+      ctx.fillStyle = '#00f2ff';
+      ctx.fillRect(p.x + (10-i)*2, p.y + (10-i)*2, this.w - (10-i)*4, this.h - (10-i)*4);
+    });
+    ctx.globalAlpha = 1;
     ctx.fillStyle = '#00f2ff';
     ctx.shadowBlur = 15; ctx.shadowColor = '#00f2ff';
     ctx.fillRect(this.x, this.y, this.w, this.h);
     ctx.shadowBlur = 0;
   }
-  jump() { if(this.grounded) { this.vy = this.jumpPower; GameAPI.vibrate(20); } }
+  jump() { if(this.grounded) { this.vy = this.jumpPower; GameAPI.vibrate(25); } }
 }
 
 class Obstacle {
   constructor() {
-    this.w = 20 + Math.random() * 30;
-    this.h = 30 + Math.random() * 40;
+    this.w = 30 + Math.random() * 40;
+    this.h = 40 + Math.random() * 50;
     this.x = canvas.width;
-    this.y = canvas.height - 50 - this.h + 30;
+    this.y = canvas.height - 60 - this.h;
     this.passed = false;
   }
   update() { this.x -= speed; }
   draw() {
     ctx.fillStyle = '#ff00ea';
-    ctx.shadowBlur = 10; ctx.shadowColor = '#ff00ea';
+    ctx.shadowBlur = 15; ctx.shadowColor = '#ff00ea';
     ctx.fillRect(this.x, this.y, this.w, this.h);
     ctx.shadowBlur = 0;
   }
 }
 
 function start() {
-  active = true; score = 0; obstacles = []; speed = 5 * GameAPI.profile.speed;
+  active = true; score = 0; obstacles = []; speed = 6 * GameAPI.profile.speed;
   player = new Player();
   document.getElementById('s-start').classList.add('hidden');
   document.getElementById('s-over').classList.add('hidden');
@@ -163,12 +163,11 @@ function start() {
 }
 
 function die() {
-  active = false; GameAPI.vibrate(100);
+  active = false; GameAPI.vibrate(150);
   document.getElementById('v-final').textContent = score;
   document.getElementById('s-over').classList.remove('hidden');
-  if(GameAPI.saveBestScore(GAME_ID, score)) {
-    best = score; document.getElementById('v-best').textContent = best;
-  }
+  GameAPI.saveBestScore(GAME_ID, score);
+  document.getElementById('v-best').textContent = GameAPI.getBestScore(GAME_ID);
   GameAPI.reportScore(GAME_ID, score);
   GameAPI.endGame();
 }
@@ -177,25 +176,35 @@ function loop() {
   if(!active) return;
   ctx.clearRect(0,0,canvas.width, canvas.height);
 
-  // Ground line
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.beginPath(); ctx.moveTo(0, canvas.height - 20); ctx.lineTo(canvas.width, canvas.height - 20); ctx.stroke();
+  // Grid background
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  for(let i=0; i<canvas.width; i+=50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
+  for(let i=0; i<canvas.height; i+=50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke(); }
+
+  // Ground
+  ctx.fillStyle = '#1e1b4b';
+  ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+  ctx.strokeStyle = '#00f2ff';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(0, canvas.height - 60, canvas.width, 4);
 
   player.update(); player.draw();
 
-  if(frame % 100 === 0) obstacles.push(new Obstacle());
+  const spawnGap = Math.max(60, 120 - speed * 5);
+  if(frame % Math.round(spawnGap) === 0) obstacles.push(new Obstacle());
 
   obstacles.forEach((o, i) => {
     o.update(); o.draw();
     if(o.x + o.w < 0) obstacles.splice(i, 1);
 
     // Collision
-    if(player.x < o.x + o.w && player.x + player.w > o.x && player.y < o.y + o.h && player.y + player.h > o.y) die();
+    const px = player.x + 5, py = player.y + 5, pw = player.w - 10, ph = player.h - 10;
+    if(px < o.x + o.w && px + pw > o.x && py < o.y + o.h && py + ph > o.y) die();
 
     if(!o.passed && o.x < player.x) {
       o.passed = true; score++;
       document.getElementById('v-score').textContent = score;
-      if(score % 10 === 0) speed += 0.5;
+      if(score % 5 === 0) speed += 0.3;
     }
   });
 

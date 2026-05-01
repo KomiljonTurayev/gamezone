@@ -6,9 +6,10 @@
 <title>Vaqtni Aniqlash ⏰</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+:root { --accent: #f59e0b; --bg: #fff9f0; }
 body {
   min-height: 100vh;
-  background: radial-gradient(circle at center, #fff9f0 0%, #ffe8d6 100%);
+  background: radial-gradient(circle at center, var(--bg) 0%, #ffe8d6 100%);
   font-family: 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
   display: flex; flex-direction: column; align-items: center;
@@ -16,12 +17,12 @@ body {
 
 #header { width: 100%; padding: 20px; display: flex; justify-content: space-between; }
 .stat { background: white; padding: 10px 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; }
-.stat-val { font-size: 22px; font-weight: 900; color: #f59e0b; }
-.stat-lbl { font-size: 10px; opacity: 0.5; text-transform: uppercase; }
+.stat-lbl { font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
+.stat-val { font-size: 22px; font-weight: 900; color: var(--accent); }
 
 #arena { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px; }
 
-canvas { background: white; border-radius: 50%; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+canvas { background: white; border-radius: 50%; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 8px solid #4b5563; }
 
 #options {
   display: grid; grid-template-columns: 1fr 1fr;
@@ -37,14 +38,11 @@ canvas { background: white; border-radius: 50%; box-shadow: 0 15px 35px rgba(0,0
 .opt.correct { border-color: #10b981; background: #d1fae5; color: #065f46; }
 .opt.wrong { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
 
-#screens { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; }
-.screen {
-  background: white; padding: 40px; border-radius: 35px; text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15); width: 85%; max-width: 340px;
-}
+.screen { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); }
+.card { background: white; padding: 40px; border-radius: 35px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.15); width: 85%; max-width: 340px; }
 .hidden { display: none !important; }
-.btn {
-  background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; border: none; padding: 18px 50px;
+.btn-main {
+  background: linear-gradient(135deg, var(--accent), #fbbf24); color: white; border: none; padding: 18px 50px;
   border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer;
   margin-top: 25px; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
 }
@@ -54,8 +52,8 @@ canvas { background: white; border-radius: 50%; box-shadow: 0 15px 35px rgba(0,0
 <body>
 
 <div id="header">
-  <div class="stat"><span class="stat-lbl" id="lbl-best">BEST</span><br><span class="stat-val" id="best">0</span></div>
-  <div class="stat"><span class="stat-lbl" id="lbl-score">SCORE</span><br><span class="stat-val" id="score">0</span></div>
+  <div class="stat"><div class="stat-lbl" id="l-best">BEST</div><div class="stat-val" id="v-best">0</div></div>
+  <div class="stat"><div class="stat-lbl" id="l-score">SCORE</div><div class="pill-val stat-val" id="v-score">0</div></div>
 </div>
 
 <div id="arena">
@@ -63,43 +61,46 @@ canvas { background: white; border-radius: 50%; box-shadow: 0 15px 35px rgba(0,0
   <div id="options"></div>
 </div>
 
-<div id="screens">
-  <div class="screen" id="s-start">
+<div class="screen" id="s-start">
+  <div class="card">
     <div style="font-size: 70px">⏰</div>
-    <h1 id="t-start">Vaqtni Aniqlash</h1>
+    <h1 id="t-start" style="font-size: 28px; margin-top: 10px;">Vaqtni Aniqlash</h1>
     <p id="d-start" style="opacity: 0.7; margin-top: 10px;">Soat necha bo'lganini toping!</p>
-    <button class="btn" onclick="start()">BOSHLASH</button>
+    <button class="btn-main" onclick="start()" id="b-start">BOSHLASH</button>
   </div>
+</div>
 
-  <div class="screen hidden" id="s-over">
-    <h1 id="t-over">O'yin Tugadi</h1>
-    <div style="font-size: 56px; margin: 20px 0; color: #f59e0b; font-weight: 900;" id="v-final">0</div>
-    <button class="btn" onclick="start()">QAYTA</button>
+<div class="screen hidden" id="s-over">
+  <div class="card">
+    <h1 id="t-over" style="font-size: 28px;">O'yin Tugadi</h1>
+    <div style="font-size: 56px; margin: 20px 0; color: var(--accent); font-weight: 900;" id="v-final">0</div>
+    <button class="btn-main" onclick="start()" id="b-again">QAYTA</button>
   </div>
 </div>
 
 <script>
 const GAME_ID = 'clock-match';
 const I18N = {
-  uz: { best:"REKORD", score:"BALL", start:"Vaqt!", desc:"Soat necha bo'lganini toping!", over:"O'yin Tugadi" },
-  ru: { best:"РЕКОРД", score:"БАЛЛЫ", start:"Время!", desc:"Определите время на часах!", over:"Игра Окончена" },
-  en: { best:"BEST", score:"SCORE", start:"Clock!", desc:"What time is it?", over:"Game Over" }
+  uz: { best:"REKORD", score:"BALL", start:"Vaqt!", desc:"Soat necha bo'lganini toping!", over:"O'yin Tugadi", again:"QAYTA O'YNASH", bStart: "BOSHLASH" },
+  ru: { best:"РЕКОРД", score:"БАЛЛЫ", start:"Время!", desc:"Определите время на часах!", over:"Игра Окончена", again:"ЗАНОВО", bStart: "НАЧАТЬ" },
+  en: { best:"BEST", score:"SCORE", start:"Clock!", desc:"What time is it?", over:"Game Over", again:"PLAY AGAIN", bStart: "START" }
 };
 const t = GameAPI.t.bind(GameAPI, I18N);
 
 function setupUI() {
-  document.getElementById('lbl-best').textContent = t('best');
-  document.getElementById('lbl-score').textContent = t('score');
+  document.getElementById('l-best').textContent = t('best');
+  document.getElementById('l-score').textContent = t('score');
   document.getElementById('t-start').textContent = t('start');
   document.getElementById('d-start').textContent = t('desc');
   document.getElementById('t-over').textContent = t('over');
+  document.getElementById('b-start').textContent = t('bStart');
+  document.getElementById('b-again').textContent = t('again');
+  document.getElementById('v-best').textContent = GameAPI.getBestScore(GAME_ID);
 }
 
 const canvas = document.getElementById('clock');
 const ctx = canvas.getContext('2d');
 let score = 0, active = false, currentH = 0, currentM = 0;
-let best = GameAPI.getBestScore(GAME_ID);
-document.getElementById('best').textContent = best;
 
 function drawClock(h, m) {
   const r = canvas.width / 2;
@@ -107,26 +108,25 @@ function drawClock(h, m) {
   ctx.save();
   ctx.translate(r, r);
 
-  // Face
-  ctx.beginPath(); ctx.arc(0, 0, r - 10, 0, 2 * Math.PI); ctx.fillStyle = 'white'; ctx.fill();
-  ctx.lineWidth = 6; ctx.strokeStyle = '#4b5563'; ctx.stroke();
-
   // Numbers
-  ctx.font = "bold 20px Arial"; ctx.fillStyle = "#1f2937"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.font = "bold 22px Arial"; ctx.fillStyle = "#1f2937"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
   for (let i = 1; i <= 12; i++) {
     const ang = i * Math.PI / 6;
-    ctx.rotate(ang); ctx.translate(0, -r + 35); ctx.rotate(-ang);
+    ctx.save();
+    ctx.rotate(ang);
+    ctx.translate(0, -r + 35);
+    ctx.rotate(-ang);
     ctx.fillText(i.toString(), 0, 0);
-    ctx.rotate(ang); ctx.translate(0, r - 35); ctx.rotate(-ang);
+    ctx.restore();
   }
+
+  // Hour Hand (Accurate rotation based on minutes)
+  const hAng = ((h % 12) * Math.PI / 6) + (m * Math.PI / 360);
+  drawHand(hAng, r * 0.5, 8, '#f59e0b');
 
   // Minute Hand
   const mAng = (m * Math.PI / 30);
-  drawHand(mAng, r * 0.7, 4, '#9ca3af');
-
-  // Hour Hand
-  const hAng = (h % 12 * Math.PI / 6) + (m * Math.PI / 360);
-  drawHand(hAng, r * 0.5, 8, '#f59e0b');
+  drawHand(mAng, r * 0.75, 4, '#9ca3af');
 
   // Center pin
   ctx.beginPath(); ctx.arc(0, 0, 8, 0, 2 * Math.PI); ctx.fillStyle = '#4b5563'; ctx.fill();
@@ -135,8 +135,16 @@ function drawClock(h, m) {
 }
 
 function drawHand(ang, len, width, color) {
-  ctx.beginPath(); ctx.lineWidth = width; ctx.lineCap = "round"; ctx.strokeStyle = color;
-  ctx.moveTo(0, 0); ctx.rotate(ang); ctx.lineTo(0, -len); ctx.stroke(); ctx.rotate(-ang);
+  ctx.save();
+  ctx.beginPath();
+  ctx.lineWidth = width;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = color;
+  ctx.rotate(ang);
+  ctx.moveTo(0, 5); // Extend slightly past center
+  ctx.lineTo(0, -len);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function nextQuestion() {
@@ -161,11 +169,12 @@ function nextQuestion() {
     btn.onclick = () => {
       if (o === correct) {
         btn.classList.add('correct');
-        score += 10; document.getElementById('score').textContent = score;
+        score += 10; document.getElementById('v-score').textContent = score;
         GameAPI.vibrate(20);
         setTimeout(nextQuestion, 600);
       } else {
         btn.classList.add('wrong');
+        GameAPI.vibrate(100);
         die();
       }
     };
@@ -175,7 +184,7 @@ function nextQuestion() {
 
 function start() {
   score = 0; active = true;
-  document.getElementById('score').textContent = '0';
+  document.getElementById('v-score').textContent = '0';
   document.getElementById('s-start').classList.add('hidden');
   document.getElementById('s-over').classList.add('hidden');
   nextQuestion();
@@ -186,8 +195,7 @@ function die() {
   document.getElementById('v-final').textContent = score;
   document.getElementById('s-over').classList.remove('hidden');
   GameAPI.saveBestScore(GAME_ID, score);
-  best = GameAPI.getBestScore(GAME_ID);
-  document.getElementById('best').textContent = best;
+  document.getElementById('v-best').textContent = GameAPI.getBestScore(GAME_ID);
   GameAPI.reportScore(GAME_ID, score);
   GameAPI.endGame();
 }
