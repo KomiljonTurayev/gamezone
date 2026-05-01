@@ -23,7 +23,8 @@
     { id: "fruit-merge", em: "🍉", cat: ["arcade"], tc: "#10B981", bg: "135deg,#ECFDF5,#D1FAE5", bdg: "hot", file: "fruit-merge.html" },
     { id: "infinite-dash", em: "🏃", cat: ["arcade"], tc: "#EF4444", bg: "135deg,#FEF2F2,#FEE2E2", bdg: "new", file: "infinite-dash.html" },
     { id: "number-path", em: "🔢", cat: ["kids"], tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: null, file: "number-path.html" },
-    { id: "puzzle-slide", em: "🧱", cat: ["arcade", "kids"], tc: "#818CF8", bg: "135deg,#EEF2FF,#E0E7FF", bdg: null, file: "puzzle-slide.html" }
+    { id: "puzzle-slide", em: "🧱", cat: ["arcade", "kids"], tc: "#818CF8", bg: "135deg,#EEF2FF,#E0E7FF", bdg: null, file: "puzzle-slide.html" },
+    { id: "clock-match", em: "⏰", cat: ["kids"], tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: "new", file: "clock-match.html" }
   ];
 
   const TRANSLATIONS_DATA = {
@@ -115,6 +116,11 @@
         "title": {"uz": "Star Catcher Pro", "ru": "Ловец Звезд Про", "en": "Star Catcher Pro"},
         "desc": {"uz": "Yulduzlarni tuting", "ru": "Лови звезды", "en": "Catch Stars"},
         "tag": {"uz": "Epchillik", "ru": "Ловкость", "en": "Agility"}
+      },
+      "clock-match": {
+        "title": {"uz": "Vaqtni Aniqlash", "ru": "Определи Время", "en": "Clock Match"},
+        "desc": {"uz": "Soatni to'g'ri toping", "ru": "Найди время", "en": "Find the Time"},
+        "tag": {"uz": "Mantiq", "ru": "Логика", "en": "Logic"}
       }
     }
   };
@@ -274,6 +280,12 @@
     setDocumentLang();
     applyTranslations();
     buildGrid(filter);
+
+    // Refresh game if open to sync language
+    if (currentGameId && !els.gs.classList.contains("h")) {
+      openGame(currentGameId, els.gsTitle.textContent);
+    }
+
     if (!silent) showToast(ui().tl);
   }
 
