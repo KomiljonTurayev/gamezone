@@ -260,16 +260,42 @@
     els.gsFrame.src = `${game.file}?${params.toString()}`;
     els.gsTitle.textContent = title;
     els.gs.classList.remove("h");
-    if (window.AndroidAdMob && window.AndroidAdMob.hideBanner) window.AndroidAdMob.hideBanner();
+
+    // Notify Native Bridge to hide banner while gaming
+    if (window.AndroidAdMob && window.AndroidAdMob.hideBanner) {
+        window.AndroidAdMob.hideBanner();
+    } else {
+        // Fallback for browser testing
+        window.setBannerVisibility?.(false);
+    }
   }
 
   function closeGame() {
     els.gs.classList.add("h");
     els.gsFrame.src = "about:blank";
     currentGameId = null;
-    if (window.AndroidAdMob && window.AndroidAdMob.showBanner) window.AndroidAdMob.showBanner();
+
+    // Notify Native Bridge to show banner in dashboard
+    if (window.AndroidAdMob && window.AndroidAdMob.showBanner) {
+        window.AndroidAdMob.showBanner();
+    } else {
+        // Fallback for browser testing
+        window.setBannerVisibility?.(true);
+    }
     buildGrid(filter);
   }
+
+  /**
+   * Native Bridge callback for banner visibility.
+   */
+  window.setBannerVisibility = function(isVisible) {
+    const root = document.documentElement;
+    // Get --bh height (56px or 90px)
+    const bannerHeight = getComputedStyle(root).getPropertyValue('--bh').trim() || "60px";
+    root.style.setProperty('--ad-h', isVisible ? bannerHeight : '0px');
+    document.body.classList.toggle('has-ad', isVisible);
+    onResize();
+  };
 
   function setLang(l, silent) {
     if (!translations.ui[l]) return;

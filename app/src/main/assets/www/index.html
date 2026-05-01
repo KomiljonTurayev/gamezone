@@ -7,7 +7,7 @@
 <title>GameZone UZ</title>
 <style>
 :root {
-  --cols:2;--gap:12px;--pad:14px;--hh:62px;--bh:56px;
+  --cols:2;--gap:12px;--pad:14px;--hh:62px;--bh:60px;
   --fs:13px;--fh:24px;--r:22px;
   --bg:#0A0A1F;--surf:rgba(255,255,255,0.05);--brd:rgba(255,255,255,0.1);
   --txt:#F8FAFC;--txt2:#94A3B8;
@@ -19,353 +19,243 @@
 @media(min-width:768px){:root{--cols:3;--gap:16px;--pad:22px;--hh:76px;--bh:90px;--fs:15px;--fh:34px;--r:28px}}
 @media(min-width:1024px){:root{--cols:4;--fh:38px}}
 @media(min-width:1280px){:root{--cols:5}}
-@media(max-width:767px) and (orientation:landscape){:root{--cols:4;--hh:50px}}
 
 *{margin:0;padding:0;box-sizing:border-box;touch-action:manipulation}
-body{background:var(--bg);min-height:100vh;min-height:100dvh;min-height:var(--app-height);
-     font-family:'Trebuchet MS',sans-serif;color:var(--txt);overflow:hidden;
-     padding-bottom: env(safe-area-inset-bottom);}
+body{
+  background:var(--bg);
+  height:var(--app-height);
+  font-family:'Trebuchet MS',sans-serif;
+  color:var(--txt);
+  overflow:hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-/* AMBIENT LIGHT MODE */
+/* SAFE AREA BACKGROUNDS */
+#safe-top { height: env(safe-area-inset-top, 0px); background: #0A0A1F; flex-shrink: 0; }
+#safe-bottom { height: env(safe-area-inset-bottom, 0px); background: #0A0A1F; flex-shrink: 0; }
+
+/* AMBIENT */
 #amb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.2;
-     animation:drift ease-in-out infinite}
+.orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.2;animation:drift ease-in-out infinite}
 @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,-35px)}}
 
-/* HEADER LIGHT */
+/* HEADER */
 #hdr{
-  position:relative;z-index:10;height:var(--hh);
-  height:calc(var(--hh) + env(safe-area-inset-top, 0px));
-  background:rgba(10,10,31,0.8);backdrop-filter:blur(20px);
+  height:var(--hh);
+  background:rgba(10,10,31,0.85); backdrop-filter:blur(20px);
   border-bottom:1px solid var(--brd);
-  display:flex;align-items:center;padding:env(safe-area-inset-top, 0px) var(--pad) 0;gap:10px;
+  display:flex; align-items:center; padding:0 var(--pad); gap:10px;
+  position:relative; z-index:10; flex-shrink: 0;
 }
 #logo{display:flex;align-items:center;gap:10px}
-#logo-ic{
-  width:42px;height:42px;background:linear-gradient(135deg,var(--a1),var(--a2));
-  border-radius:14px;display:flex;align-items:center;justify-content:center;
-  font-size:20px;box-shadow:0 6px 20px rgba(99,102,241,.3);flex-shrink:0;
-}
-@media(min-width:768px){#logo-ic{width:52px;height:52px;border-radius:18px;font-size:26px}}
+#logo-ic{width:42px;height:42px;background:linear-gradient(135deg,var(--a1),var(--a2));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 20px rgba(99,102,241,.3);flex-shrink:0;}
 #logo-nm{font-size:15px;font-weight:900;color:var(--txt)}
-#logo-sl{font-size:10px;color:var(--txt2)}
 #hdr-sp{flex:1}
-.ls-btn{background:rgba(255,255,255,0.1);border:1px solid var(--brd);border-radius:10px;
-        padding:5px 9px;font-size:11px;font-weight:bold;color:var(--txt2);
-        cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px;}
-.ls-btn.on{background:linear-gradient(135deg,var(--a1),var(--a2));border-color:transparent;color:#fff}
-#lang-sw{display:flex;gap:5px}
-#pts{background:rgba(255,255,255,0.1);border:1px solid var(--brd);border-radius:12px;
-     padding:5px 12px;display:flex;align-items:center;gap:5px;margin-left:6px;}
-#pts span{font-size:13px;font-weight:900;color:var(--a1)}
+#pts{background:rgba(255,255,255,0.08); border:1px solid var(--brd); border-radius:12px; padding:6px 12px; display:flex; align-items:center; gap:5px;}
 
-/* MAIN */
-#main{position:relative;z-index:1;overflow-y:auto;overflow-x:hidden;
-      height:calc(var(--app-height) - var(--hh) - var(--ad-h) - 64px - env(safe-area-inset-bottom, 0px));
-      padding:var(--pad);
-      transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      scrollbar-width: none;}
-#main::-webkit-scrollbar{display:none}
+/* CONTENT WRAPPER */
+#main-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-/* LANG STATS */
-#lstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.lsc{background:var(--surf);border:1px solid var(--brd);border-radius:20px;
-     padding:10px;text-align:center;position:relative;overflow:hidden;
-     box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor:pointer; transition:transform 0.1s}
-.lsc:active{transform:scale(0.95)}
-.lsc::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
-.lsc:nth-child(1)::before{background:linear-gradient(90deg,#10B981,#34D399)}
-.lsc:nth-child(2)::before{background:linear-gradient(90deg,#F87171,#EF4444)}
-.lsc:nth-child(3)::before{background:linear-gradient(90deg,#60A5FA,#3B82F6)}
-.lsc-f{font-size:22px}
-.lsc-l{font-size:11px;font-weight:900;margin-top:2px;color:var(--txt)}
-.lsc-r{font-size:11px;font-weight:bold;margin-top:3px}
+#main {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--pad);
+  scrollbar-width: none;
+  position: relative;
+  z-index: 1;
+}
+#main::-webkit-scrollbar { display: none; }
 
 /* GRID */
-#sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.sh-t{font-size:calc(var(--fs)*1.2);font-weight:900;color:var(--txt)}
-.sh-b{background:var(--surf);border:1px solid var(--brd);
-      border-radius:20px;padding:4px 12px;font-size:10px;color:var(--txt2);}
-
-#grid{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:var(--gap);padding-bottom:100px}
+#grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: var(--gap);
+  padding-bottom: 20px;
+}
 
 /* GAME CARD */
-.gc{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);
-    overflow:hidden;cursor:pointer;transition:transform .14s,box-shadow .14s;
-    position:relative;aspect-ratio:3/4;display:flex;flex-direction:column;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2)}
-.gc:active{transform:scale(.95)}
-
-.gc-art{flex:1;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.02)}
-.gc-em{font-size:clamp(34px,7vw,60px);
-       filter:drop-shadow(0 3px 10px rgba(0,0,0,0.3));
-       animation:cf 4s ease-in-out infinite}
-@keyframes cf{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-
-.gc-info{padding:10px 12px;background:rgba(255,255,255,0.03);border-top:1px solid var(--brd)}
-.gc-nm{font-size:var(--fs);font-weight:900;line-height:1.2;color:var(--txt)}
-.gc-meta{display:flex;align-items:center;gap:5px;margin-top:4px;flex-wrap:wrap}
-.gc-best{font-size:10px;color:var(--a1);font-weight:900;margin-top:2px}
-.gc-tg{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:bold}
-.gc-ds{font-size:9px;color:var(--txt2)}
-
-/* BOTTOM NAV */
-#bnav{
-  position:fixed;bottom:calc(var(--ad-h) + env(safe-area-inset-bottom, 0px));left:0;right:0;height:64px;
-  background:rgba(10,10,31,0.8);backdrop-filter:blur(20px);
-  border-top:1px solid var(--brd);
-  display:flex;align-items:center;justify-content:space-around;
-  z-index:20;padding:0 6px;
-  transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.gc {
+  background: var(--surf); border: 1px solid var(--brd); border-radius: var(--r);
+  overflow: hidden; cursor: pointer; transition: transform 0.1s;
+  aspect-ratio: 3/4; display: flex; flex-direction: column;
 }
-.ni{display:flex;flex-direction:column;align-items:center;gap:2px;
-    padding:6px 10px;cursor:pointer;border-radius:14px;
-    transition:background .14s;min-width:55px;border:none;background:transparent}
-.ni.on{background:rgba(99,102,241,0.15)}
-.ni-i{font-size:20px}
-.ni-l{font-size:10px;color:var(--txt2);font-weight:bold}
-.ni.on .ni-l{color:var(--a1)}
+.gc:active { transform: scale(0.96); }
+.gc-art { flex: 1; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); position: relative; }
+.gc-em { font-size: clamp(34px, 7vw, 60px); filter: drop-shadow(0 3px 10px rgba(0,0,0,0.3)); }
+.gc-info { padding: 12px; background: rgba(255,255,255,0.03); border-top: 1px solid var(--brd); }
+.gc-nm { font-size: var(--fs); font-weight: 900; color: var(--txt); margin-bottom: 4px; }
+.gc-tg { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); color: var(--txt2); }
 
-/* EXIT MODAL BEJIMIR */
+.bdg { position: absolute; top: 10px; right: 10px; padding: 3px 8px; border-radius: 10px; font-size: 9px; font-weight: 900; color: white; }
+.bnew { background: #10B981; }
+.bhot { background: #EF4444; }
+
+/* BOTTOM NAV (Not overlapping content because of Flex) */
+#bnav {
+  height: 64px;
+  background: rgba(10,10,31,0.9); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--brd);
+  display: flex; align-items: center; justify-content: space-around;
+  flex-shrink: 0; position: relative; z-index: 20;
+}
+.ni { border: none; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--txt2); cursor: pointer; min-width: 60px; }
+.ni.on { color: var(--a1); }
+.ni-i { font-size: 20px; }
+.ni-l { font-size: 10px; font-weight: bold; }
+
+/* ADMOB (Absolute at bottom, pushes Nav up if present) */
+#admob {
+  height: var(--ad-h);
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+  transition: height 0.3s;
+}
+
+/* MODALS */
 #game-exit-modal {
-  position: fixed; inset: 0; z-index: 200;
+  position: fixed; inset: 0; z-index: 300;
   display: flex; align-items: center; justify-content: center;
   background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
-  opacity: 0; pointer-events: none; transition: all 0.3s;
+  opacity: 0; pointer-events: none; transition: 0.3s;
 }
 #game-exit-modal.show { opacity: 1; pointer-events: auto; }
 .exit-card {
-  background: linear-gradient(135deg, #1e1b4b, #0f172a);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 30px; padding: 30px; text-align: center;
-  width: 85%; max-width: 320px;
-  transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  background: linear-gradient(135deg, #1e1b4b, #0f172a); border: 1px solid var(--brd);
+  border-radius: 30px; padding: 30px; text-align: center; width: 85%; max-width: 320px;
+  transform: scale(0.9); transition: 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 #game-exit-modal.show .exit-card { transform: scale(1); }
-.exit-icon { font-size: 50px; margin-bottom: 15px; }
-.exit-msg { font-size: 16px; font-weight: bold; color: white; line-height: 1.5; margin-bottom: 25px; }
-.exit-btns { display: flex; gap: 12px; }
-.exit-btn {
-  flex: 1; padding: 14px; border: none; border-radius: 18px;
-  font-size: 15px; font-weight: 900; cursor: pointer; transition: all 0.1s;
-}
-.exit-btn:active { transform: scale(0.95); }
-.btn-yes { background: #EF4444; color: white; box-shadow: 0 4px 15px rgba(239,68,68,0.3); }
-.btn-no { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.1); }
+.exit-btn { border: none; border-radius: 16px; padding: 14px; font-size: 15px; font-weight: 900; cursor: pointer; flex: 1; }
+.btn-yes { background: #EF4444; color: white; }
+.btn-no { background: rgba(255,255,255,0.1); color: white; }
 
-/* ADMOB LIGHT */
-#admob{position:fixed;bottom:0;left:0;right:0;height:0;
-       background:#fff;border-top:1px solid var(--brd);
-       display:flex;align-items:center;justify-content:center;z-index:15;
-       overflow:hidden;transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
-       opacity:0;pointer-events:none}
-body.has-ad #admob { height:calc(var(--ad-h) + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom); opacity:1; pointer-events:auto; }
-#admob-inner{color:rgba(0,0,0,.2);font-size:10px;text-align:center;padding:0 10px}
-
-/* KEYBOARD ACTIVE STATES */
-body.kb-open #bnav { bottom: -100px !important; }
-body.kb-open #admob { height: 0 !important; opacity: 0 !important; }
-
-/* GAME SCREEN */
-#gs { position:fixed; inset:0; z-index:50; background:var(--bg); display:flex; flex-direction:column }
-#gs.h { display:none }
-#gs-top { height:calc(var(--hh) + env(safe-area-inset-top)); background:rgba(8,8,24,.97); border-bottom:1px solid var(--brd);
-        display:flex; align-items:center; padding:env(safe-area-inset-top) var(--pad) 0; gap:10px; flex-shrink:0 }
-#gs-back { background:var(--surf); border:1px solid var(--brd); border-radius:11px;
-         padding:7px 14px; color:var(--txt); font-size:13px; cursor:pointer; font-weight:bold }
-#gs-title { font-size:14px; font-weight:900; flex:1; text-align:center }
-#gs-info-btn { background:var(--surf); border:1px solid var(--brd); border-radius:11px;
-       padding:7px 11px; color:var(--a1); font-size:15px; cursor:pointer; font-weight:bold }
-#gs-fs { background:var(--surf); border:1px solid var(--brd); border-radius:11px;
-       padding:7px 11px; color:var(--txt); font-size:15px; cursor:pointer }
-#gs-frame { flex:1; width:100%; border:none }
-
-/* PARENT GUIDE OVERLAY */
-#pg-overlay { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.85);
-             backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; padding:24px }
-#pg-overlay.h { display:none }
-.pg-card { background:var(--surf); border:2px solid var(--a1); border-radius:28px; padding:24px;
-          max-width:340px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5) }
-.pg-icon { font-size:50px; margin-bottom:12px }
-.pg-title { font-size:18px; font-weight:900; color:var(--a1); margin-bottom:8px }
-.pg-text { font-size:14px; color:var(--txt); line-height:1.6; margin-bottom:20px }
-.pg-btn { background:linear-gradient(135deg, var(--a1), var(--a2)); color:#fff; border:none;
-         border-radius:16px; padding:12px 30px; font-weight:bold; cursor:pointer }
-
-/* TOAST */
-#toast{position:fixed;top:calc(var(--hh) + env(safe-area-inset-top) + 10px);left:50%;transform:translateX(-50%);
-       background:rgba(16,185,129,.92);color:#fff;font-size:13px;font-weight:bold;
-       border-radius:30px;padding:9px 22px;z-index:100;opacity:0;
-       transition:opacity .3s;pointer-events:none;white-space:nowrap}
-#toast.s{opacity:1}
-
-/* LANG PICKER */
-#lp{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:20px;padding:24px;
-    background:radial-gradient(ellipse at 40% 40%,#1a0050,#080818 70%)}
-#lp.h{display:none}
-.lp-logo{font-size:70px;animation:lpb 2s ease-in-out infinite}
-@keyframes lpb{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-12px) rotate(5deg)}}
-.lp-t{font-size:clamp(18px,5vw,28px);font-weight:900;text-align:center;
-      background:linear-gradient(135deg,#fff,#C4B5FD,#93C5FD);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.lc-wrap{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:480px;width:100%}
-.lc{flex:1;min-width:120px;max-width:150px;background:var(--surf);
-    border:2px solid var(--brd);border-radius:22px;padding:18px 12px;
-    text-align:center;cursor:pointer;transition:all .2s;
-    display:flex;flex-direction:column;align-items:center;gap:8px}
-.lc:active{transform:scale(.93)}
-@media(hover:hover){.lc:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(0,0,0,.4)}}
-.lc-f{font-size:38px}
-.lc-n{font-size:15px;font-weight:900}
-.lc-u{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:bold;margin-top:2px}
+/* GAME OVERLAY */
+#gs { position: fixed; inset: 0; z-index: 200; background: #000; display: flex; flex-direction: column; }
+#gs.h { display: none; }
+#gs-top { height: 50px; background: #000; display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; }
+#gs-back { background: #222; color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-weight: bold; cursor: pointer; }
+#gs-title { flex: 1; text-align: center; font-weight: bold; font-size: 14px; }
+#gs-frame { flex: 1; border: none; width: 100%; height: 100%; }
 
 /* LOADER */
-#ld{position:fixed;inset:0;z-index:90;background:var(--bg);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-#ld.h{display:none}
-.ld-ic{font-size:76px;animation:lds 1.4s ease-in-out infinite}
-@keyframes lds{0%,100%{transform:scale(1) rotate(-8deg)}50%{transform:scale(1.15) rotate(8deg)}}
-.ld-b{width:170px;height:5px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden}
-.ld-f{height:100%;background:linear-gradient(90deg,var(--a1),var(--a2),#06B6D4);
-      border-radius:5px;animation:ldf 1.4s ease-in-out infinite}
-@keyframes ldf{0%{width:0%;margin-left:0}50%{width:70%;margin-left:30%}100%{width:0%;margin-left:100%}}
+#ld { position: fixed; inset: 0; z-index: 500; background: #0A0A1F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+#ld.h { display: none; }
+
+#toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #10B981; color: #fff; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 600; opacity: 0; transition: 0.3s; pointer-events: none; }
+#toast.s { opacity: 1; }
+
+#lp { position: fixed; inset: 0; z-index: 400; background: #0A0A1F; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+#lp.h { display: none; }
 </style>
-<script src="admob.js"></script>
-<script>window.onRewardGranted=function(a){window.dispatchEvent(new CustomEvent("rewardGranted",{detail:{amount:a}}))};window.__gameEnd=function(){if(window.AndroidAdMob)window.AndroidAdMob.showInterstitial()};window.__showRewarded=function(){if(window.AndroidAdMob)window.AndroidAdMob.showRewarded()};</script>
 </head>
 <body>
 
-<!-- LOADER -->
-<div id="ld">
-  <div class="ld-ic">🎮</div>
-  <div style="color:#fff;font-size:18px;font-weight:900">GameZone UZ</div>
-  <div class="ld-b"><div class="ld-f"></div></div>
-  <div style="color:rgba(255,255,255,.35);font-size:12px" id="ld-txt">Yuklanmoqda...</div>
-</div>
+<div id="safe-top"></div>
 
 <!-- AMBIENT -->
 <div id="amb">
-  <div class="orb" style="width:450px;height:450px;left:-120px;top:-120px;background:#6366F1;animation-duration:9s"></div>
-  <div class="orb" style="width:380px;height:380px;right:-80px;top:25%;background:#8B5CF6;animation-duration:11s;animation-delay:-4s"></div>
-  <div class="orb" style="width:320px;height:320px;left:30%;bottom:-80px;background:#06B6D4;animation-duration:13s;animation-delay:-7s"></div>
+  <div class="orb" style="width:400px;height:400px;left:-100px;top:-100px;background:#6366F1;animation-duration:10s"></div>
+  <div class="orb" style="width:300px;height:300px;right:-50px;bottom:-50px;background:#A855F7;animation-duration:12s;animation-delay:-5s"></div>
 </div>
 
-<div id="toast"></div>
-
-<!-- LANG PICKER -->
-<div id="lp">
-  <div class="lp-logo">🎮</div>
-  <div class="lp-t">Tilni tanlang · Choose language · Выберите язык</div>
-  <div class="lc-wrap">
-    <div class="lc" onclick="setLang('uz')" style="border-color:rgba(30,180,100,.3)">
-      <div class="lc-f">🇺🇿</div>
-      <div class="lc-n">O'zbek</div>
-    </div>
-    <div class="lc" onclick="setLang('ru')" style="border-color:rgba(220,50,50,.3)">
-      <div class="lc-f">🇷🇺</div>
-      <div class="lc-n">Русский</div>
-    </div>
-    <div class="lc" onclick="setLang('en')" style="border-color:rgba(59,130,246,.3)">
-      <div class="lc-f">🇬🇧</div>
-      <div class="lc-n">English</div>
-    </div>
+<header id="hdr">
+  <div id="logo">
+    <div id="logo-ic">🎮</div>
+    <div id="logo-nm">GameZone UZ</div>
   </div>
+  <div id="hdr-sp"></div>
+  <div id="pts">⭐ <span id="pts-v">0</span></div>
+</header>
+
+<div id="main-wrap">
+  <main id="main">
+    <div id="lstats">
+      <div class="lsc" onclick="setLang('uz')">
+        <div class="lsc-f">🇺🇿</div>
+        <div class="lsc-l" id="ls1">O'ZBEK</div>
+        <div class="lsc-r" id="lr1">FAOL</div>
+      </div>
+      <div class="lsc" onclick="setLang('ru')">
+        <div class="lsc-f">🇷🇺</div>
+        <div class="lsc-l" id="ls2">RUSCHA</div>
+        <div class="lsc-r" id="lr2">FAOL</div>
+      </div>
+      <div class="lsc" onclick="setLang('en')">
+        <div class="lsc-f">🇬🇧</div>
+        <div class="lsc-l" id="ls3">INGLIZ</div>
+        <div class="lsc-r" id="lr3">FAOL</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
+      <h2 id="sec-t" style="font-size:18px; font-weight:900">O'yinlar</h2>
+      <span id="sec-c" style="font-size:12px; color:var(--txt2)">0 ta</span>
+    </div>
+
+    <div id="grid"></div>
+  </main>
+
+  <nav id="bnav">
+    <button class="ni on" onclick="fil('all')" id="ni-all"><span class="ni-i">🏠</span><span class="ni-l" id="nb0">Bosh</span></button>
+    <button class="ni" onclick="fil('kids')" id="ni-kids"><span class="ni-i">👶</span><span class="ni-l" id="nb1">Bolalar</span></button>
+    <button class="ni" onclick="fil('arcade')" id="ni-arcade"><span class="ni-i">🕹️</span><span class="ni-l" id="nb2">Arkada</span></button>
+    <button class="ni" onclick="fil('relax')" id="ni-relax"><span class="ni-i">😌</span><span class="ni-l" id="nb3">Relax</span></button>
+    <button class="ni" onclick="showRev()" id="ni-rev"><span class="ni-i">⚙️</span><span class="ni-l" id="nb4">Til</span></button>
+  </nav>
+
+  <div id="admob"></div>
 </div>
+
+<div id="safe-bottom"></div>
 
 <!-- GAME VIEWER -->
 <div id="gs" class="h">
   <div id="gs-top">
     <button id="gs-back" onclick="closeGame()">←</button>
     <div id="gs-title">O'yin</div>
-    <button id="gs-info-btn" onclick="showGuide()">💡</button>
-    <button id="gs-fs" onclick="toggleFS()">⛶</button>
   </div>
-  <iframe id="gs-frame" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+  <iframe id="gs-frame"></iframe>
 </div>
 
-<!-- EXIT CONFIRMATION MODAL -->
+<!-- EXIT MODAL -->
 <div id="game-exit-modal">
   <div class="exit-card">
     <div class="exit-icon">🚪</div>
-    <div class="exit-msg" id="exit-modal-msg">Haqiqatan ham o'yindan chiqmoqchimisiz?</div>
-    <div class="exit-btns">
+    <div class="exit-msg" id="exit-modal-msg">Chiqishni xohlaysizmi?</div>
+    <div style="display:flex; gap:12px;">
       <button class="exit-btn btn-no" id="exit-modal-no">Yo'q</button>
-      <button class="exit-btn btn-yes" id="exit-modal-yes">Ha, chiqish</button>
+      <button class="exit-btn btn-yes" id="exit-modal-yes">Ha</button>
     </div>
   </div>
 </div>
 
-<!-- PARENT GUIDE -->
-<div id="pg-overlay" class="h" onclick="hideGuide()">
-  <div class="pg-card" onclick="event.stopPropagation()">
-    <div class="pg-icon">👨‍👩‍👧‍👦</div>
-    <div class="pg-title" id="pg-title">Ota-onalar uchun</div>
-    <div class="pg-text" id="pg-text">Yo'riqnoma...</div>
-    <button class="pg-btn" onclick="hideGuide()">Tushunarli</button>
+<!-- LOADER -->
+<div id="ld">
+  <div style="font-size:60px">🎮</div>
+  <div style="font-weight:900; font-size:20px">GameZone UZ</div>
+  <div id="ld-txt">Yuklanmoqda...</div>
+</div>
+
+<!-- LANG PICKER -->
+<div id="lp">
+  <h2 style="margin-bottom:30px; text-align:center">Tilni tanlang<br><small style="opacity:0.5; font-size:14px">Choose language</small></h2>
+  <div style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center">
+    <button onclick="setLang('uz')" style="padding:20px; border-radius:20px; border:none; background:var(--surf); color:white; min-width:100px; cursor:pointer;">🇺🇿<br>O'zbek</button>
+    <button onclick="setLang('ru')" style="padding:20px; border-radius:20px; border:none; background:var(--surf); color:white; min-width:100px; cursor:pointer;">🇷🇺<br>Русский</button>
+    <button onclick="setLang('en')" style="padding:20px; border-radius:20px; border:none; background:var(--surf); color:white; min-width:100px; cursor:pointer;">🇬🇧<br>English</button>
   </div>
 </div>
 
-<!-- HEADER -->
-<div id="hdr">
-  <div id="logo">
-    <div id="logo-ic">🎮</div>
-    <div>
-      <div id="logo-nm">GameZone UZ</div>
-      <div id="logo-sl">UZ · RU · EN</div>
-    </div>
-  </div>
-  <div id="hdr-sp"></div>
-  <div id="lang-sw">
-    <button class="ls-btn on" id="ls-uz" onclick="setLang('uz')">🇺🇿 UZ</button>
-    <button class="ls-btn" id="ls-ru" onclick="setLang('ru')">🇷🇺 RU</button>
-    <button class="ls-btn" id="ls-en" onclick="setLang('en')">🇬🇧 EN</button>
-  </div>
-  <div id="pts">⭐ <span id="pts-v">0</span></div>
-</div>
-
-<!-- MAIN -->
-<div id="main">
-  <!-- LANG STATS -->
-  <div id="lstats">
-    <div class="lsc" onclick="setLang('uz')">
-      <div class="lsc-f">🇺🇿</div>
-      <div class="lsc-l" id="ls1">O'ZBEK</div>
-      <div class="lsc-r" style="color:#10B981" id="lr1">FAOL</div>
-    </div>
-    <div class="lsc" onclick="setLang('ru')">
-      <div class="lsc-f">🇷🇺</div>
-      <div class="lsc-l" id="ls2">RUSCHA</div>
-      <div class="lsc-r" style="color:#F59E0B" id="lr2">FAOL</div>
-    </div>
-    <div class="lsc" onclick="setLang('en')">
-      <div class="lsc-f">🇬🇧</div>
-      <div class="lsc-l" id="ls3">INGLIZ</div>
-      <div class="lsc-r" style="color:#818CF8" id="lr3">FAOL</div>
-    </div>
-  </div>
-
-  <div id="sec-hdr">
-    <div class="sh-t" id="sec-t">🎮 O'yinlar</div>
-    <div class="sh-b" id="sec-c">10 ta</div>
-  </div>
-  <div id="grid"></div>
-</div>
-
-<!-- BOTTOM NAV -->
-<div id="bnav">
-  <button class="ni on" id="ni-all"    onclick="fil('all')">   <span class="ni-i">🏠</span><span class="ni-l" id="nb0">Bosh</span></button>
-  <button class="ni"    id="ni-kids"   onclick="fil('kids')">   <span class="ni-i">👶</span><span class="ni-l" id="nb1">Bolalar</span></button>
-  <button class="ni"    id="ni-arcade" onclick="fil('arcade')"> <span class="ni-i">🕹️</span><span class="ni-l" id="nb2">Arkada</span></button>
-  <button class="ni"    id="ni-relax"  onclick="fil('relax')">  <span class="ni-i">😌</span><span class="ni-l" id="nb3">Relax</span></button>
-  <button class="ni"    id="ni-rev"    onclick="showRev()">     <span class="ni-i">⚙️</span><span class="ni-l" id="nb4">Sozlamalar</span></button>
-</div>
-
-<!-- ADMOB BANNER -->
-<div id="admob">
-  <div id="admob-inner">📢 AdMob Banner — Phone: 320×50 | Tablet: 728×90</div>
-</div>
+<div id="toast"></div>
 
 <script src="script.js"></script>
 </body>
