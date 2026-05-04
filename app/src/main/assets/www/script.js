@@ -180,6 +180,70 @@
         "tag": {"uz": "Bilim", "ru": "Знания", "en": "Knowledge"}
       }
     }
+    ,
+    "family": {
+      "uz": {
+        "title": "Oilaviy Rejim", "enterPin": "PIN kiriting", "setPin": "Yangi PIN o'rnating",
+        "pinHint": "4 ta raqam", "wrongPin": "Noto'g'ri PIN!", "lockout": "Kuting...",
+        "timeLimitLabel": "O'yin vaqti", "modeLabel": "O'yin rejimi", "kidsOnly": "Faqat bolalar o'yinlari",
+        "min10": "10 daqiqa", "min20": "20 daqiqa", "min30": "30 daqiqa", "unlimited": "Cheksiz",
+        "modeChild": "👶 Faqat bola", "modeParent": "🏆 Faqat ota-ona", "modeTurns": "🔄 Navbat bilan",
+        "start": "Boshlash", "parentTurn": "Ota-ona navbati!", "childTurn": "Bola navbati!",
+        "parentScore": "Ota-ona", "childScore": "Bola", "nextPlayer": "Keyingi:",
+        "continue": "Davom etish", "stop": "To'xtatish",
+        "sessionEnd": "Bugunlik shu!", "playAgain": "Yana o'ynash", "exit": "Chiqish",
+        "timeLeft": "Qoldi:"
+      },
+      "ru": {
+        "title": "Семейный Режим", "enterPin": "Введите PIN", "setPin": "Создайте PIN",
+        "pinHint": "4 цифры", "wrongPin": "Неверный PIN!", "lockout": "Подождите...",
+        "timeLimitLabel": "Время игры", "modeLabel": "Режим игры", "kidsOnly": "Только детские игры",
+        "min10": "10 минут", "min20": "20 минут", "min30": "30 минут", "unlimited": "Без ограничений",
+        "modeChild": "👶 Только ребёнок", "modeParent": "🏆 Только родитель", "modeTurns": "🔄 По очереди",
+        "start": "Начать", "parentTurn": "Ход родителя!", "childTurn": "Ход ребёнка!",
+        "parentScore": "Родитель", "childScore": "Ребёнок", "nextPlayer": "Следующий:",
+        "continue": "Продолжить", "stop": "Остановить",
+        "sessionEnd": "На сегодня всё!", "playAgain": "Снова играть", "exit": "Выход",
+        "timeLeft": "Осталось:"
+      },
+      "en": {
+        "title": "Family Mode", "enterPin": "Enter PIN", "setPin": "Create New PIN",
+        "pinHint": "4 digits", "wrongPin": "Wrong PIN!", "lockout": "Please wait...",
+        "timeLimitLabel": "Play time", "modeLabel": "Play mode", "kidsOnly": "Kids games only",
+        "min10": "10 minutes", "min20": "20 minutes", "min30": "30 minutes", "unlimited": "Unlimited",
+        "modeChild": "👶 Child only", "modeParent": "🏆 Parent only", "modeTurns": "🔄 Take turns",
+        "start": "Start", "parentTurn": "Parent's turn!", "childTurn": "Child's turn!",
+        "parentScore": "Parent", "childScore": "Child", "nextPlayer": "Next:",
+        "continue": "Continue", "stop": "Stop",
+        "sessionEnd": "That's all for today!", "playAgain": "Play Again", "exit": "Exit",
+        "timeLeft": "Left:"
+      }
+    },
+    "howToPlay": {
+      "bubble-pop":     { "uz": "Pufakchalarni barmoq bilan bosib portlating!", "ru": "Нажимай на пузырьки пальцем!", "en": "Tap bubbles to pop them!" },
+      "color-rush":     { "uz": "Ko'rsatilgan rangga mos kartani tez bosing!", "ru": "Нажимай на карту нужного цвета!", "en": "Tap the card matching the shown color!" },
+      "memory-game":    { "uz": "Kartochkalarni ochib bir xil juftini toping!", "ru": "Открывай карточки и ищи пары!", "en": "Flip cards and find matching pairs!" },
+      "animals":        { "uz": "Hayvon ovozini eshiting va to'g'ri ismini tanlang!", "ru": "Слушай звук животного и выбери правильное имя!", "en": "Hear the animal sound and tap its correct name!" },
+      "math-kids":      { "uz": "Masalani yechib to'g'ri javobni bosing!", "ru": "Реши задачу и выбери правильный ответ!", "en": "Solve the math problem and tap the correct answer!" },
+      "colors-shapes":  { "uz": "Ko'rsatilgan rang yoki shaklni tanlang!", "ru": "Выбери указанный цвет или фигуру!", "en": "Choose the shown color or shape!" },
+      "stack-tower":    { "uz": "Harakat qilayotgan blokni o'z vaqtida bosib uyib boring!", "ru": "Нажимай на движущийся блок вовремя, чтобы сложить башню!", "en": "Tap the moving block at the right time to stack it!" },
+      "helix-jump":     { "uz": "Shar pastga tushsin — qora to'siqlardan saqla!", "ru": "Шар падает вниз — избегай чёрных препятствий!", "en": "Ball falls down — avoid the dark obstacles!" },
+      "zen-garden":     { "uz": "Barmog'ingiz bilan qumda chiroyli naqshlar chizing!", "ru": "Рисуй красивые узоры на песке пальцем!", "en": "Draw beautiful patterns in the sand with your finger!" },
+      "rain-tap":       { "uz": "Tushayotgan tomchilarni erga yetmasdan bosing!", "ru": "Нажимай на капли до того, как они коснутся земли!", "en": "Tap falling drops before they hit the ground!" },
+      "quick-tap":      { "uz": "Ko'k doira chiqganda imkon qadar tez bosing!", "ru": "Нажимай на синий круг как можно быстрее!", "en": "Tap the blue circle as fast as possible!" },
+      "shape-match":    { "uz": "Shaklni to'g'ri rangdagi katakka sudrab tashlang!", "ru": "Перетащи фигуру в ячейку правильного цвета!", "en": "Drag the shape to the slot with the matching color!" },
+      "word-sprint":    { "uz": "Harflarni bosib ko'rsatilgan so'zni hosil qiling!", "ru": "Нажимай на буквы, чтобы составить показанное слово!", "en": "Tap letters in order to spell the shown word!" },
+      "pattern-trace":  { "uz": "Ko'rsatilgan shaklni barmog'ingiz bilan chizing!", "ru": "Обведи показанную фигуру пальцем!", "en": "Trace the shown shape with your finger!" },
+      "melody-memory":  { "uz": "Ohangni tinglang, so'ng xuddi shunday tugmalarni bosing!", "ru": "Послушай мелодию, затем нажми те же кнопки!", "en": "Listen to the melody, then tap the same buttons!" },
+      "star-catcher":   { "uz": "Tushib kelayotgan yulduzlarni ekranda ushlang!", "ru": "Лови падающие звёзды на экране!", "en": "Catch the falling stars on screen!" },
+      "gentle-breath":  { "uz": "Doira kattalashganda nafas oling, kichrayganda chiqaring!", "ru": "Вдыхай когда круг растёт, выдыхай когда сжимается!", "en": "Breathe in as the circle grows, breathe out as it shrinks!" },
+      "focus-flow":     { "uz": "Ko'rsatilgan rangga mos nishonga tegishli rangda bosing!", "ru": "Нажимай на цель, чей цвет совпадает с показанным!", "en": "Tap the target whose color matches the displayed one!" },
+      "fruit-merge":    { "uz": "Bir xil mevalarni bir-biriga tegizib kattalashtiring!", "ru": "Совмести одинаковые фрукты, чтобы они выросли!", "en": "Merge identical fruits together to make them bigger!" },
+      "infinite-dash":  { "uz": "Chapga yoki o'ngga siljib to'siqlardan o'ting!", "ru": "Двигайся влево или вправо, чтобы избежать препятствий!", "en": "Swipe left or right to dodge obstacles!" },
+      "number-path":    { "uz": "1 dan boshlab raqamlarni tartibda ulang!", "ru": "Соединяй числа по порядку начиная с 1!", "en": "Connect numbers in order starting from 1!" },
+      "puzzle-slide":   { "uz": "Qismlarni suring va rasmni to'g'rilang!", "ru": "Двигай части картинки, чтобы собрать её!", "en": "Slide the pieces to complete the picture!" },
+      "clock-match":    { "uz": "Soat millarini ko'rib to'g'ri vaqtni tanlang!", "ru": "Посмотри на стрелки и выбери правильное время!", "en": "Read the clock hands and choose the correct time!" }
+    }
   };
 
   const HEALTH_PROFILES = {
