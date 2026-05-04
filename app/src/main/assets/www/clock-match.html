@@ -101,9 +101,19 @@ function setupUI() {
 const canvas = document.getElementById('clock');
 const ctx = canvas.getContext('2d');
 let score = 0, active = false, currentH = 0, currentM = 0;
+const baseSize = 280;
+
+function setupCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = baseSize * dpr;
+  canvas.height = baseSize * dpr;
+  canvas.style.width = baseSize + 'px';
+  canvas.style.height = baseSize + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
 
 function drawClock(h, m) {
-  const r = canvas.width / 2;
+  const r = baseSize / 2;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.translate(r, r);
@@ -200,6 +210,7 @@ function die() {
   GameAPI.endGame();
 }
 
+setupCanvas();
 setupUI();
 </script>
 </body>

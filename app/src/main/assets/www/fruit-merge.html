@@ -10,13 +10,21 @@
     background: #fefce8; 
     font-family: system-ui, -apple-system, sans-serif; 
     overflow: hidden; 
-    height: 100vh;
+    height: 100vh; height: 100svh;
     display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
     transition: background 1.5s ease;
   }
-  #game-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  #game-container { 
+    position: relative; 
+    width: 100%; 
+    height: 100%; 
+    max-width: 600px; /* Tablet optimizatsiyasi: O'yin maydonini markazda saqlash */
+    background: #000;
+    overflow: hidden; 
+  }
   canvas { 
-    display: block; 
+    display: block; width: 100%; height: 100%;
     background: linear-gradient(to bottom, #fffbeb, #fef3c7); 
     transition: background 1.5s ease;
   }
@@ -187,11 +195,12 @@ function init() {
   document.getElementById('max-combo').textContent = maxComboReached;
   
   // Tarjima
-  const t = {
+  const translations = {
     uz: { score: "BALL", best: "REKORD", over: "O'yin tugadi!", btn: "Qayta o'ynash", maxCombo: "MAX COMBO", new: "YANGI REKORD!" },
     ru: { score: "СЧЕТ", best: "РЕКОРД", over: "Игра окончена!", btn: "Заново", maxCombo: "МАКС. КОМБО", new: "НОВЫЙ РЕКОРД!" },
     en: { score: "SCORE", best: "BEST", over: "Game Over!", btn: "Play Again", maxCombo: "MAX COMBO", new: "NEW RECORD!" }
-  }[GameAPI.lang] || t.en;
+  };
+  const t = translations[GameAPI.lang] || translations.en;
 
   document.getElementById('lbl-score').textContent = t.score;
   document.getElementById('lbl-best').textContent = t.best;
@@ -205,15 +214,18 @@ function init() {
 }
 
 function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  const container = document.getElementById('game-container');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = container.clientWidth * dpr;
+  canvas.height = container.clientHeight * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
 function prepareNextFruit() {
   // 5% ehtimollik bilan Rainbow Fruit chiqadi
   const isRainbow = Math.random() < 0.05;
   
-  if (isRainbow) {
+  if (isRainbow || (score > 2000 && Math.random() < 0.08)) {
     currentFruit = {
       x: canvas.width / 2,
       y: config.spawnY,
@@ -302,7 +314,7 @@ function update() {
   // Fizika yangilanishi
   for (let i = 0; i < fruits.length; i++) {
     const f = fruits[i];
-    const fData = FRUITS[f.type];
+    const fData = f.isRainbow ? RAINBOW_FRUIT_DATA : FRUITS[f.type];
 
     f.vy += config.gravity;
     f.x += f.vx;
@@ -408,7 +420,14 @@ function update() {
 
           // BIRLASHISH
           let nextType;
-          // ... (qolgan mantiq o'zgarishsiz qoladi)
+          if (f1.isRainbow && f2.isRainbow) {
+              // Ikkita kamalak birlashsa - tasodifiy o'rta/yuqori darajadagi meva (Level 4-7)
+              nextType = 4 + Math.floor(Math.random() * 4);
+          } else if (f1.isRainbow || f2.isRainbow) {
+              nextType = f1.isRainbow ? Math.min(f2.type + 1, FRUITS.length - 1) : Math.min(f1.type + 1, FRUITS.length - 1);
+          } else {
+              nextType = f1.type + 1;
+          }
           
           // Combo mantiqi
           const now = Date.now();
@@ -599,8 +618,9 @@ function gameOver() {
 
 // Eventlar
 canvas.addEventListener('pointermove', (e) => {
-  if (currentFruit && !currentFruit.isDropped) {
-    currentFruit.x = e.clientX;
+  if (currentFruit && !currentFruit.isDropped && !isGameOver) {
+    const rect = canvas.getBoundingClientRect();
+    currentFruit.x = e.clientX - rect.left;
     // Chegaralash
     const r = currentFruit.isRainbow ? RAINBOW_FRUIT_DATA.r : FRUITS[currentFruit.type].r;
     if (currentFruit.x < r) currentFruit.x = r;
@@ -609,7 +629,10 @@ canvas.addEventListener('pointermove', (e) => {
 });
 
 canvas.addEventListener('pointerdown', (e) => {
-  if (currentFruit) currentFruit.x = e.clientX;
+  if (currentFruit && !isGameOver) {
+    const rect = canvas.getBoundingClientRect();
+    currentFruit.x = e.clientX - rect.left;
+  }
   dropFruit();
 });
 

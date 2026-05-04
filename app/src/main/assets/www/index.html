@@ -144,7 +144,32 @@ body{
 #gs-top { height: 50px; background: #000; display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; }
 #gs-back { background: #222; color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-weight: bold; cursor: pointer; }
 #gs-title { flex: 1; text-align: center; font-weight: bold; font-size: 14px; }
+#gs-frame-wrap { position: relative; flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 #gs-frame { flex: 1; border: none; width: 100%; height: 100%; }
+
+/* Game Loading Splash Screen Styles */
+#game-loading-overlay {
+  position: absolute; inset: 0; background: #080818;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 100; 
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1);
+}
+/* Zoom-out effekti: Element kengayib (yaqinlashib) va shaffoflashib yo'qoladi */
+#game-loading-overlay.hidden { opacity: 0; transform: scale(1.2); pointer-events: none; }
+.loader-content { text-align: center; }
+.game-icon-anim { font-size: 64px; margin-bottom: 20px; animation: bounce 1.8s infinite ease-in-out; }
+.progress-container { width: 180px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin: 20px auto; }
+.progress-bar-inner { 
+  height: 100%; width: 100%; 
+  background: linear-gradient(90deg, #6366F1, #A855F7);
+  background-size: 40px 40px;
+  background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+  animation: loading-stripes 0.8s infinite linear;
+}
+@keyframes bounce { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.1); } }
+@keyframes loading-stripes { from { background-position: 0 0; } to { background-position: 40px 0; } }
+
 
 /* LOADER */
 #ld { position: fixed; inset: 0; z-index: 500; background: #0A0A1F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
@@ -178,24 +203,6 @@ body{
 
 <div id="main-wrap">
   <main id="main">
-    <div id="lstats">
-      <div class="lsc" onclick="setLang('uz')">
-        <div class="lsc-f">🇺🇿</div>
-        <div class="lsc-l" id="ls1">O'ZBEK</div>
-        <div class="lsc-r" id="lr1">FAOL</div>
-      </div>
-      <div class="lsc" onclick="setLang('ru')">
-        <div class="lsc-f">🇷🇺</div>
-        <div class="lsc-l" id="ls2">RUSCHA</div>
-        <div class="lsc-r" id="lr2">FAOL</div>
-      </div>
-      <div class="lsc" onclick="setLang('en')">
-        <div class="lsc-f">🇬🇧</div>
-        <div class="lsc-l" id="ls3">INGLIZ</div>
-        <div class="lsc-r" id="lr3">FAOL</div>
-      </div>
-    </div>
-
     <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
       <h2 id="sec-t" style="font-size:18px; font-weight:900">O'yinlar</h2>
       <span id="sec-c" style="font-size:12px; color:var(--txt2)">0 ta</span>
@@ -223,7 +230,16 @@ body{
     <button id="gs-back" onclick="closeGame()">←</button>
     <div id="gs-title">O'yin</div>
   </div>
-  <iframe id="gs-frame"></iframe>
+  <div id="gs-frame-wrap">
+    <div id="game-loading-overlay" class="hidden">
+      <div class="loader-content">
+        <div class="game-icon-anim">🎮</div>
+        <div id="loading-text" style="font-weight: 900; letter-spacing: 1px; color: #E2E8F0;">Yuklanmoqda...</div>
+        <div class="progress-container"><div class="progress-bar-inner"></div></div>
+      </div>
+    </div>
+    <iframe id="gs-frame"></iframe>
+  </div>
 </div>
 
 <!-- EXIT MODAL -->

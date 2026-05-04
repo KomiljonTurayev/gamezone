@@ -84,11 +84,13 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
         WebSettings settings = webView.getSettings();
         
         WebViewConfigurator.apply(settings, isNetworkAvailable());
-        
-        // Professional Performance Settings
-        settings.setDomStorageEnabled(true);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+
+        // Planshetlar va yuqori aniqlikdagi ekranlar uchun optimallashtirish
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
         settings.setOffscreenPreRaster(true);
+        settings.setMediaPlaybackRequiresUserGesture(false); // O'yin ovozlari avtomatik chiqishi uchun
+
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         
         webView.addJavascriptInterface(new WebAppInterface(this, adManager, webView), "AndroidAdMob");

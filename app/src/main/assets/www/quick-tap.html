@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
@@ -132,7 +132,10 @@ function createTarget(isBomb) {
   el.style.top = y + "px";
 
   el.onclick = () => {
-    if (!gameActive) return;
+    // Planshetlarda multi-touch tufayli bir vaqtda ikki marta bosilishini oldini olish
+    if (!gameActive || el.classList.contains('hit')) return;
+    el.classList.add('hit');
+
     if (isBomb) {
       lives--;
       document.getElementById('lives').textContent = lives;
