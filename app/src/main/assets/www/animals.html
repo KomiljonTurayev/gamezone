@@ -54,7 +54,7 @@ body { background: var(--bg); color: white; font-family: 'Segoe UI', Roboto, san
   <div style="font-size: 80px; margin-bottom: 20px;">🐾</div>
   <h1 id="t-start" style="font-size: 32px; margin-bottom: 10px;">Zoo Safari</h1>
   <p id="d-start" style="opacity: 0.7; margin-bottom: 30px;">Hayvonlarni va ularning ovozlarini toping!</p>
-  <button class="btn-main" onclick="start()">BOSHLASH</button>
+  <button class="btn-main" id="b-start" onclick="start()">BOSHLASH</button>
 </div>
 
 <div class="screen hidden" id="s-over">
@@ -67,9 +67,9 @@ body { background: var(--bg); color: white; font-family: 'Segoe UI', Roboto, san
 <script>
 const GAME_ID = 'animals';
 const I18N = {
-  uz: { best:"REKORD", score:"BALL", start:"Zoo Safari", desc:"Hayvonlarni va ularning ovozlarini toping!", over:"O'yin Tugadi", again:"QAYTA O'YNASH" },
-  ru: { best:"РЕКОРД", score:"БАЛЛЫ", start:"Зоо Сафари", desc:"Угадай животных и их звуки!", over:"Игра Окончена", again:"ЗАНОВО" },
-  en: { best:"BEST", score:"SCORE", start:"Zoo Safari", desc:"Identify animals and their sounds!", over:"Game Over", again:"PLAY AGAIN" }
+  uz: { best:"REKORD", score:"BALL", start:"Zoo Safari", desc:"Hayvonlarni va ularning ovozlarini toping!", bStart:"BOSHLASH", over:"O'yin Tugadi", again:"QAYTA O'YNASH" },
+  ru: { best:"РЕКОРД", score:"БАЛЛЫ", start:"Зоо Сафари", desc:"Угадай животных и их звуки!", bStart:"НАЧАТЬ", over:"Игра Окончена", again:"ЗАНОВО" },
+  en: { best:"BEST", score:"SCORE", start:"Zoo Safari", desc:"Identify animals and their sounds!", bStart:"START", over:"Game Over", again:"PLAY AGAIN" }
 };
 const t = GameAPI.t.bind(GameAPI, I18N);
 
@@ -90,6 +90,8 @@ function setupUI() {
   document.getElementById('t-start').textContent = t('start');
   document.getElementById('d-start').textContent = t('desc');
   document.getElementById('v-best').textContent = GameAPI.getBestScore(GAME_ID);
+  const bStart = document.getElementById('b-start');
+  if (bStart) bStart.textContent = t('bStart');
 }
 
 let score = 0, qNum = 0, current = null, results = [];

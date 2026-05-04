@@ -276,6 +276,9 @@
     els.gs = byId("gs");
     els.gsTitle = byId("gs-title");
     els.gsFrame = byId("gs-frame");
+    els.gsFrame.onload = () => {
+      if (els.gameLoadingOverlay) els.gameLoadingOverlay.classList.add('hidden');
+    };
     els.gameExitModal = byId("game-exit-modal");
     els.exitModalMessage = byId("exit-modal-msg");
     els.exitModalYes = byId("exit-modal-yes");
@@ -534,18 +537,6 @@
       window.fil = fil;
       window.closeGame = closeGame;
       window.showRev = () => els.lp?.classList.remove("h");
-      
-      // NEW: Add onload listener for the game iframe to hide loading overlay
-      if (els.gsFrame) {
-        els.gsFrame.onload = () => {
-          // O'yin yuklangach, 500ms kutib keyin zoom-out qilish (effekt sezilishi uchun)
-          setTimeout(() => {
-            if (els.gameLoadingOverlay) {
-              els.gameLoadingOverlay.classList.add("hidden");
-            }
-          }, 500);
-        };
-      }
 
       bindExitModal();
       buildGrid(filter);
