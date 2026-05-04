@@ -93,6 +93,9 @@ body{
 .gc-info { padding: 12px; background: rgba(255,255,255,0.03); border-top: 1px solid var(--brd); }
 .gc-nm { font-size: var(--fs); font-weight: 900; color: var(--txt); margin-bottom: 4px; }
 .gc-tg { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); color: var(--txt2); }
+.gc-meta { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px; }
+.gc-ds   { font-size:10px; color:var(--txt2); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gc-best { font-size:10px; color:#FACC15; margin-top:4px; }
 
 .bdg { position: absolute; top: 10px; right: 10px; padding: 3px 8px; border-radius: 10px; font-size: 9px; font-weight: 900; color: white; }
 .bnew { background: #10B981; }
@@ -175,6 +178,13 @@ body{
 #ld { position: fixed; inset: 0; z-index: 500; background: #0A0A1F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
 #ld.h { display: none; }
 
+#info-modal { position:fixed;inset:0;z-index:250;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:.25s; }
+#info-modal.show { opacity:1;pointer-events:auto; }
+.info-sheet { background:linear-gradient(135deg,#1e1b4b,#0f172a);border:1px solid rgba(255,255,255,0.1);border-radius:28px 28px 0 0;padding:28px 24px 40px;width:100%;max-width:500px; }
+.info-emoji { font-size:52px;text-align:center;margin-bottom:12px; }
+.info-title { font-size:18px;font-weight:900;color:white;text-align:center;margin-bottom:10px; }
+.info-desc  { font-size:15px;color:rgba(255,255,255,0.75);text-align:center;line-height:1.6;margin-bottom:22px; }
+.info-play  { width:100%;padding:16px;border-radius:18px;border:none;background:linear-gradient(135deg,#6366f1,#a855f7);color:white;font-size:17px;font-weight:900;cursor:pointer; }
 #toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #10B981; color: #fff; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 600; opacity: 0; transition: 0.3s; pointer-events: none; }
 #toast.s { opacity: 1; }
 
@@ -198,6 +208,7 @@ body{
     <div id="logo-nm">GameZone UZ</div>
   </div>
   <div id="hdr-sp"></div>
+  <button id="fm-btn" onclick="FamilyMode.open()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:white;font-size:13px;font-weight:bold;padding:7px 11px;cursor:pointer;margin-right:8px;">🏠</button>
   <div id="pts">⭐ <span id="pts-v">0</span></div>
 </header>
 
@@ -229,6 +240,7 @@ body{
   <div id="gs-top">
     <button id="gs-back" onclick="closeGame()">←</button>
     <div id="gs-title">O'yin</div>
+    <button id="gs-info-btn" onclick="showInfoModal()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:white;font-size:13px;padding:5px 10px;cursor:pointer;">❓</button>
   </div>
   <div id="gs-frame-wrap">
     <div id="game-loading-overlay" class="hidden">
@@ -239,6 +251,16 @@ body{
       </div>
     </div>
     <iframe id="gs-frame"></iframe>
+  </div>
+</div>
+
+<!-- HOW TO PLAY MODAL -->
+<div id="info-modal">
+  <div class="info-sheet">
+    <div class="info-emoji" id="info-emoji">🎮</div>
+    <div class="info-title" id="info-title"></div>
+    <div class="info-desc"  id="info-desc"></div>
+    <button class="info-play" onclick="closeInfoModal()">▶ O'ynash / Играть / Play</button>
   </div>
 </div>
 
@@ -274,5 +296,6 @@ body{
 <div id="toast"></div>
 
 <script src="script.js"></script>
+<script src="family-mode.js"></script>
 </body>
 </html>
