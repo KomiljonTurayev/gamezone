@@ -32,6 +32,7 @@
 
   function loadSettings() {
     try { Object.assign(state.settings, JSON.parse(localStorage.getItem(STORAGE_SETTINGS))); } catch(_) {}
+    state.lockoutUntil = parseInt(localStorage.getItem('gz-family-lockout') || '0', 10);
   }
   function saveSettings() { localStorage.setItem(STORAGE_SETTINGS, JSON.stringify(state.settings)); }
   function saveSession()  { localStorage.setItem(STORAGE_SESSION, JSON.stringify(state.session)); }
@@ -112,10 +113,19 @@
   function handlePin(mode) {
     const pin = window._fmPinBuffer;
     if (mode === 'set') { savePin(pin); showSettingsScreen(); return; }
-    if (checkPin(pin)) { state.wrongAttempts = 0; showSettingsScreen(); }
+    if (checkPin(pin)) {
+      state.wrongAttempts = 0;
+      state.lockoutUntil = 0;
+      localStorage.removeItem('gz-family-lockout');
+      showSettingsScreen();
+    }
     else {
       state.wrongAttempts++;
-      if (state.wrongAttempts >= 3) { state.lockoutUntil = Date.now() + 30000; state.wrongAttempts = 0; }
+      if (state.wrongAttempts >= 3) {
+        state.lockoutUntil = Date.now() + 30000;
+        localStorage.setItem('gz-family-lockout', state.lockoutUntil);
+        state.wrongAttempts = 0;
+      }
       window._fmPinBuffer = '';
       updateDots();
       const e = document.getElementById('fm-err');
@@ -149,6 +159,7 @@
 
   /* ── Turn screen ─────────────────────────────────────────────────── */
   function showTurnScreen(score) {
+    if (!state.active) return;
     if (state.settings.mode === 'turns') {
       if (state.session.currentTurn === 'parent') state.session.parentScore += score;
       else state.session.childScore += score;
@@ -251,6 +262,7 @@
     saveSession();
     hideModal();
     updateBtn();
+    if (state.settings.kidsOnly && window.fil) window.fil('kids');
   }
   function exitSession() {
     state.active = false;
@@ -270,11 +282,13 @@
   }
 
   /* ── Score listener ──────────────────────────────────────────────── */
+  let scorePending = false;
   window.addEventListener('message', (e) => {
-    if (!state.active) return;
+    if (!state.active || scorePending) return;
     if (e.data?.type === 'game:score') {
       const score = parseInt(e.data.score, 10) || 0;
-      setTimeout(() => showTurnScreen(score), 600);
+      scorePending = true;
+      setTimeout(() => { scorePending = false; showTurnScreen(score); }, 600);
     }
   });
 
