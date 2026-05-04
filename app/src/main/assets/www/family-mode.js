@@ -4,6 +4,7 @@
   const STORAGE_PIN      = 'gz-family-pin';
   const STORAGE_SETTINGS = 'gz-family-settings';
   const STORAGE_SESSION  = 'gz-family-session';
+  const STORAGE_LOCKOUT  = STORAGE_LOCKOUT;
 
   let state = {
     active: false,
@@ -32,7 +33,7 @@
 
   function loadSettings() {
     try { Object.assign(state.settings, JSON.parse(localStorage.getItem(STORAGE_SETTINGS))); } catch(_) {}
-    state.lockoutUntil = parseInt(localStorage.getItem('gz-family-lockout') || '0', 10);
+    state.lockoutUntil = parseInt(localStorage.getItem(STORAGE_LOCKOUT) || '0', 10);
   }
   function saveSettings() { localStorage.setItem(STORAGE_SETTINGS, JSON.stringify(state.settings)); }
   function saveSession()  { localStorage.setItem(STORAGE_SESSION, JSON.stringify(state.session)); }
@@ -116,14 +117,14 @@
     if (checkPin(pin)) {
       state.wrongAttempts = 0;
       state.lockoutUntil = 0;
-      localStorage.removeItem('gz-family-lockout');
+      localStorage.removeItem(STORAGE_LOCKOUT);
       showSettingsScreen();
     }
     else {
       state.wrongAttempts++;
       if (state.wrongAttempts >= 3) {
         state.lockoutUntil = Date.now() + 30000;
-        localStorage.setItem('gz-family-lockout', state.lockoutUntil);
+        localStorage.setItem(STORAGE_LOCKOUT, state.lockoutUntil);
         state.wrongAttempts = 0;
       }
       window._fmPinBuffer = '';
