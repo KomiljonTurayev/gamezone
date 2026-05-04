@@ -451,6 +451,30 @@
     applyTranslations();
     buildGrid(f);
   }
+  window.fil = fil;
+
+  function showInfoModal() {
+    if (!currentGameId) return;
+    const game = GAMES.find(g => g.id === currentGameId);
+    if (!game) return;
+    const howTo = (translations.howToPlay || {})[currentGameId];
+    const { title } = gameText(currentGameId);
+    const modal = byId('info-modal');
+    if (!modal) return;
+    byId('info-emoji').textContent = game.em;
+    byId('info-title').textContent = title;
+    byId('info-desc').textContent  = howTo?.[lang] || howTo?.uz || '';
+    const playBtn = byId('info-play-btn');
+    if (playBtn) playBtn.textContent = '▶ ' + (ui()['start'] || (lang === 'ru' ? 'Играть' : lang === 'en' ? 'Play' : 'O\'ynash'));
+    modal.classList.add('show');
+  }
+
+  function closeInfoModal() {
+    byId('info-modal')?.classList.remove('show');
+  }
+
+  window.showInfoModal  = showInfoModal;
+  window.closeInfoModal = closeInfoModal;
 
   function showToast(m) {
     if (!els.toast) return;
