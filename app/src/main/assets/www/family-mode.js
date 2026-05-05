@@ -283,6 +283,7 @@
           </div>
         </div>
         <button onclick="FamilyMode.startGame()" style="width:100%;padding:18px;border-radius:18px;border:none;background:linear-gradient(135deg,#6366f1,#a855f7);color:white;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(99,102,241,0.35);">${ft('start')} ▶</button>
+        <button onclick="FamilyMode.cancelGameOpen()" style="width:100%;padding:11px;border:none;background:none;color:rgba(255,255,255,0.35);font-size:13px;margin-top:8px;cursor:pointer;">✕ ${ft('exit')}</button>
       </div>
     `));
 
@@ -294,6 +295,11 @@
     window._fmOpenCallback = null;
     hideModal();
     if (cb) cb();
+  }
+
+  function cancelGameOpen() {
+    window._fmOpenCallback = null;
+    hideModal();
   }
 
   /* ── Public actions ──────────────────────────────────────────────── */
@@ -357,7 +363,7 @@
 
   window.FamilyMode = {
     open, cancel, pt, setTL, setMode, toggleKids, begin, go, stop, again, exitSession,
-    onGameOpen, startGame,
+    onGameOpen, startGame, cancelGameOpen,
     isActive: () => state.active,
     isKidsOnly: () => state.settings.kidsOnly
   };
