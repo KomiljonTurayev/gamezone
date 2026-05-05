@@ -2,29 +2,29 @@
   "use strict";
 
   const GAMES = [
-    { id: "bubble-pop", em: "🫧", cat: ["arcade"], tc: "#3B82F6", bg: "135deg,#E0F2FE,#BAE6FD", bdg: "hot", file: "bubble-pop.html" },
-    { id: "color-rush", em: "🎨", cat: ["arcade"], tc: "#8B5CF6", bg: "135deg,#F5F3FF,#DDD6FE", bdg: null, file: "color-rush.html" },
-    { id: "memory-game", em: "🧠", cat: ["arcade", "kids"], tc: "#10B981", bg: "135deg,#ECFDF5,#D1FAE5", bdg: "new", file: "memory-game.html" },
-    { id: "animals", em: "🐾", cat: ["kids"], tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: "new", file: "animals.html" },
-    { id: "math-kids", em: "🔢", cat: ["kids"], tc: "#EC4899", bg: "135deg,#FDF2F8,#FBCFE8", bdg: "new", file: "math-kids.html" },
-    { id: "colors-shapes", em: "🌈", cat: ["kids"], tc: "#F59E0B", bg: "135deg,#FFF7ED,#FFEDD5", bdg: "new", file: "colors-shapes.html" },
-    { id: "stack-tower", em: "🗼", cat: ["arcade"], tc: "#06B6D4", bg: "135deg,#ECFEFF,#CFFAFE", bdg: null, file: "stack-tower.html" },
-    { id: "helix-jump", em: "🌀", cat: ["arcade"], tc: "#A78BFA", bg: "135deg,#F5F3FF,#EDE9FE", bdg: null, file: "helix-jump.html" },
-    { id: "zen-garden", em: "🌸", cat: ["relax"], tc: "#10B981", bg: "135deg,#F0FDF4,#DCFCE7", bdg: null, file: "zen-garden.html" },
-    { id: "rain-tap", em: "🌧️", cat: ["relax"], tc: "#60A5FA", bg: "135deg,#EFF6FF,#DBEAFE", bdg: null, file: "rain-tap.html" },
-    { id: "quick-tap", em: "⚡", cat: ["arcade"], tc: "#F97316", bg: "135deg,#FFF7ED,#FFEDD5", bdg: "new", file: "quick-tap.html" },
-    { id: "shape-match", em: "🔷", cat: ["kids"], tc: "#22D3EE", bg: "135deg,#ECFEFF,#CFFAFE", bdg: null, file: "shape-match.html" },
-    { id: "word-sprint", em: "🔤", cat: ["kids"], tc: "#FB7185", bg: "135deg,#FFF1F2,#FFE4E6", bdg: null, file: "word-sprint.html" },
-    { id: "pattern-trace", em: "🧩", cat: ["kids", "arcade"], tc: "#A3E635", bg: "135deg,#F7FEE7,#ECFCCB", bdg: null, file: "pattern-trace.html" },
-    { id: "melody-memory", em: "🎵", cat: ["relax", "kids"], tc: "#C084FC", bg: "135deg,#FAF5FF,#F3E8FF", bdg: null, file: "melody-memory.html" },
-    { id: "star-catcher", em: "⭐", cat: ["arcade"], tc: "#FACC15", bg: "135deg,#FEFCE8,#FEF9C3", bdg: "hot", file: "star-catcher.html" },
-    { id: "gentle-breath", em: "🫁", cat: ["relax"], tc: "#34D399", bg: "135deg,#F0FDFA,#CCFBF1", bdg: null, file: "gentle-breath.html" },
-    { id: "focus-flow", em: "🎯", cat: ["arcade"], tc: "#60A5FA", bg: "135deg,#EFF6FF,#DBEAFE", bdg: null, file: "focus-flow.html" },
-    { id: "fruit-merge", em: "🍉", cat: ["arcade"], tc: "#10B981", bg: "135deg,#ECFDF5,#D1FAE5", bdg: "hot", file: "fruit-merge.html" },
-    { id: "infinite-dash", em: "🏃", cat: ["arcade"], tc: "#EF4444", bg: "135deg,#FEF2F2,#FEE2E2", bdg: "new", file: "infinite-dash.html" },
-    { id: "number-path", em: "🔢", cat: ["kids"], tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: null, file: "number-path.html" },
-    { id: "puzzle-slide", em: "🧱", cat: ["arcade", "kids"], tc: "#818CF8", bg: "135deg,#EEF2FF,#E0E7FF", bdg: null, file: "puzzle-slide.html" },
-    { id: "clock-match", em: "⏰", cat: ["kids"], tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: "new", file: "clock-match.html" }
+    { id: "bubble-pop", em: "🫧", cat: ["arcade"], age: 3, tc: "#3B82F6", bg: "135deg,#E0F2FE,#BAE6FD", bdg: "hot", file: "bubble-pop.html" },
+    { id: "color-rush", em: "🎨", cat: ["arcade"], age: 5, tc: "#8B5CF6", bg: "135deg,#F5F3FF,#DDD6FE", bdg: null, file: "color-rush.html" },
+    { id: "memory-game", em: "🧠", cat: ["arcade", "kids"], age: 3, tc: "#10B981", bg: "135deg,#ECFDF5,#D1FAE5", bdg: "new", file: "memory-game.html" },
+    { id: "animals", em: "🐾", cat: ["kids"], age: 3, tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: "new", file: "animals.html" },
+    { id: "math-kids", em: "🔢", cat: ["kids"], age: 5, tc: "#EC4899", bg: "135deg,#FDF2F8,#FBCFE8", bdg: "new", file: "math-kids.html" },
+    { id: "colors-shapes", em: "🌈", cat: ["kids"], age: 3, tc: "#F59E0B", bg: "135deg,#FFF7ED,#FFEDD5", bdg: "new", file: "colors-shapes.html" },
+    { id: "stack-tower", em: "🗼", cat: ["arcade"], age: 5, tc: "#06B6D4", bg: "135deg,#ECFEFF,#CFFAFE", bdg: null, file: "stack-tower.html" },
+    { id: "helix-jump", em: "🌀", cat: ["arcade"], age: 7, tc: "#A78BFA", bg: "135deg,#F5F3FF,#EDE9FE", bdg: null, file: "helix-jump.html" },
+    { id: "zen-garden", em: "🌸", cat: ["relax"], age: 0, tc: "#10B981", bg: "135deg,#F0FDF4,#DCFCE7", bdg: null, file: "zen-garden.html" },
+    { id: "rain-tap", em: "🌧️", cat: ["relax"], age: 0, tc: "#60A5FA", bg: "135deg,#EFF6FF,#DBEAFE", bdg: null, file: "rain-tap.html" },
+    { id: "quick-tap", em: "⚡", cat: ["arcade"], age: 5, tc: "#F97316", bg: "135deg,#FFF7ED,#FFEDD5", bdg: "new", file: "quick-tap.html" },
+    { id: "shape-match", em: "🔷", cat: ["kids"], age: 3, tc: "#22D3EE", bg: "135deg,#ECFEFF,#CFFAFE", bdg: null, file: "shape-match.html" },
+    { id: "word-sprint", em: "🔤", cat: ["kids"], age: 5, tc: "#FB7185", bg: "135deg,#FFF1F2,#FFE4E6", bdg: null, file: "word-sprint.html" },
+    { id: "pattern-trace", em: "🧩", cat: ["kids", "arcade"], age: 3, tc: "#A3E635", bg: "135deg,#F7FEE7,#ECFCCB", bdg: null, file: "pattern-trace.html" },
+    { id: "melody-memory", em: "🎵", cat: ["relax", "kids"], age: 3, tc: "#C084FC", bg: "135deg,#FAF5FF,#F3E8FF", bdg: null, file: "melody-memory.html" },
+    { id: "star-catcher", em: "⭐", cat: ["arcade"], age: 5, tc: "#FACC15", bg: "135deg,#FEFCE8,#FEF9C3", bdg: "hot", file: "star-catcher.html" },
+    { id: "gentle-breath", em: "🫁", cat: ["relax"], age: 0, tc: "#34D399", bg: "135deg,#F0FDFA,#CCFBF1", bdg: null, file: "gentle-breath.html" },
+    { id: "focus-flow", em: "🎯", cat: ["arcade"], age: 5, tc: "#60A5FA", bg: "135deg,#EFF6FF,#DBEAFE", bdg: null, file: "focus-flow.html" },
+    { id: "fruit-merge", em: "🍉", cat: ["arcade"], age: 5, tc: "#10B981", bg: "135deg,#ECFDF5,#D1FAE5", bdg: "hot", file: "fruit-merge.html" },
+    { id: "infinite-dash", em: "🏃", cat: ["arcade"], age: 7, tc: "#EF4444", bg: "135deg,#FEF2F2,#FEE2E2", bdg: "new", file: "infinite-dash.html" },
+    { id: "number-path", em: "🔢", cat: ["kids"], age: 5, tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: null, file: "number-path.html" },
+    { id: "puzzle-slide", em: "🧱", cat: ["arcade", "kids"], age: 5, tc: "#818CF8", bg: "135deg,#EEF2FF,#E0E7FF", bdg: null, file: "puzzle-slide.html" },
+    { id: "clock-match", em: "⏰", cat: ["kids"], age: 5, tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: "new", file: "clock-match.html" }
   ];
 
   const TRANSLATIONS_DATA = {
@@ -220,29 +220,29 @@
       }
     },
     "howToPlay": {
-      "bubble-pop":     { "uz": "Pufakchalarni barmoq bilan bosib portlating!", "ru": "Нажимай на пузырьки пальцем!", "en": "Tap bubbles to pop them!" },
-      "color-rush":     { "uz": "Ko'rsatilgan rangga mos kartani tez bosing!", "ru": "Нажимай на карту нужного цвета!", "en": "Tap the card matching the shown color!" },
-      "memory-game":    { "uz": "Kartochkalarni ochib bir xil juftini toping!", "ru": "Открывай карточки и ищи пары!", "en": "Flip cards and find matching pairs!" },
-      "animals":        { "uz": "Hayvon ovozini eshiting va to'g'ri ismini tanlang!", "ru": "Слушай звук животного и выбери правильное имя!", "en": "Hear the animal sound and tap its correct name!" },
-      "math-kids":      { "uz": "Masalani yechib to'g'ri javobni bosing!", "ru": "Реши задачу и выбери правильный ответ!", "en": "Solve the math problem and tap the correct answer!" },
-      "colors-shapes":  { "uz": "Ko'rsatilgan rang yoki shaklni tanlang!", "ru": "Выбери указанный цвет или фигуру!", "en": "Choose the shown color or shape!" },
-      "stack-tower":    { "uz": "Harakat qilayotgan blokni o'z vaqtida bosib uyib boring!", "ru": "Нажимай на движущийся блок вовремя, чтобы сложить башню!", "en": "Tap the moving block at the right time to stack it!" },
-      "helix-jump":     { "uz": "Shar pastga tushsin — qora to'siqlardan saqla!", "ru": "Шар падает вниз — избегай чёрных препятствий!", "en": "Ball falls down — avoid the dark obstacles!" },
-      "zen-garden":     { "uz": "Barmog'ingiz bilan qumda chiroyli naqshlar chizing!", "ru": "Рисуй красивые узоры на песке пальцем!", "en": "Draw beautiful patterns in the sand with your finger!" },
-      "rain-tap":       { "uz": "Tushayotgan tomchilarni erga yetmasdan bosing!", "ru": "Нажимай на капли до того, как они коснутся земли!", "en": "Tap falling drops before they hit the ground!" },
-      "quick-tap":      { "uz": "Ko'k doira chiqganda imkon qadar tez bosing!", "ru": "Нажимай на синий круг как можно быстрее!", "en": "Tap the blue circle as fast as possible!" },
-      "shape-match":    { "uz": "Shaklni to'g'ri rangdagi katakka sudrab tashlang!", "ru": "Перетащи фигуру в ячейку правильного цвета!", "en": "Drag the shape to the slot with the matching color!" },
-      "word-sprint":    { "uz": "Harflarni bosib ko'rsatilgan so'zni hosil qiling!", "ru": "Нажимай на буквы, чтобы составить показанное слово!", "en": "Tap letters in order to spell the shown word!" },
-      "pattern-trace":  { "uz": "Ko'rsatilgan shaklni barmog'ingiz bilan chizing!", "ru": "Обведи показанную фигуру пальцем!", "en": "Trace the shown shape with your finger!" },
-      "melody-memory":  { "uz": "Ohangni tinglang, so'ng xuddi shunday tugmalarni bosing!", "ru": "Послушай мелодию, затем нажми те же кнопки!", "en": "Listen to the melody, then tap the same buttons!" },
-      "star-catcher":   { "uz": "Tushib kelayotgan yulduzlarni ekranda ushlang!", "ru": "Лови падающие звёзды на экране!", "en": "Catch the falling stars on screen!" },
-      "gentle-breath":  { "uz": "Doira kattalashganda nafas oling, kichrayganda chiqaring!", "ru": "Вдыхай когда круг растёт, выдыхай когда сжимается!", "en": "Breathe in as the circle grows, breathe out as it shrinks!" },
-      "focus-flow":     { "uz": "Ko'rsatilgan rangga mos nishonga tegishli rangda bosing!", "ru": "Нажимай на цель, чей цвет совпадает с показанным!", "en": "Tap the target whose color matches the displayed one!" },
-      "fruit-merge":    { "uz": "Bir xil mevalarni bir-biriga tegizib kattalashtiring!", "ru": "Совмести одинаковые фрукты, чтобы они выросли!", "en": "Merge identical fruits together to make them bigger!" },
-      "infinite-dash":  { "uz": "Chapga yoki o'ngga siljib to'siqlardan o'ting!", "ru": "Двигайся влево или вправо, чтобы избежать препятствий!", "en": "Swipe left or right to dodge obstacles!" },
-      "number-path":    { "uz": "1 dan boshlab raqamlarni tartibda ulang!", "ru": "Соединяй числа по порядку начиная с 1!", "en": "Connect numbers in order starting from 1!" },
-      "puzzle-slide":   { "uz": "Qismlarni suring va rasmni to'g'rilang!", "ru": "Двигай части картинки, чтобы собрать её!", "en": "Slide the pieces to complete the picture!" },
-      "clock-match":    { "uz": "Soat millarini ko'rib to'g'ri vaqtni tanlang!", "ru": "Посмотри на стрелки и выбери правильное время!", "en": "Read the clock hands and choose the correct time!" }
+      "bubble-pop":     { "uz": "Pufakchalarni barmoq bilan bosib portlating! Qanchalik tez bo'lsangiz, shuncha ko'p ball olasiz.", "ru": "Нажимай на пузырьки пальцем! Чем быстрее ты, тем больше баллов.", "en": "Tap bubbles to pop them! The faster you are, the more points you get." },
+      "color-rush":     { "uz": "Ko'rsatilgan rangga mos kartani tez bosing! Adashmang, vaqt juda kam.", "ru": "Нажимай на карту нужного цвета! Не ошибись, времени мало.", "en": "Tap the card matching the shown color! Be quick, time is limited." },
+      "memory-game":    { "uz": "Kartochkalarni ochib bir xil juftini toping! Xotirani charxlash uchun ajoyib o'yin.", "ru": "Открывай карточки и ищи пары! Отличная игра для тренировки памяти.", "en": "Flip cards and find matching pairs! Great for memory training." },
+      "animals":        { "uz": "Hayvon ovozini eshiting va to'g'ri ismini tanlang! Hayvonlar dunyosini o'rganamiz.", "ru": "Слушай звук животного и выбери правильное имя! Изучаем мир животных.", "en": "Hear the animal sound and tap its correct name! Let's explore nature." },
+      "math-kids":      { "uz": "Masalani yechib to'g'ri javobni bosing! Matematika bilan do'st bo'ling.", "ru": "Реши задачу и выбери правильный ответ! Подружись с математикой.", "en": "Solve the math problem and tap the correct answer! Have fun with math." },
+      "colors-shapes":  { "uz": "Ko'rsatilgan rang yoki shaklni tanlang! Bilimingizni sinab ko'ring.", "ru": "Выбери указанный цвет или фигуру! Проверь свои знания.", "en": "Choose the shown color or shape! Test your knowledge." },
+      "stack-tower":    { "uz": "Harakat qilayotgan blokni o'z vaqtida bosib uyib boring! Minorani qulashiga yo'l qo'ymang.", "ru": "Нажимай на блок вовремя, чтобы сложить башню! Не дай ей упасть.", "en": "Tap the moving block at the right time to stack it! Don't let it fall." },
+      "helix-jump":     { "uz": "Shar pastga tushsin — qora to'siqlardan saqla! Aylana bo'ylab boshqaring.", "ru": "Шар падает вниз — избегай чёрных препятствий! Управляй спиралью.", "en": "Ball falls down — avoid the dark obstacles! Control the spiral." },
+      "zen-garden":     { "uz": "Barmog'ingiz bilan qumda chiroyli naqshlar chizing! Tinchlaning va dam oling.", "ru": "Рисуй красивые узоры на песке пальцем! Успокойся и отдохни.", "en": "Draw beautiful patterns in the sand with your finger! Relax and enjoy." },
+      "rain-tap":       { "uz": "Tushayotgan tomchilarni erga yetmasdan bosing! Yomg'irda o'ynash vaqti.", "ru": "Нажимай на капли до того, как они коснутся земли! Время играть в дождь.", "en": "Tap falling drops before they hit the ground! Time to play in the rain." },
+      "quick-tap":      { "uz": "Ko'k doira chiqganda imkon qadar tez bosing! Reaksiyangizni sinang.", "ru": "Нажимай на синий круг как можно быстрее! Проверь реакцию.", "en": "Tap the blue circle as fast as possible! Test your reaction." },
+      "shape-match":    { "uz": "Shaklni to'g'ri rangdagi katakka sudrab tashlang! Mantiqiy fikrlashni rivojlantiring.", "ru": "Перетащи фигуру в ячейку нужного цвета! Развивай логику.", "en": "Drag the shape to the slot with the matching color! Develop logic." },
+      "word-sprint":    { "uz": "Harflarni bosib ko'rsatilgan so'zni hosil qiling! So'z boyligingizni oshiring.", "ru": "Нажимай на буквы, чтобы составить слово! Расширяй словарный запас.", "en": "Tap letters in order to spell the word! Expand your vocabulary." },
+      "pattern-trace":  { "uz": "Ko'rsatilgan shaklni barmog'ingiz bilan chizing! Chiziqdan chiqib ketmang.", "ru": "Обведи показанную фигуру пальцем! Не выходи за линии.", "en": "Trace the shown shape with your finger! Stay inside the lines." },
+      "melody-memory":  { "uz": "Ohangni tinglang, so'ng xuddi shunday tugmalarni bosing! Musiqiy xotirani sinang.", "ru": "Послушай мелодию, затем повтори её! Проверь музыкальный слух.", "en": "Listen to the melody, then repeat it! Test your musical ear." },
+      "star-catcher":   { "uz": "Tushib kelayotgan yulduzlarni ekranda ushlang! Yulduzlar bilan birga parvoz qiling.", "ru": "Лови падающие звёзды на экране! Лети вместе со звёздами.", "en": "Catch the falling stars on screen! Fly among the stars." },
+      "gentle-breath":  { "uz": "Doira kattalashganda nafas oling, kichrayganda chiqaring! To'g'ri nafas olish mashqi.", "ru": "Вдыхай когда круг растёт, выдыхай когда сжимается! Дыши правильно.", "en": "Breathe in as the circle grows, breathe out as it shrinks! Breath right." },
+      "focus-flow":     { "uz": "Ko'rsatilgan rangga mos nishonga tegishli rangda bosing! Diqqatingizni yo'qotmang.", "ru": "Нажимай на цель нужного цвета! Не теряй концентрацию.", "en": "Tap the target whose color matches! Don't lose focus." },
+      "fruit-merge":    { "uz": "Bir xil mevalarni bir-biriga tegizib kattalashtiring! Mevalarni birlashtirib rekord qo'ying.", "ru": "Соединяй одинаковые фрукты! Создай самый большой фрукт.", "en": "Merge identical fruits together! Create the biggest fruit." },
+      "infinite-dash":  { "uz": "Ekran bo'ylab chapga yoki o'ngga surib (swipe) to'siqlardan qoching! Eng uzoq masofaga boring.", "ru": "Свайпай влево или вправо, чтобы обходить преграды! Продержись как можно дольше.", "en": "Swipe left or right to avoid obstacles! Survive as long as you can." },
+      "number-path":    { "uz": "1 dan boshlab raqamlarni tartibda ulang! Matematik yo'lni yakunlang.", "ru": "Соединяй числа по порядку начиная с 1! Пройди числовой путь.", "en": "Connect numbers in order starting from 1! Complete the math path." },
+      "puzzle-slide":   { "uz": "Qismlarni suring va rasmni to'g'rilang! Klassik pyatnashka o'yini.", "ru": "Двигай части картинки, чтобы собрать её! Классические пятнашки.", "en": "Slide the pieces to complete the picture! Classic slide puzzle." },
+      "clock-match":    { "uz": "Soat millarini ko'rib to'g'ri vaqtni tanlang! Soatni o'rganish vaqti keldi.", "ru": "Посмотри на стрелки и выбери время! Пора учить часы.", "en": "Read the clock hands and choose the time! Time to learn the clock." }
     }
   };
 
@@ -256,6 +256,7 @@
   let translations = TRANSLATIONS_DATA;
   let lang = "uz";
   let filter = "all";
+  let ageFilter = "all";
   let toastTimer = null;
   let resizeTimer = null;
   let viewportTimer = null;
@@ -329,17 +330,27 @@
     if (byId("ld-txt")) byId("ld-txt").textContent = t.loading;
     if (els.loadingText) els.loadingText.textContent = t.loading; // NEW: For game loading overlay
     if (byId("gs-back")) byId("gs-back").textContent = t.back;
-    if (byId("sec-c")) byId("sec-c").textContent = `${visibleGames(filter).length}${t.countSuffix}`;
+    if (byId("sec-c")) byId("sec-c").textContent = `${visibleGames(filter, ageFilter).length}${t.countSuffix}`;
   }
 
-  function visibleGames(f) {
-    return f === "all" ? GAMES : GAMES.filter((g) => g.cat.includes(f));
+  function visibleGames(f, af) {
+    let list = GAMES;
+    if (f && f !== "all") list = list.filter((g) => g.cat.includes(f));
+    if (af && af !== "all") {
+      const ageNum = parseInt(af, 10);
+      list = list.filter((g) => g.age <= ageNum);
+    }
+    // Family Mode persistent restriction
+    if (window.FamilyMode && window.FamilyMode.isActive() && window.FamilyMode.isKidsOnly()) {
+      list = list.filter((g) => g.cat.includes('kids'));
+    }
+    return list;
   }
 
-  function buildGrid(f) {
+  function buildGrid(f, af) {
     if (!els.grid) return;
     els.grid.innerHTML = "";
-    const list = visibleGames(f);
+    const list = visibleGames(f, af);
     list.forEach((game) => {
       const { title, desc, tag } = gameText(game.id);
       const card = document.createElement("div");
@@ -372,28 +383,29 @@
     if (!game) return;
 
     currentGameId = id;
-    // Oflyayn tezlikni oshirish: ts (timestamp) olib tashlandi, bu keshdan foydalanishga imkon beradi
     const params = new URLSearchParams({ lang, hg: String(healthGroup), tc: game.tc });
-    
-    // NEW: Show loading overlay before loading the game
-    if (els.gameLoadingOverlay) {
-      // Customize splash icon with game's emoji
-      const iconEl = els.gameLoadingOverlay.querySelector('.game-icon-anim');
-      if (iconEl) iconEl.textContent = game.em;
-      els.gameLoadingOverlay.classList.remove("hidden");
-      if (els.loadingText) els.loadingText.textContent = ui().loading;
-    }
-    els.gsFrame.src = `${game.file}?${params.toString()}`;
+
     els.gsTitle.textContent = title;
     els.gs.classList.remove("h");
 
-    // Notify Native Bridge to hide banner while gaming
-    if (window.AndroidAdMob && window.AndroidAdMob.hideBanner) {
-        window.AndroidAdMob.hideBanner();
+    if (window.AndroidAdMob?.hideBanner) {
+      window.AndroidAdMob.hideBanner();
     } else {
-        // Fallback for browser testing
-        window.setBannerVisibility?.(false);
+      window.setBannerVisibility?.(false);
     }
+
+    function loadFrame() {
+      if (els.gameLoadingOverlay) {
+        const iconEl = els.gameLoadingOverlay.querySelector('.game-icon-anim');
+        if (iconEl) iconEl.textContent = game.em;
+        els.gameLoadingOverlay.classList.remove("hidden");
+        if (els.loadingText) els.loadingText.textContent = ui().loading;
+      }
+      els.gsFrame.src = `${game.file}?${params.toString()}`;
+    }
+
+    if (window.FamilyMode?.onGameOpen(id, game, loadFrame)) return;
+    loadFrame();
   }
 
   function closeGame() {
@@ -452,9 +464,18 @@
     document.querySelectorAll(".ni").forEach((n) => n.classList.remove("on"));
     byId(`ni-${f}`)?.classList.add("on");
     applyTranslations();
-    buildGrid(f);
+    buildGrid(f, ageFilter);
   }
   window.fil = fil;
+
+  function setAgeFilter(af) {
+    ageFilter = af;
+    document.querySelectorAll(".af-btn").forEach((b) => b.classList.remove("on"));
+    byId(`af-${af}`)?.classList.add("on");
+    applyTranslations();
+    buildGrid(filter, af);
+  }
+  window.setAgeFilter = setAgeFilter;
 
   function showInfoModal() {
     if (!currentGameId) return;
@@ -496,7 +517,7 @@
   function onResize() {
     updateViewportCssVars();
     if (resizeTimer) clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => buildGrid(filter), 200);
+    resizeTimer = setTimeout(() => buildGrid(filter, ageFilter), 200);
   }
 
   function detectStartupLang() {
@@ -509,7 +530,24 @@
   }
 
   function bindExitModal() {
-    if (els.exitModalYes) els.exitModalYes.onclick = () => { hideGameExitConfirmation(); closeGame(); };
+    if (els.exitModalYes) {
+      els.exitModalYes.onclick = () => {
+        if (currentGameId && !els.gs.classList.contains("h")) {
+          // In game: close game
+          hideGameExitConfirmation();
+          closeGame();
+        } else {
+          // At home: close app
+          if (window.AndroidAdMob && window.AndroidAdMob.closeApp) {
+            window.AndroidAdMob.closeApp();
+          } else {
+            // Fallback for browser
+            hideGameExitConfirmation();
+            showToast("App Exit Simulation");
+          }
+        }
+      };
+    }
     if (els.exitModalNo) els.exitModalNo.onclick = hideGameExitConfirmation;
   }
 
@@ -519,7 +557,11 @@
 
   window.showGameExitConfirmationFromParent = () => {
     const t = ui();
-    if (els.exitModalMessage) els.exitModalMessage.textContent = t.exitGameMessage;
+    const isAtHome = !currentGameId || els.gs.classList.contains("h");
+
+    if (els.exitModalMessage) {
+      els.exitModalMessage.textContent = isAtHome ? (lang === 'ru' ? 'Выйти из приложения?' : lang === 'en' ? 'Exit application?' : 'Dasturdan chiqmoqchimisiz?') : t.exitGameMessage;
+    }
     if (els.exitModalYes) els.exitModalYes.textContent = t.yes;
     if (els.exitModalNo) els.exitModalNo.textContent = t.no;
     els.gameExitModal?.classList.add("show");
@@ -535,11 +577,13 @@
 
       window.setLang = setLang;
       window.fil = fil;
+      window.setAgeFilter = setAgeFilter;
       window.closeGame = closeGame;
       window.showRev = () => els.lp?.classList.remove("h");
+      window.TRANSLATIONS_DATA = TRANSLATIONS_DATA; // Export for FamilyMode
 
       bindExitModal();
-      buildGrid(filter);
+      buildGrid(filter, ageFilter);
     } catch (e) {
       console.error("Init Error", e);
     } finally {
