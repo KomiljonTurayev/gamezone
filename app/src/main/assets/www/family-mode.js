@@ -4,7 +4,7 @@
   const STORAGE_PIN      = 'gz-family-pin';
   const STORAGE_SETTINGS = 'gz-family-settings';
   const STORAGE_SESSION  = 'gz-family-session';
-  const STORAGE_LOCKOUT  = STORAGE_LOCKOUT;
+  const STORAGE_LOCKOUT  = 'gz-family-lockout';
 
   let state = {
     active: false,
@@ -236,6 +236,66 @@
     updateBtn();
   }
 
+  /* ── Pre-game turn screen ────────────────────────────────────────── */
+  function onGameOpen(id, game, cb) {
+    if (!state.active) return false;
+
+    const lang = localStorage.getItem('gz-lang') || 'uz';
+    const gamesData = window.TRANSLATIONS_DATA?.games;
+    const gameName = gamesData?.[id]?.title?.[lang]
+      || gamesData?.[id]?.title?.uz
+      || id;
+    const gameEmoji = game?.em || '🎮';
+
+    let emoji, label;
+    if (state.settings.mode === 'parent') {
+      emoji = '🏆'; label = ft('parentTurn');
+    } else if (state.settings.mode === 'child') {
+      emoji = '👶'; label = ft('childTurn');
+    } else {
+      emoji = state.session.currentTurn === 'parent' ? '🏆' : '👶';
+      label = state.session.currentTurn === 'parent' ? ft('parentTurn') : ft('childTurn');
+    }
+
+    const ps = state.session.parentScore;
+    const cs = state.session.childScore;
+    const rem = state.settings.timeLimit > 0
+      ? `<div style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:16px;">⏱ ${ft('timeLeft')} ${timeRemaining()} min</div>`
+      : '';
+
+    window._fmOpenCallback = cb;
+
+    showModal(card(`
+      <div style="text-align:center;">
+        <div style="font-size:64px;margin-bottom:8px;">${emoji}</div>
+        <h2 style="color:white;font-size:22px;font-weight:900;margin-bottom:6px;">${label}</h2>
+        <div style="color:rgba(255,255,255,0.5);font-size:15px;margin-bottom:20px;">${gameEmoji} ${gameName}</div>
+        ${rem}
+        <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:14px 20px;display:flex;justify-content:space-between;margin-bottom:20px;">
+          <div style="text-align:center;">
+            <div style="color:rgba(255,255,255,0.4);font-size:11px;">🏆 ${ft('parentScore')}</div>
+            <div style="color:white;font-size:26px;font-weight:900;">${ps}</div>
+          </div>
+          <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
+          <div style="text-align:center;">
+            <div style="color:rgba(255,255,255,0.4);font-size:11px;">👶 ${ft('childScore')}</div>
+            <div style="color:white;font-size:26px;font-weight:900;">${cs}</div>
+          </div>
+        </div>
+        <button onclick="FamilyMode.startGame()" style="width:100%;padding:18px;border-radius:18px;border:none;background:linear-gradient(135deg,#6366f1,#a855f7);color:white;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(99,102,241,0.35);">${ft('start')} ▶</button>
+      </div>
+    `));
+
+    return true;
+  }
+
+  function startGame() {
+    const cb = window._fmOpenCallback;
+    window._fmOpenCallback = null;
+    hideModal();
+    if (cb) cb();
+  }
+
   /* ── Public actions ──────────────────────────────────────────────── */
   function open() {
     loadSettings();
@@ -295,5 +355,10 @@
 
   loadSettings();
 
-  window.FamilyMode = { open, cancel, pt, setTL, setMode, toggleKids, begin, go, stop, again, exitSession };
+  window.FamilyMode = {
+    open, cancel, pt, setTL, setMode, toggleKids, begin, go, stop, again, exitSession,
+    onGameOpen, startGame,
+    isActive: () => state.active,
+    isKidsOnly: () => state.settings.kidsOnly
+  };
 })();
