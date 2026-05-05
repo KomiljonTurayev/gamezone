@@ -19,11 +19,14 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let ripples = [];
+        let drops = [];
+        let active = true;
+        let tapCount = 0;
 
         const I18N = {
-            uz: { hint: "Harakat qilish uchun bosing" },
-            ru: { hint: "Нажимай, чтобы создавать круги" },
-            en: { hint: "Tap to make ripples" }
+            uz: { hint: "Tinchlanish uchun ekranga bosing 🌧️" },
+            ru: { hint: "Нажимай на экран, чтобы расслабиться 🌧️" },
+            en: { hint: "Tap the screen to relax 🌧️" }
         };
         const t = GameAPI.t.bind(GameAPI, I18N);
         document.getElementById('ui').textContent = t('hint');
@@ -31,46 +34,73 @@
         function init() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-
-            // Background rain
-            for(let i=0; i<100; i++) {
-                const d = document.createElement('div');
-                d.className = 'drop';
-                d.style.left = Math.random() * 100 + 'vw';
-                d.style.top = Math.random() * 100 + 'vh';
-                d.style.animation = `rain ${0.5 + Math.random()}s linear infinite`;
-                document.body.appendChild(d);
+            drops = [];
+            for(let i=0; i<80; i++) {
+                drops.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    l: Math.random() * 15 + 5,
+                    s: Math.random() * 10 + 10
+                });
             }
         }
 
-        const style = document.createElement('style');
-        style.innerHTML = `@keyframes rain { to { transform: translateY(100vh); } }`;
-        document.head.appendChild(style);
+        window.addEventListener('resize', init);
 
         function addRipple(x, y) {
             ripples.push({ x, y, r: 0, a: 1 });
+            tapCount++;
+            GameAPI.vibrate(10);
         }
 
         function draw() {
+            if (!active) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.lineWidth = 2;
 
-            ripples.forEach((r, i) => {
+            // Draw rain drops
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.lineWidth = 1;
+            drops.forEach(d => {
+                ctx.beginPath();
+                ctx.moveTo(d.x, d.y);
+                ctx.lineTo(d.x, d.y + d.l);
+                ctx.stroke();
+                d.y += d.s * GameAPI.profile.speed;
+                if (d.y > canvas.height) {
+                    d.y = -d.l;
+                    d.x = Math.random() * canvas.width;
+                }
+            });
+
+            // Draw ripples
+            ctx.lineWidth = 2;
+            for (let i = ripples.length - 1; i >= 0; i--) {
+                const r = ripples[i];
                 ctx.beginPath();
                 ctx.strokeStyle = `rgba(255,255,255,${r.a})`;
                 ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
                 ctx.stroke();
 
-                r.r += 2;
+                r.r += 2 * GameAPI.profile.speed;
                 r.a -= 0.02;
                 if (r.a <= 0) ripples.splice(i, 1);
-            });
+            }
 
             requestAnimationFrame(draw);
         }
 
-        window.addEventListener('touchstart', e => { addRipple(e.touches[0].clientX, e.touches[0].clientY); });
+        window.addEventListener('touchstart', e => {
+            e.preventDefault();
+            addRipple(e.touches[0].clientX, e.touches[0].clientY);
+        });
         window.addEventListener('mousedown', e => { addRipple(e.clientX, e.clientY); });
+
+        window.addEventListener('gameDispose', () => {
+            active = false;
+            GameAPI.reportScore('rain-tap', tapCount);
+            GameAPI.saveBestScore('rain-tap', tapCount);
+            GameAPI.endGame();
+        });
 
         init();
         draw();
