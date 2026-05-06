@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const GAMES = [
+  const GAMES = Object.freeze([
     { id: "bubble-pop", em: "🫧", cat: ["arcade"], age: 3, tc: "#3B82F6", bg: "135deg,#E0F2FE,#BAE6FD", bdg: "hot", file: "bubble-pop.html" },
     { id: "color-rush", em: "🎨", cat: ["arcade"], age: 5, tc: "#8B5CF6", bg: "135deg,#F5F3FF,#DDD6FE", bdg: null, file: "color-rush.html" },
     { id: "memory-game", em: "🧠", cat: ["arcade", "kids"], age: 3, tc: "#10B981", bg: "135deg,#ECFDF5,#D1FAE5", bdg: "new", file: "memory-game.html" },
@@ -25,7 +25,7 @@
     { id: "number-path", em: "🔢", cat: ["kids"], age: 5, tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: null, file: "number-path.html" },
     { id: "puzzle-slide", em: "🧱", cat: ["arcade", "kids"], age: 5, tc: "#818CF8", bg: "135deg,#EEF2FF,#E0E7FF", bdg: null, file: "puzzle-slide.html" },
     { id: "clock-match", em: "⏰", cat: ["kids"], age: 5, tc: "#F59E0B", bg: "135deg,#FEF3C7,#FDE68A", bdg: "new", file: "clock-match.html" }
-  ];
+  ]);
 
   const TRANSLATIONS_DATA = {
     "ui": {
@@ -243,6 +243,35 @@
       "number-path":    { "uz": "1 dan boshlab raqamlarni tartibda ulang! Matematik yo'lni yakunlang.", "ru": "Соединяй числа по порядку начиная с 1! Пройди числовой путь.", "en": "Connect numbers in order starting from 1! Complete the math path." },
       "puzzle-slide":   { "uz": "Qismlarni suring va rasmni to'g'rilang! Klassik pyatnashka o'yini.", "ru": "Двигай части картинки, чтобы собрать её! Классические пятнашки.", "en": "Slide the pieces to complete the picture! Classic slide puzzle." },
       "clock-match":    { "uz": "Soat millarini ko'rib to'g'ri vaqtni tanlang! Soatni o'rganish vaqti keldi.", "ru": "Посмотри на стрелки и выбери время! Пора учить часы.", "en": "Read the clock hands and choose the time! Time to learn the clock." }
+    },
+    "leaderboard": {
+      "uz": {
+        "title": "Natijalar",
+        "empty": "Hali o'yin o'ynalmagan",
+        "gamesPlayed": "ta o'yin o'ynalgan",
+        "best": "Rekord: ",
+        "clear": "Tozalash",
+        "clearConfirm": "Barcha natijalar o'chirilsinmi?",
+        "nb": "Natijalar"
+      },
+      "ru": {
+        "title": "Результаты",
+        "empty": "Игр ещё не было",
+        "gamesPlayed": "игр сыграно",
+        "best": "Рекорд: ",
+        "clear": "Очистить",
+        "clearConfirm": "Удалить все результаты?",
+        "nb": "Рейтинг"
+      },
+      "en": {
+        "title": "Leaderboard",
+        "empty": "No games played yet",
+        "gamesPlayed": "games played",
+        "best": "Best: ",
+        "clear": "Clear",
+        "clearConfirm": "Clear all scores?",
+        "nb": "Top Scores"
+      }
     }
   };
 
@@ -318,6 +347,10 @@
     document.documentElement.lang = lang;
   }
 
+  function lt() {
+    return translations.leaderboard?.[lang] || translations.leaderboard?.uz || {};
+  }
+
   function applyTranslations() {
     const t = ui();
     if (byId("sec-t")) byId("sec-t").textContent = t.filters[filter] || t.sec;
@@ -326,6 +359,8 @@
     if (byId("nb2")) byId("nb2").textContent = t.nb2;
     if (byId("nb3")) byId("nb3").textContent = t.nb3;
     if (byId("nb4")) byId("nb4").textContent = t.nb4;
+    if (byId("nb5")) byId("nb5").textContent = lt().nb;
+    if (byId("lb-panel") && byId("lb-panel").style.display !== "none") window.Leaderboard?.render();
 
     if (byId("ld-txt")) byId("ld-txt").textContent = t.loading;
     if (els.loadingText) els.loadingText.textContent = t.loading; // NEW: For game loading overlay
@@ -462,6 +497,9 @@
     filter = f;
     document.querySelectorAll(".ni").forEach((n) => n.classList.remove("on"));
     byId(`ni-${f}`)?.classList.add("on");
+    const lbPanel = byId("lb-panel");
+    if (lbPanel) lbPanel.style.display = "none";
+    if (els.grid) els.grid.style.display = "";
     applyTranslations();
     buildGrid(f, ageFilter);
   }
@@ -580,6 +618,7 @@
       window.closeGame = closeGame;
       window.showRev = () => els.lp?.classList.remove("h");
       window.TRANSLATIONS_DATA = TRANSLATIONS_DATA; // Export for FamilyMode
+      window.GAMES = GAMES; // Export for Leaderboard
 
       bindExitModal();
       buildGrid(filter, ageFilter);
