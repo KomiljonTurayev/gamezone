@@ -181,6 +181,7 @@ window.Leaderboard = {
 | History array missing for a game with `best > 0` | Shows best score row, empty history section |
 | `TRANSLATIONS_DATA` not yet loaded when `leaderboard.js` runs | `render()` is called lazily on tab open, not at script load — safe |
 | Language switch while leaderboard tab is open | `applyTranslations()` calls `Leaderboard.render()` if `#lb-panel` is visible, re-rendering with new language |
+| Settings tab tapped while leaderboard is open | `showRev()` does not call `fil()`, so `#lb-panel` stays visible under the language picker overlay — correct behaviour; user returns to leaderboard when overlay closes |
 | Clear on empty leaderboard | Button still works, panel shows empty state after clear |
 
 ---
