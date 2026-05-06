@@ -382,11 +382,8 @@
     const game = GAMES.find((g) => g.id === id);
     if (!game) return;
 
-    currentGameId = id;
     const params = new URLSearchParams({ lang, hg: String(healthGroup), tc: game.tc });
-
     els.gsTitle.textContent = title;
-    els.gs.classList.remove("h");
 
     if (window.AndroidAdMob?.hideBanner) {
       window.AndroidAdMob.hideBanner();
@@ -395,6 +392,8 @@
     }
 
     function loadFrame() {
+      currentGameId = id;
+      els.gs.classList.remove("h");
       if (els.gameLoadingOverlay) {
         const iconEl = els.gameLoadingOverlay.querySelector('.game-icon-anim');
         if (iconEl) iconEl.textContent = game.em;
@@ -425,7 +424,7 @@
         // Fallback for browser testing
         window.setBannerVisibility?.(true);
     }
-    buildGrid(filter);
+    buildGrid(filter, ageFilter);
   }
 
   /**
@@ -449,7 +448,7 @@
     updateLanguageButtons();
     setDocumentLang();
     applyTranslations();
-    buildGrid(filter);
+    buildGrid(filter, ageFilter);
 
     // Refresh game if open to sync language
     if (currentGameId && !els.gs.classList.contains("h")) {

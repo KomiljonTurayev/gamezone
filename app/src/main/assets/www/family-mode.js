@@ -300,6 +300,7 @@
   function cancelGameOpen() {
     window._fmOpenCallback = null;
     hideModal();
+    window.closeGame?.();
   }
 
   /* ── Public actions ──────────────────────────────────────────────── */
