@@ -272,6 +272,44 @@
         "clearConfirm": "Clear all scores?",
         "nb": "Top Scores"
       }
+    },
+    "achievements": {
+      "uz": {
+        "title": "Yutuqlar",
+        "nb": "Yutuqlar",
+        "unlocked": "Yutuq ochildi!",
+        "sections": {
+          "explorer": "Kashfiyotchi",
+          "sessions": "Sessiyalar",
+          "category": "Kategoriya",
+          "dedication": "Sadoqat",
+          "score": "Rekord"
+        }
+      },
+      "ru": {
+        "title": "Достижения",
+        "nb": "Достижения",
+        "unlocked": "Достижение открыто!",
+        "sections": {
+          "explorer": "Исследователь",
+          "sessions": "Сессии",
+          "category": "Категория",
+          "dedication": "Преданность",
+          "score": "Рекорд"
+        }
+      },
+      "en": {
+        "title": "Achievements",
+        "nb": "Achievements",
+        "unlocked": "Achievement unlocked!",
+        "sections": {
+          "explorer": "Explorer",
+          "sessions": "Sessions",
+          "category": "Category",
+          "dedication": "Dedication",
+          "score": "High Score"
+        }
+      }
     }
   };
 
@@ -351,6 +389,10 @@
     return translations.leaderboard?.[lang] || translations.leaderboard?.uz || {};
   }
 
+  function at() {
+    return translations.achievements?.[lang] || translations.achievements?.uz || {};
+  }
+
   function applyTranslations() {
     const t = ui();
     if (byId("sec-t")) byId("sec-t").textContent = t.filters[filter] || t.sec;
@@ -360,7 +402,9 @@
     if (byId("nb3")) byId("nb3").textContent = t.nb3;
     if (byId("nb4")) byId("nb4").textContent = t.nb4;
     if (byId("nb5")) byId("nb5").textContent = lt().nb;
+    if (byId("nb6")) byId("nb6").textContent = at().nb;
     if (byId("lb-panel") && byId("lb-panel").style.display !== "none") window.Leaderboard?.render();
+    if (byId("ach-panel") && byId("ach-panel").style.display !== "none") window.Achievements?.render();
 
     if (byId("ld-txt")) byId("ld-txt").textContent = t.loading;
     if (els.loadingText) els.loadingText.textContent = t.loading; // NEW: For game loading overlay
@@ -499,6 +543,8 @@
     byId(`ni-${f}`)?.classList.add("on");
     const lbPanel = byId("lb-panel");
     if (lbPanel) lbPanel.style.display = "none";
+    const achPanel = byId("ach-panel");
+    if (achPanel) achPanel.style.display = "none";
     if (els.grid) els.grid.style.display = "";
     applyTranslations();
     buildGrid(f, ageFilter);
