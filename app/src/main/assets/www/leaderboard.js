@@ -134,6 +134,8 @@
     document.getElementById("ni-lb")?.classList.add("on");
     const grid = document.getElementById("grid");
     if (grid) grid.style.display = "none";
+    const achPanel = document.getElementById("ach-panel");
+    if (achPanel) achPanel.style.display = "none";
     render();
   };
 
