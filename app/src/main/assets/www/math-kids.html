@@ -123,6 +123,7 @@ function genQ() {
 }
 
 function next() {
+  if (!active) return;
   if (qNum >= 10) return end();
   currentQ = genQ();
   document.getElementById('q-emojis').textContent = currentQ.display;
@@ -131,7 +132,10 @@ function next() {
   const ans = document.getElementById('answers');
   ans.innerHTML = "";
   const opts = new Set([currentQ.correct]);
-  while(opts.size < 4) opts.add(Math.floor(Math.random()*15));
+  while(opts.size < 4) {
+    const fake = currentQ.correct + (Math.floor(Math.random()*10)-5);
+    if (fake >= 0) opts.add(fake);
+  }
   [...opts].sort(()=>Math.random()-0.5).forEach(v => {
     const b = document.createElement('button');
     b.className = 'ans-btn';
@@ -140,16 +144,24 @@ function next() {
     ans.appendChild(b);
   });
 
-  let time = 10;
+  let time = 10 * GameAPI.profile.timer;
+  const total = time;
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     time -= 0.1;
-    document.getElementById('timer-bar').style.width = (time/10*100) + '%';
-    if(time <= 0) { streak = 0; document.getElementById('v-streak').textContent = 0; qNum++; next(); }
+    document.getElementById('timer-bar').style.width = (time/total*100) + '%';
+    if(time <= 0) {
+      clearInterval(timerInterval);
+      streak = 0;
+      document.getElementById('v-streak').textContent = 0;
+      qNum++;
+      next();
+    }
   }, 100);
 }
 
 function check(v, b) {
+  if (!active) return;
   clearInterval(timerInterval);
   if (v === currentQ.correct) {
     b.classList.add('correct'); score += 10 + streak*2; streak++;
@@ -177,11 +189,24 @@ function end() {
   active = false; clearInterval(timerInterval);
   document.getElementById('v-final').textContent = score;
   document.getElementById('r-title').textContent = t('over');
+
+  let emoji = '😊', title = t('good');
+  if (score >= 150) { emoji = '🏆'; title = t('smart'); }
+  else if (score >= 100) { emoji = '🔥'; title = t('great'); }
+
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-title').textContent = title;
+
   document.getElementById('s-over').classList.remove('hidden');
   GameAPI.saveBestScore(GAME_ID, score);
   GameAPI.reportScore(GAME_ID, score);
   GameAPI.endGame();
 }
+
+window.addEventListener('gameDispose', () => {
+  active = false;
+  clearInterval(timerInterval);
+});
 
 setupUI();
 </script>

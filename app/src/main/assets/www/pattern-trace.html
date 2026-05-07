@@ -90,28 +90,30 @@ body {
   <button class="btn" onclick="startGame()" id="btn-again">TRY AGAIN</button>
 </div>
 
+<script src="game-api.js"></script>
 <script>
-const params = new URLSearchParams(window.location.search);
-const LANG = (params.get('lang') || 'uz').toLowerCase();
+const GAME_ID = 'pattern-trace';
 const I18N = {
   uz: { best:"REKORD", score:"BALL", level:"DARAJA", start:"Pattern Trace", desc:"Ketma-ketlikni eslab qoling va qaytaring!", btnStart:"BOSHLASH", btnAgain:"QAYTA O'YNASH", over:"O'yin Tugadi", watch:"Kuzating...", yourTurn:"Sizning navbatingiz!" },
   ru: { best:"РЕКОРД", score:"СЧЕТ", level:"УРОВЕНЬ", start:"Паттерн", desc:"Запомни последовательность и повтори ее!", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"Игра Окончена", watch:"Смотри...", yourTurn:"Твой черед!" },
   en: { best:"BEST", score:"SCORE", level:"LEVEL", start:"Pattern Trace", desc:"Remember the sequence and repeat it!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Game Over", watch:"Watch...", yourTurn:"Your turn!" }
 };
-const t = I18N[LANG] || I18N.en;
+const t = GameAPI.t.bind(GameAPI, I18N);
 
-document.getElementById('lbl-best').textContent = t.best;
-document.getElementById('lbl-score').textContent = t.score;
-document.getElementById('lbl-level').textContent = t.level;
-document.getElementById('start-title').textContent = t.start;
-document.getElementById('start-desc').textContent = t.desc;
-document.getElementById('btn-start').textContent = t.btnStart;
-document.getElementById('btn-again').textContent = t.btnAgain;
-document.getElementById('over-title').textContent = t.over;
+function setupUI() {
+  document.getElementById('lbl-best').textContent = t('best');
+  document.getElementById('lbl-score').textContent = t('score');
+  document.getElementById('lbl-level').textContent = t('level');
+  document.getElementById('start-title').textContent = t('start');
+  document.getElementById('start-desc').textContent = t('desc');
+  document.getElementById('btn-start').textContent = t('btnStart');
+  document.getElementById('btn-again').textContent = t('btnAgain');
+  document.getElementById('over-title').textContent = t('over');
+  document.getElementById('best').textContent = GameAPI.getBestScore(GAME_ID);
+}
 
 let sequence = [], playerSeq = [], gameActive = false, score = 0;
-let best = parseInt(localStorage.getItem('gz-best-pattern-trace') || '0');
-document.getElementById('best').textContent = best;
+let best = GameAPI.getBestScore(GAME_ID);
 
 function startGame() {
   sequence = []; score = 0; gameActive = true;
@@ -130,19 +132,20 @@ function nextLevel() {
 
 async function playSequence() {
   gameActive = false;
-  document.getElementById('hint-text').textContent = t.watch;
+  document.getElementById('hint-text').textContent = t('watch');
   for (let i = 0; i < sequence.length; i++) {
     await wait(300);
     flashPad(sequence[i]);
     await wait(500);
   }
-  document.getElementById('hint-text').textContent = t.yourTurn;
+  document.getElementById('hint-text').textContent = t('yourTurn');
   gameActive = true;
 }
 
 function flashPad(id) {
   const el = document.getElementById('p' + id);
   el.classList.add('active');
+  GameAPI.vibrate(15);
   setTimeout(() => el.classList.remove('active'), 300);
 }
 
@@ -153,6 +156,7 @@ function playerTap(id) {
 
   const step = playerSeq.length - 1;
   if (playerSeq[step] !== sequence[step]) {
+    GameAPI.vibrate(150);
     endGame();
     return;
   }
@@ -168,16 +172,17 @@ function endGame() {
   gameActive = false;
   document.getElementById('final-score').textContent = score;
   document.getElementById('screen-over').classList.remove('hidden');
-  if (score > best) {
-    best = score;
-    localStorage.setItem('gz-best-pattern-trace', best);
-    document.getElementById('best').textContent = best;
-  }
-  window.parent.postMessage({ type: "game:score", id: "pattern-trace", score: score }, "*");
-  window.parent.__gameEnd?.();
+  GameAPI.saveBestScore(GAME_ID, score);
+  document.getElementById('best').textContent = GameAPI.getBestScore(GAME_ID);
+  GameAPI.reportScore(GAME_ID, score);
+  GameAPI.endGame();
 }
 
 function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+window.addEventListener('gameDispose', () => { gameActive = false; });
+
+setupUI();
 </script>
 </body>
 </html>

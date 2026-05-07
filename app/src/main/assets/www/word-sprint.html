@@ -59,6 +59,7 @@ body {
 }
 </style>
 <script src="admob.js"></script>
+<script src="game-api.js"></script>
 </head>
 <body>
 <div id="app">
@@ -90,6 +91,7 @@ body {
 const params = new URLSearchParams(window.location.search);
 const LANG = (params.get('lang') || 'uz').toLowerCase();
 
+const GAME_ID = 'word-sprint';
 const WORDS = [
   { uz: "OLMA", ru: "ЯБЛОКО", en: "APPLE" },
   { uz: "KUCHUK", ru: "СОБАКА", en: "DOG" },
@@ -98,7 +100,15 @@ const WORDS = [
   { uz: "QUYOSH", ru: "СОЛНЦЕ", en: "SUN" },
   { uz: "SUV", ru: "ВОДА", en: "WATER" },
   { uz: "KITOB", ru: "КНИГА", en: "BOOK" },
-  { uz: "MASHINA", ru: "МАШИНА", en: "CAR" }
+  { uz: "MASHINA", ru: "МАШИНА", en: "CAR" },
+  { uz: "QALAM", ru: "КАРАНДАШ", en: "PENCIL" },
+  { uz: "DAFTAR", ru: "ТЕТРАДЬ", en: "NOTEBOOK" },
+  { uz: "MAKTAB", ru: "ШКОЛА", en: "SCHOOL" },
+  { uz: "USTOZ", ru: "УЧИТЕЛЬ", en: "TEACHER" },
+  { uz: "SINF", ru: "КЛАСС", en: "CLASS" },
+  { uz: "DOSKA", ru: "ДОСКА", en: "BOARD" },
+  { uz: "STOL", ru: "СТОЛ", en: "TABLE" },
+  { uz: "KURSI", ru: "СТУЛ", en: "CHAIR" }
 ];
 
 const I18N = {
@@ -106,26 +116,28 @@ const I18N = {
   ru: { best:"РЕКОРД", score:"СЧЕТ", time:"ВРЕМЯ", start:"Слово Спринт", desc:"Найди слово сверху среди вариантов!", btnStart:"СТАРТ", btnAgain:"ЗАНОВО", over:"Время Вышло" },
   en: { best:"BEST", score:"SCORE", time:"TIME", start:"Word Sprint", desc:"Find the top word among options!", btnStart:"START", btnAgain:"PLAY AGAIN", over:"Time's Up" }
 };
-const t = I18N[LANG] || I18N.en;
+const t = GameAPI.t.bind(GameAPI, I18N);
 
-document.getElementById('lbl-best').textContent = t.best;
-document.getElementById('lbl-score').textContent = t.score;
-document.getElementById('lbl-time').textContent = t.time;
-document.getElementById('start-title').textContent = t.start;
-document.getElementById('start-desc').textContent = t.desc;
-document.getElementById('btn-start').textContent = t.btnStart;
-document.getElementById('btn-again').textContent = t.btnAgain;
-document.getElementById('over-title').textContent = t.over;
+function setupUI() {
+  document.getElementById('lbl-best').textContent = t('best');
+  document.getElementById('lbl-score').textContent = t('score');
+  document.getElementById('lbl-time').textContent = t('time');
+  document.getElementById('start-title').textContent = t('start');
+  document.getElementById('start-desc').textContent = t('desc');
+  document.getElementById('btn-start').textContent = t('btnStart');
+  document.getElementById('btn-again').textContent = t('btnAgain');
+  document.getElementById('over-title').textContent = t('over');
+  document.getElementById('best').textContent = GameAPI.getBestScore(GAME_ID);
+}
 
-let score = 0, timeLeft = 45, gameActive = false;
-let best = parseInt(localStorage.getItem('gz-best-word-sprint') || '0');
-document.getElementById('best').textContent = best;
+let score = 0, timeLeft = 45 * GameAPI.profile.timer, gameActive = false;
+let best = GameAPI.getBestScore(GAME_ID);
 let timerInterval;
 
 function startGame() {
-  score = 0; timeLeft = 45; gameActive = true;
+  score = 0; timeLeft = 45 * GameAPI.profile.timer; gameActive = true;
   document.getElementById('score').textContent = "0";
-  document.getElementById('timer').textContent = "45";
+  document.getElementById('timer').textContent = Math.round(timeLeft);
   document.getElementById('screen-start').classList.add('hidden');
   document.getElementById('screen-over').classList.add('hidden');
 
@@ -142,7 +154,8 @@ function startGame() {
 function nextQuestion() {
   if (!gameActive) return;
   const wordIdx = Math.floor(Math.random() * WORDS.length);
-  const target = WORDS[wordIdx][LANG] || WORDS[wordIdx].en;
+  const targetObj = WORDS[wordIdx];
+  const target = GameAPI.localize(targetObj);
 
   document.getElementById('target-box').textContent = target;
 
@@ -150,11 +163,11 @@ function nextQuestion() {
   optionsEl.innerHTML = "";
 
   const pool = [...WORDS].sort(() => Math.random() - 0.5).slice(0, 4);
-  if (!pool.find(w => (w[LANG] || w.en) === target)) pool[0] = WORDS[wordIdx];
+  if (!pool.find(w => GameAPI.localize(w) === target)) pool[0] = targetObj;
 
   const shuffled = pool.sort(() => Math.random() - 0.5);
   shuffled.forEach(w => {
-    const wordText = w[LANG] || w.en;
+    const wordText = GameAPI.localize(w);
     const btn = document.createElement('button');
     btn.className = 'opt';
     btn.textContent = wordText;
@@ -162,9 +175,11 @@ function nextQuestion() {
       if (wordText === target) {
         score += 10;
         document.getElementById('score').textContent = score;
+        GameAPI.vibrate(20);
         nextQuestion();
       } else {
         btn.classList.add('wrong');
+        GameAPI.vibrate(100);
         setTimeout(() => btn.classList.remove('wrong'), 300);
       }
     };
@@ -177,14 +192,18 @@ function endGame() {
   clearInterval(timerInterval);
   document.getElementById('final-score').textContent = score;
   document.getElementById('screen-over').classList.remove('hidden');
-  if (score > best) {
-    best = score;
-    localStorage.setItem('gz-best-word-sprint', best);
-    document.getElementById('best').textContent = best;
-  }
-  window.parent.postMessage({ type: "game:score", id: "word-sprint", score: score }, "*");
-  window.parent.__gameEnd?.();
+  GameAPI.saveBestScore(GAME_ID, score);
+  document.getElementById('best').textContent = GameAPI.getBestScore(GAME_ID);
+  GameAPI.reportScore(GAME_ID, score);
+  GameAPI.endGame();
 }
+
+window.addEventListener('gameDispose', () => {
+  gameActive = false;
+  clearInterval(timerInterval);
+});
+
+setupUI();
 </script>
 </body>
 </html>

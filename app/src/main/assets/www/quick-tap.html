@@ -102,6 +102,7 @@ let score = 0, lives = 3, gameActive = false;
 let best = GameAPI.getBestScore(GAME_ID);
 document.getElementById('best').textContent = best;
 const arena = document.getElementById('arena');
+let spawnTimer = null;
 
 function startGame() {
   score = 0; lives = 3; gameActive = true;
@@ -109,7 +110,9 @@ function startGame() {
   document.getElementById('lives').textContent = "3";
   document.getElementById('screen-start').classList.add('hidden');
   document.getElementById('screen-over').classList.add('hidden');
+  document.getElementById('new-record').classList.add('hidden');
   arena.innerHTML = "";
+  clearTimeout(spawnTimer);
   spawnCycle();
 }
 
@@ -117,8 +120,8 @@ function spawnCycle() {
   if (!gameActive) return;
   const isBomb = Math.random() < 0.25;
   createTarget(isBomb);
-  const nextDelay = Math.max(400, 1000 - (score * 5));
-  setTimeout(spawnCycle, nextDelay);
+  const nextDelay = Math.max(400, 1000 - (score * 5)) / GameAPI.profile.speed;
+  spawnTimer = setTimeout(spawnCycle, nextDelay);
 }
 
 function createTarget(isBomb) {
@@ -131,28 +134,33 @@ function createTarget(isBomb) {
   el.style.left = x + "px";
   el.style.top = y + "px";
 
-  el.onclick = () => {
-    // Planshetlarda multi-touch tufayli bir vaqtda ikki marta bosilishini oldini olish
+  const onTap = (e) => {
+    if (e) e.preventDefault();
     if (!gameActive || el.classList.contains('hit')) return;
     el.classList.add('hit');
 
     if (isBomb) {
       lives--;
       document.getElementById('lives').textContent = lives;
+      GameAPI.vibrate(100);
       if (lives <= 0) endGame();
     } else {
       score += 10;
       document.getElementById('score').textContent = score;
+      GameAPI.vibrate(20);
     }
     el.remove();
   };
 
+  el.addEventListener('pointerdown', onTap);
+
   arena.appendChild(el);
-  setTimeout(() => { if (el.parentNode) el.remove(); }, 1500);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 1500 / GameAPI.profile.speed);
 }
 
 function endGame() {
   gameActive = false;
+  clearTimeout(spawnTimer);
   document.getElementById('final-score').textContent = score;
   document.getElementById('screen-over').classList.remove('hidden');
   if (GameAPI.saveBestScore(GAME_ID, score)) {
@@ -163,6 +171,11 @@ function endGame() {
   GameAPI.reportScore(GAME_ID, score);
   GameAPI.endGame();
 }
+
+window.addEventListener('gameDispose', () => {
+  gameActive = false;
+  clearTimeout(spawnTimer);
+});
 </script>
 </body>
 </html>

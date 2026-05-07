@@ -130,10 +130,16 @@
             requestAnimationFrame(step);
         }
 
-        window.addEventListener('touchstart', (e) => { e.preventDefault(); place(); });
-        window.addEventListener('mousedown', place);
+        window.addEventListener('pointerdown', (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                e.preventDefault();
+                place();
+            }
+        });
 
         reset();
+
+        window.addEventListener('gameDispose', () => { gameOver = true; });
     </script>
 </body>
 </html>

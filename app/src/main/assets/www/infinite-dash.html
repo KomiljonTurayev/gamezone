@@ -178,37 +178,44 @@ function loop() {
   if(!active) return;
   ctx.clearRect(0,0,canvas.width, canvas.height);
 
-  // Grid background
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-  for(let i=0; i<canvas.width; i+=50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
-  for(let i=0; i<canvas.height; i+=50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke(); }
+  // Background dots/particles (Stars)
+  ctx.fillStyle = 'rgba(255,255,255,0.1)';
+  for(let i=0; i<30; i++) {
+    const x = (Math.sin(i * 4321 + frame * 0.01) * 0.5 + 0.5) * canvas.width;
+    const y = (Math.cos(i * 1234 + frame * 0.005) * 0.5 + 0.5) * (canvas.height - 60);
+    ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
+  }
 
   // Ground
-  ctx.fillStyle = '#1e1b4b';
+  ctx.fillStyle = '#0a0a25';
   ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
   ctx.strokeStyle = '#00f2ff';
   ctx.lineWidth = 4;
-  ctx.strokeRect(0, canvas.height - 60, canvas.width, 4);
+  ctx.beginPath(); ctx.moveTo(0, canvas.height - 60); ctx.lineTo(canvas.width, canvas.height - 60); ctx.stroke();
 
   player.update(); player.draw();
 
-  const spawnGap = Math.max(60, 120 - speed * 5);
+  const spawnGap = Math.max(80, 150 - speed * 4);
   if(frame % Math.round(spawnGap) === 0) obstacles.push(new Obstacle());
 
-  obstacles.forEach((o, i) => {
+  for(let i = obstacles.length - 1; i >= 0; i--) {
+    const o = obstacles[i];
     o.update(); o.draw();
-    if(o.x + o.w < 0) obstacles.splice(i, 1);
+    if(o.x + o.w < -100) { obstacles.splice(i, 1); continue; }
 
-    // Collision
-    const px = player.x + 5, py = player.y + 5, pw = player.w - 10, ph = player.h - 10;
-    if(px < o.x + o.w && px + pw > o.x && py < o.y + o.h && py + ph > o.y) die();
+    // Collision (Circle-ish approximation for better feel)
+    const px = player.x + 10, py = player.y + 10, pw = player.w - 20, ph = player.h - 20;
+    if(px < o.x + o.w && px + pw > o.x && py < o.y + o.h && py + ph > o.y) {
+      die(); break;
+    }
 
     if(!o.passed && o.x < player.x) {
       o.passed = true; score++;
       document.getElementById('v-score').textContent = score;
-      if(score % 5 === 0) speed += 0.3;
+      if(score % 10 === 0) speed += 0.5;
+      GameAPI.vibrate(10);
     }
-  });
+  }
 
   frame++;
   requestAnimationFrame(loop);
@@ -217,6 +224,7 @@ function loop() {
 window.addEventListener('mousedown', () => player && player.jump());
 window.addEventListener('touchstart', (e) => { e.preventDefault(); player && player.jump(); });
 window.addEventListener('DOMContentLoaded', () => { setupUI(); resize(); });
+window.addEventListener('gameDispose', () => { active = false; });
 </script>
 </body>
 </html>
