@@ -31,8 +31,9 @@ Responsibilities:
 | `achievements.js` | New module — achievement list, condition checking, toast, rendering |
 | `index.html` | Add `#ach-panel` div, 🏅 nav tab button, achievement CSS, `<script src="achievements.js">` |
 | `script.js` | Add `"achievements"` translation key, update `fil()` to hide `#ach-panel`, update `applyTranslations()` for `#nb6` nav label |
+| `leaderboard.js` | One-line addition to `showLeaderboard()` to hide `#ach-panel` |
 
-No changes to any game HTML files. No changes to `leaderboard.js`.
+No changes to any game HTML files.
 
 ---
 
@@ -149,10 +150,10 @@ A 7th button added to `#bnav` in `index.html`:
 
 `showAchievements()` is exposed on `window` by `achievements.js`. It:
 1. Removes `on` from all `.ni` buttons, adds `on` to `#ni-ach`
-2. Hides `#grid`
+2. Hides `#grid` and `#lb-panel`
 3. Calls `Achievements.render()` which populates and shows `#ach-panel`
 
-Switching to any other tab (via `fil()`) hides `#ach-panel` and shows `#grid`. The leaderboard tab's `showLeaderboard()` also hides `#ach-panel`.
+Switching to any other tab (via `fil()`) hides `#ach-panel` and shows `#grid`. The leaderboard tab's `showLeaderboard()` also hides `#ach-panel` (one-line addition to `leaderboard.js`).
 
 ### Achievements panel (`#ach-panel`)
 
