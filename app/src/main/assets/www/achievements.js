@@ -218,8 +218,8 @@
   }
 
   function showToast(ach) {
-    const lang = localStorage.getItem("gz-lang") || "uz";
     const t = at();
+    const lang = localStorage.getItem("gz-lang") || "uz";
     const el = document.createElement("div");
     el.className = "ach-toast";
     el.innerHTML =
@@ -311,9 +311,11 @@
 
   // ---------- message listener ----------
 
+  let _checkAllTimer = null;
   window.addEventListener("message", function(ev) {
     if (ev.data?.type === "game:score" && ev.data.id && typeof ev.data.score === "number") {
-      checkAll();
+      clearTimeout(_checkAllTimer);
+      _checkAllTimer = setTimeout(checkAll, 200);
     }
   });
 
