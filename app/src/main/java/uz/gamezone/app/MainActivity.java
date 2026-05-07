@@ -1,7 +1,5 @@
 package uz.gamezone.app;
 
-import static uz.gamezone.app.CallGeminiKt.callGemini;
-
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,9 +44,6 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
         
         setupWebView();
         
-        // AI fun facts
-        callGemini("O'yinlar haqida qiziqarli faktlar ayt");
-
         setupBackNavigation();
     }
 
