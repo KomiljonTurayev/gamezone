@@ -226,6 +226,23 @@ body{
 .lb-empty { text-align:center; padding:60px 20px; }
 .lb-empty-icon { font-size:48px; margin-bottom:12px; }
 .lb-empty-txt { color:var(--txt2); font-size:15px; }
+/* ACHIEVEMENTS PANEL */
+#ach-panel { display:none; padding:16px; }
+.ach-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.ach-title { font-size:20px; font-weight:900; color:var(--txt); }
+.ach-count { font-size:12px; color:var(--txt2); background:rgba(255,255,255,0.06); border-radius:10px; padding:4px 10px; }
+.ach-section-title { font-size:11px; font-weight:700; color:var(--txt2); text-transform:uppercase; letter-spacing:1px; margin:12px 0 6px; }
+.ach-item { display:flex; align-items:center; gap:12px; background:var(--surf); border:1px solid var(--brd); border-radius:14px; padding:12px 14px; margin-bottom:8px; }
+.ach-locked { opacity:0.45; }
+.ach-em { font-size:24px; flex-shrink:0; }
+.ach-info { flex:1; min-width:0; }
+.ach-item-title { font-size:13px; font-weight:700; color:var(--txt); margin-bottom:2px; }
+.ach-item-desc { font-size:11px; color:var(--txt2); }
+.ach-check { font-size:16px; flex-shrink:0; }
+.ach-toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px); background:linear-gradient(135deg,#6366F1,#A855F7); color:white; padding:12px 20px; border-radius:18px; font-size:13px; z-index:700; opacity:0; transition:opacity 0.3s,transform 0.3s; pointer-events:none; text-align:center; white-space:nowrap; box-shadow:0 8px 24px rgba(99,102,241,0.4); }
+.ach-toast.ach-toast-show { opacity:1; transform:translateX(-50%) translateY(0); }
+.ach-toast-label { font-size:10px; opacity:0.8; margin-bottom:2px; text-transform:uppercase; letter-spacing:1px; }
+.ach-toast-title { font-weight:900; font-size:14px; }
 </style>
 </head>
 <body>
@@ -262,6 +279,7 @@ body{
 
     <div id="grid"></div>
     <div id="lb-panel"></div>
+    <div id="ach-panel"></div>
   </main>
 
   <nav id="bnav">
@@ -271,6 +289,7 @@ body{
     <button class="ni" onclick="fil('relax')" id="ni-relax"><span class="ni-i">😌</span><span class="ni-l" id="nb3">Relax</span></button>
     <button class="ni" onclick="showRev()" id="ni-rev"><span class="ni-i">⚙️</span><span class="ni-l" id="nb4">Til</span></button>
     <button class="ni" onclick="showLeaderboard()" id="ni-lb"><span class="ni-i">🏆</span><span class="ni-l" id="nb5">Natijalar</span></button>
+    <button class="ni" onclick="showAchievements()" id="ni-ach"><span class="ni-i">🏅</span><span class="ni-l" id="nb6">Yutuqlar</span></button>
   </nav>
 
   <div id="admob"></div>
@@ -341,5 +360,6 @@ body{
 <script src="script.js"></script>
 <script src="family-mode.js"></script>
 <script src="leaderboard.js"></script>
+<script src="achievements.js"></script>
 </body>
 </html>
