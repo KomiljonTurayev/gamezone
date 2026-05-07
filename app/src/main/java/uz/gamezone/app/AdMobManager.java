@@ -172,6 +172,25 @@ public class AdMobManager implements AdManager {
     }
 
     @Override
+    public void showBanner() {
+        activity.runOnUiThread(() -> {
+            if (bannerContainer != null) {
+                bannerContainer.setVisibility(android.view.View.VISIBLE);
+                if (adView == null) loadBanner();
+            }
+        });
+    }
+
+    @Override
+    public void hideBanner() {
+        activity.runOnUiThread(() -> {
+            if (bannerContainer != null) {
+                bannerContainer.setVisibility(android.view.View.GONE);
+            }
+        });
+    }
+
+    @Override
     public void resume() {
         if (adView != null) adView.resume();
     }

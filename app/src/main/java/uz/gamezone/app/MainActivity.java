@@ -16,7 +16,6 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
 
@@ -92,10 +91,20 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
         settings.setMediaPlaybackRequiresUserGesture(false); // O'yin ovozlari avtomatik chiqishi uchun
 
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            android.webkit.WebView.setWebContentsDebuggingEnabled(true);
+        }
+
         webView.addJavascriptInterface(new WebAppInterface(this, adManager, webView), "AndroidAdMob");
         webView.setWebViewClient(new AppWebViewClient());
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(android.webkit.ConsoleMessage cm) {
+                android.util.Log.d("GameZone_JS",
+                    cm.messageLevel() + " [" + cm.sourceId() + ":" + cm.lineNumber() + "] " + cm.message());
+                return true;
+            }
+        });
         webView.loadUrl(APP_URL);
     }
 
@@ -122,21 +131,7 @@ public class MainActivity extends AppCompatActivity implements AdManager.AdStatu
             @Override
             public void handleOnBackPressed() {
                 if (webView != null) {
-                    webView.evaluateJavascript("typeof currentGameId !== 'undefined' && currentGameId !== null", value -> {
-                        if ("true".equals(value)) {
-                            webView.evaluateJavascript("window.showGameExitConfirmationFromParent()", null);
-                        } else if (webView.canGoBack()) {
-                            webView.goBack();
-                        } else {
-                            // Asosiy ekranda dasturdan chiqishni tasdiqlash (Professional UX)
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setTitle("Chiqish")
-                                    .setMessage("Dasturdan chiqmoqchimisiz?")
-                                    .setPositiveButton("Ha", (dialog, which) -> finish())
-                                    .setNegativeButton("Yo'q", null)
-                                    .show();
-                        }
-                    });
+                    webView.evaluateJavascript("window.showGameExitConfirmationFromParent()", null);
                 } else {
                     finish();
                 }

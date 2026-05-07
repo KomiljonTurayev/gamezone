@@ -72,6 +72,22 @@ public class WebAppInterface {
     }
 
     /**
+     * Bannerni ko'rsatish.
+     */
+    @JavascriptInterface
+    public void showBanner() {
+        if (adManager != null) adManager.showBanner();
+    }
+
+    /**
+     * Bannerni yashirish.
+     */
+    @JavascriptInterface
+    public void hideBanner() {
+        if (adManager != null) adManager.hideBanner();
+    }
+
+    /**
      * Global reytingga natijani yuborish.
      */
     @JavascriptInterface
@@ -141,6 +157,16 @@ public class WebAppInterface {
         return (activity.getResources().getConfiguration().screenLayout
                 & android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+
+    /**
+     * Dasturni butunlay yopish.
+     */
+    @JavascriptInterface
+    public void closeApp() {
+        activity.runOnUiThread(() -> {
+            activity.finishAffinity();
+        });
     }
 
     /**

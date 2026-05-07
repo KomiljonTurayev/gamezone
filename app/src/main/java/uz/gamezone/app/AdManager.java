@@ -8,6 +8,8 @@ public interface AdManager {
     void initialize();
     void showInterstitial();
     void showRewarded(OnRewardListener listener);
+    void showBanner();
+    void hideBanner();
     void resume();
     void pause();
     void destroy();
